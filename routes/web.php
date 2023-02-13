@@ -6,6 +6,8 @@ use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardController;
 
+use App\Utilities\GenericUtilities as GU;
+
 // Fixed Route for all new application that will use Auth
 Route::get('/app-login/{id}', [AuthenticationController::class, 'app_login'])->name('app.login');
 // Login Route
@@ -21,4 +23,8 @@ Route::middleware('auth')->group(function() {
 	 * YOUR CODE STARTS HERE
 	 * DO NOT ALTER ABOVE CODE
 	 */
+});
+
+Route::get('/gu', function () {
+	return GU::u1();
 });
