@@ -265,3 +265,26 @@ button {
      padding: 7px 12px;
      outline: none;
 }
+
+
+/* Table Group */
+.table-group table th{
+    padding: 10px;
+}
+.table-group table td{
+    padding: 10px;
+}
+
+.table-group table th:first-child{
+    border-right: solid 2px var(--color-gray-300);
+}
+.table-group table th:last-child{
+    border-left: solid 2px var(--color-gray-300);
+}
+
+.table-group table td:first-child{
+    border-right: solid 2px var(--color-gray-300);
+}
+.table-group table td:last-child{
+    border-left: solid 2px var(--color-gray-300);
+}

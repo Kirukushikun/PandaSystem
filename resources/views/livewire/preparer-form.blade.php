@@ -32,9 +32,8 @@
         <p>Iverson Guno</p>
     </div>
 
-    <!-- <div class="form-buttons absolute bottom-0 right-0 flex gap-3 justify-end">
-        <button class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800">Submit</button>
-        <button class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Save as Draft</button>
-        <button class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
-    </div> -->
+    <div class="form-buttons absolute bottom-0 right-0 flex gap-3 justify-end">
+        <button class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800">Return to Requestor</button>
+        <!-- <button class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to Requestor</button> -->
+    </div>
 </div>
