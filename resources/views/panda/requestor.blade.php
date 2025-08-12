@@ -13,78 +13,26 @@
     </div>
 
     <!-- Layout -->
-    <div class="layout">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <a href="#content-block-1"><div></div><i class="fa-solid fa-table"></i></a>
-            <a href="#content-block-2"><div></div><i class="fa-solid fa-file-invoice"></i></a>
-            <!-- <a href="#content-block-3"><div></div><p>3</p></a> -->
-        </aside>
+     <div class="layout">
+          
+          <!-- Sidebar -->
+          <aside class="sidebar">
+               <a href="#content-block-1"><div></div><i class="fa-solid fa-table"></i></a>
+               <a href="#content-block-2"><div></div><i class="fa-solid fa-file-invoice"></i></a>
+          </aside>
 
-        <!-- Content Area -->
-        <main class="content">
-            <section class="content-block" id="content-block-1">
-               <h1 class="text-[22px]">My Requests</h1>
-               <div class="table-container">
-                    <table>
-                         <thead>
-                              <tr>
-                                   <th>Request No</th>
-                                   <th>Employee Name</th>
-                                   <th>Type of Action</th>
-                                   <th>Date Submitted</th>
-                                   <th>Status</th>
-                                   <th>Last Update</th>
-                                   <th>Action</th>
-                              </tr>
-                         </thead>
-                         <tbody>
-                              @php
-                                   $statuses = [
-                                        'Draft' => 'bg-gray-100 text-gray-500',
-                                        'For Prep' => 'bg-blue-100 text-blue-500',
-                                        'Returned' => 'bg-yellow-100 text-yellow-500',
-                                        'For Approval' => 'bg-orange-100 text-orange-500',
-                                        'Rejected' => 'bg-red-100 text-red-500',
-                                        'Approved' => 'bg-green-100 text-green-500',
-                                   ];
-                              @endphp
-                              @for($i = 0; $i < 9; $i++)
-                                   @php
-                                        $statusText = array_rand($statuses);
-                                        $statusColor = $statuses[$statusText];
-                                   @endphp
-                                   <tr>
-                                        <td>PAN-2025-001</td>
-                                        <td>Juan Dela Cruz</td>
-                                        <td>Promotion</td>
-                                        <td>09/12/2025</td>
-                                        <td>
-                                             <div class="status-tag {{ $statusColor }}">{{ $statusText }}</div>
-                                        </td>
-                                        <td>09/12/2025</td>
-                                        <td class="table-actions">
-                                             <button class="bg-blue-600 text-white">View</button>
-                                             <i class="fa-solid fa-box-archive"></i>
-                                        </td>
-                                   </tr>
-                              @endfor
-                         </tbody>
-                    </table>
-               </div>
-               <div class="pagination-container">
-                    Hello
-               </div>
-            </section>
-            <section class="content-block" id="content-block-2">
-               <h1 class="text-[22px]">Request Form</h1>
+          <!-- Content Area -->
+          <main class="content">
+
+               <livewire:requestor-table />
+
                <livewire:requestor-form />
-            </section>
-            <section class="content-block" id="content-block-3">
+
+               <!-- <section class="content-block" id="content-block-3">
                Content-block 3
-            </section>
-        </main>
-    </div>
+               </section> -->
+          </main>
+     </div>
 
      <script>
           document.addEventListener("DOMContentLoaded", function () {

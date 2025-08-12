@@ -30,8 +30,10 @@ Route::get('/requestor', function(){
 	return view('panda.requestor');
 });
 
-
 Route::get('/preparer', function(){
 	return view('panda.preparer');
 });
 
+Route::get('testing', function(){
+	return view('testing');
+});

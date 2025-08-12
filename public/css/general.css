@@ -123,16 +123,17 @@ body {
 
 /* Custom Scrollbar */
 .table-container::-webkit-scrollbar {
-    height: 12px !important; 
+    height: 15px; 
+    width: 15px;
 }
 .table-container::-webkit-scrollbar-track {
-    background: var(--scrollbar-track) !important;
-    border-radius: 5px !important;
+    background: var(--scrollbar-track);
+    border-radius: 5px;
 }
 .table-container::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb) !important;
-    border-radius: 5px !important;
-    cursor: pointer !important;
+    background: var(--scrollbar-thumb);
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 /* Table Styles */
@@ -272,7 +273,7 @@ button {
     padding: 10px;
 }
 .table-group table td{
-    padding: 10px;
+    padding: 10px 0;
 }
 
 .table-group table th:first-child{

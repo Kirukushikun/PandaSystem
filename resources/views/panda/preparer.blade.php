@@ -123,11 +123,26 @@
                                              <td class="border-t-2 border-gray-300">
                                                   <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
                                              </td>
-                                             <td class="border-t-2 border-gray-300 text-center font-medium text-blue-500">+Add Allowance</td>
+                                             <td class="border-t-2 border-gray-300 text-center font-medium">
+                                                  <select name="" id="" class="w-full border-none focus:ring-0 text-center outline-none">
+                                                       <option value="">Meal Allowance</option>
+                                                       <option value="">Transportation Allowance</option>
+                                                  </select>
+                                             </td>
                                              <td class="border-t-2 border-gray-300">
                                                   <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
                                              </td>
                                         </tr>
+                                        <tr>
+                                             <td class="border-t-2 border-gray-300">
+                                                  <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                             </td>
+                                             <td class="border-t-2 border-gray-300 text-center font-medium text-blue-500">+ Add Allowance</td>
+                                             <td class="border-t-2 border-gray-300">
+                                                  <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                             </td>
+                                        </tr>
+
                                    </tbody>
                               </table>
                          </div>

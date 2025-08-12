@@ -23,10 +23,11 @@
         <textarea name="" id="" class="w-full h-50 resize-none"></textarea>
     </div>
 
-    <div class="input-group">
-        <label for="">Supporting Files:</label>
-        <input class="block object-fit text-md text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50" id="multiple_files" type="file" multiple>
+    <div class="file-group flex flex-col gap-2">
+        <label for="" class="text-[18px]">Supporting Files:</label>
+        <input class="block w-full text-sm text-gray-500 border border-1 border-gray-600 rounded-md cursor-pointer bg-gray-50 focus:outline-none" id="file_input" type="file">
     </div>
+    
     <div class="input-group">
         <label for="">Requested By:</label>
         <p>Iverson Guno</p>
