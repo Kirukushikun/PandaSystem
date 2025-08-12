@@ -3,3 +3,25 @@
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
+
+
+/* CSS-first theme variables (Tailwind v4) — defining a full primary scale */
+@theme {
+  --color-primary: #1E73BE; /* Base primary color */
+  --color-primary-50:  #f2f8fc;
+  --color-primary-100: #dcebf7;
+  --color-primary-200: #b9d7ef;
+  --color-primary-300: #9cc5e7;
+  --color-primary-400: #5b9ed5;
+  --color-primary-500: #347fbf;
+  --color-primary-600: #1E73BE;
+  --color-primary-700: #185b96;
+  --color-primary-800: #124474;
+  --color-primary-900: #0c2d4f;
+}
+
+@layer base {
+  body {
+    color: #1C1C1C; /* Global text color */
+  }
+}

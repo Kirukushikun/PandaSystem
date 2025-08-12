@@ -20,12 +20,18 @@ Route::middleware('auth')->group(function() {
 	// Dash/Dashboard
 	Route::get('/', [DashboardController::class, 'dash'])->name('dash');
 
-	/**
-	 * YOUR CODE STARTS HERE
-	 * DO NOT ALTER ABOVE CODE
-	 */
 });
 
 Route::get('/gs', function () {
 	return GS::service1();
 });
+
+Route::get('/requestor', function(){
+	return view('panda.requestor');
+});
+
+
+Route::get('/preparer', function(){
+	return view('panda.preparer');
+});
+

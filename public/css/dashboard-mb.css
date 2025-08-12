@@ -1,0 +1,31 @@
+/* Content */
+.content {
+    width: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding-right: 20px;
+    scroll-behavior: smooth;
+}
+.content::-webkit-scrollbar {
+    width: 15px;
+}
+.content::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 6px;
+}
+.content::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* Content Blocks */
+.content-block {
+    padding: 40px;
+    background-color: var(--container-color);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
