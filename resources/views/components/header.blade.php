@@ -1,5 +1,14 @@
 <div class="header">
-    <i class="fa-solid fa-fire logo"></i>
-    <h2>STARTER DASHBOARD</h2>
-    <i class="fa-solid fa-right-from-bracket exit-icon"></i>
+    <div class="logo flex items-center">
+        <img src="{{asset('BGC-logo.png')}}" alt="">
+        <h2 class="whitespace-nowrap">| PANDA</h2>
+    </div>
+    
+    <div class="profile flex items-center gap-3">
+        <div class="details text-right text-sm">
+            <div class="name">Iverson Guno</div>
+            <div class="email">iversonguno@bgcgroup.ph</div>
+        </div>
+        <i class="fa-solid fa-circle-user text-[35px] cursor-pointer"></i>
+    </div>
 </div>

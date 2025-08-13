@@ -35,10 +35,18 @@ Route::get('/preparer', function(){
 	return view('panda.preparer');
 });
 
+Route::get('/approver', function(){
+	return view('panda.approver');
+});
+
 // Viewing Entry Page
 
 Route::get('/preparer-view', function(){
 	return view('panda.preparer-view');
+});
+
+Route::get('/approver-view', function(){
+	return view('panda.approver-view');
 });
 
 Route::get('testing', function(){

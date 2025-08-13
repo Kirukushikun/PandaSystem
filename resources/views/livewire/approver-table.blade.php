@@ -1,5 +1,5 @@
 <section class="content-block" id="content-block-1">
-    <h1 class="text-[22px]">My Requests</h1>
+    <h1 class="text-[22px]">Approval Requests</h1>
     <div class="table-container">
         <table>
             <thead>
@@ -7,8 +7,10 @@
                     <th>Request No</th>
                     <th>Employee Name</th>
                     <th>Type of Action</th>
-                    <th>Date Submitted</th>
+                    <th>Requested By</th>
+                    <th>Prepared By</th>
                     <th>Status</th>
+                    <th>Date Submitted</th>
                     <th>Last Update</th>
                     <th>Action</th>
                 </tr>
@@ -33,14 +35,16 @@
                         <td>PAN-2025-001</td>
                         <td>Juan Dela Cruz</td>
                         <td>Promotion</td>
-                        <td>09/12/2025</td>
+                        <td>Chris Bacon</td>
+                        <td>John Doe</td>
                         <td>
-                                <div class="status-tag {{ $statusColor }}">{{ $statusText }}</div>
+                            <div class="status-tag {{ $statusColor }}">{{ $statusText }}</div>
                         </td>
                         <td>09/12/2025</td>
+                        <td>09/12/2025</td>
                         <td class="table-actions">
-                                <button class="bg-blue-600 text-white">View</button>
-                                <i class="fa-solid fa-box-archive"></i>
+                            <button class="bg-blue-600 text-white" onclick="window.location.href='/approver-view'">View</button>
+                            <i class="fa-solid fa-box-archive"></i>
                         </td>
                     </tr>
                 @endfor
