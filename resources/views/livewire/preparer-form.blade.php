@@ -33,7 +33,16 @@
 
         <div class="file-group flex flex-col gap-2">
             <label for="" class="text-[18px]">Supporting Files:</label>
-            <input class="block w-full text-sm text-gray-500 border border-1 border-gray-600 rounded-md cursor-pointer bg-gray-50 focus:outline-none" id="file_input" type="file">
+            <div class="flex w-full border border-gray-600 rounded-md overflow-hidden text-sm">
+                <!-- Button -->
+                <button class="bg-gray-600 text-white px-4 py-2.5 cursor-pointer hover:bg-gray-500">
+                    View File
+                </button>
+                <!-- File Name -->
+                <div class="flex-1 bg-gray-50 text-gray-500 px-4 py-2.5">
+                    sample_document.pdf
+                </div>
+            </div>
         </div>
         
         <div class="input-group">

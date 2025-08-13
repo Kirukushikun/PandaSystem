@@ -39,7 +39,7 @@
                         </td>
                         <td>09/12/2025</td>
                         <td class="table-actions">
-                                <button class="bg-blue-600 text-white">View</button>
+                                <button class="bg-blue-600 text-white" onclick="window.location.href='/requestor-view'">View</button>
                                 <i class="fa-solid fa-box-archive"></i>
                         </td>
                     </tr>

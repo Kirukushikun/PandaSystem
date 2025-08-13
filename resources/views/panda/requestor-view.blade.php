@@ -12,7 +12,7 @@
     <div class="layout">
         <!-- Sidebar -->
         <aside class="sidebar">
-               <a href="/approver"><div></div><i class="fa-solid fa-arrow-right-from-bracket rotate-180"></i></a>
+               <a href="/requestor"><div></div><i class="fa-solid fa-arrow-right-from-bracket rotate-180"></i></a>
                <a href="#content-block-1" class="active"><div></div><p>RF</p></a>
                <a href="#content-block-2"><div></div><p>PF</p></a>
                <a href="#content-block-3"><div></div><i class="fa-solid fa-file-pen"></i></a>
@@ -70,6 +70,12 @@
                          <div class="input-group">
                               <label for="">Requested By:</label>
                               <p>Iverson Guno</p>
+                         </div>
+
+                         <div class="form-buttons absolute bottom-0 right-0 flex gap-3 justify-end">
+                              <button class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800">Resubmit to HR</button>
+                              <!-- <button class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reject</button>
+                              <button class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to HR</button> -->
                          </div>
                     </div>
                </section>
@@ -198,16 +204,16 @@
                               <textarea name="" id="" class="w-full h-30 resize-none"></textarea>
                          </div>
 
-                         <div class="input-group">
+                         <!-- <div class="input-group">
                               <label for="">Prepared By:</label>
                               <p>Iverson Guno</p>
-                         </div>
+                         </div> -->
 
-                         <div class="form-buttons absolute bottom-0 right-0 flex gap-3 justify-end">
-                              <button class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800">Approve</button>
+                         <!-- <div class="form-buttons absolute bottom-0 right-0 flex gap-3 justify-end">
+                              <button class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800">Resubmit to HR</button>
                               <button class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reject</button>
                               <button class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to HR</button>
-                         </div>
+                         </div> -->
                     </div>
                </section>
                

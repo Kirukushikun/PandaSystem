@@ -240,7 +240,7 @@ tbody td:last-child {
      font-weight: 400;
      width: fit-content;
 }
-button {
+.form-buttons button {
      padding: 6px 15px;
      border-radius: 7px;
      cursor: pointer;

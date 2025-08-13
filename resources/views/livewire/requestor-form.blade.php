@@ -1,5 +1,5 @@
 
-<section class="content-block" id="content-block-2">
+<section class="content-block h-full" id="content-block-2">
     <h1 class="text-[22px]">Request Form</h1>
     <div class="form-container relative flex flex-col gap-5 h-full">
         <div class="input-fields grid grid-cols-4 gap-4">

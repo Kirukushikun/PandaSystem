@@ -40,6 +40,9 @@ Route::get('/approver', function(){
 });
 
 // Viewing Entry Page
+Route::get('/requestor-view', function(){
+	return view('panda.requestor-view');
+});
 
 Route::get('/preparer-view', function(){
 	return view('panda.preparer-view');
