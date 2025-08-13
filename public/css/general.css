@@ -22,8 +22,6 @@
 
 * {
     font-family: "Lexend", sans-serif;
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
     /* color: var(--text-color); */
     transition: 0.3s ease;
@@ -273,7 +271,7 @@ button {
     padding: 10px;
 }
 .table-group table td{
-    padding: 10px 0;
+    padding: 2px 0;
 }
 
 .table-group table th:first-child{

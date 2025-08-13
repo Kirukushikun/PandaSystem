@@ -26,12 +26,19 @@ Route::get('/gs', function () {
 	return GS::service1();
 });
 
+// Landing Page
 Route::get('/requestor', function(){
 	return view('panda.requestor');
 });
 
 Route::get('/preparer', function(){
 	return view('panda.preparer');
+});
+
+// Viewing Entry Page
+
+Route::get('/preparer-view', function(){
+	return view('panda.preparer-view');
 });
 
 Route::get('testing', function(){
