@@ -52,6 +52,11 @@ Route::get('/approver-view', function(){
 	return view('panda.approver-view');
 });
 
+// Admin
+Route::get('/admin', function(){
+	return view('admin.admin');
+});
+
 Route::get('testing', function(){
 	return view('testing');
 });

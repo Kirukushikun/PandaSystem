@@ -1,5 +1,14 @@
 <section class="content-block" id="content-block-1">
-    <h1 class="text-[22px]">Approval Requests</h1>
+    <div class="table-header flex w-full gap-3 items-center">
+        <h1 class="text-[22px] flex-none">Approval Requests</h1>
+        <div class="search-bar flex items-center flex-initial w-sm px-5 py-2 ml-auto border-solid border-2 border-gray-300 bg-gray-100 rounded-lg">
+            <input type="text" class="search-input bg-gray-100 p-0 w-full border-none outline-none focus:ring-0" placeholder="Search...">
+            <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
+        </div>
+        <select name="sortby" id="sortby" class="sortby flex-none border-solid border-2 border-gray-300 bg-gray-200 rounded-md">
+            <option value="">Sort By</option>
+        </select>
+    </div>
     <div class="table-container">
         <table>
             <thead>

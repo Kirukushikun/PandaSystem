@@ -22,7 +22,7 @@
           <main class="content">
                <section class="content-block relative" id="content-block-1">
                     <div class="form-buttons absolute top-[35px] right-[40px] flex gap-3 justify-end">
-                         <div class="request-status bg-blue-100 text-blue-500">For Prep</div>
+                         <div class="request-status bg-yellow-100 text-yellow-500">Returned</div>
                          <!-- <button class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to Requestor</button> -->
                     </div>
 
@@ -174,12 +174,7 @@
                                                   <td class="border-t-2 border-gray-300">
                                                        <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
                                                   </td>
-                                                  <td class="border-t-2 border-gray-300 text-center font-medium">
-                                                       <select name="" id="" class="w-full border-none focus:ring-0 text-center outline-none p-0">
-                                                            <option value="">Meal Allowance</option>
-                                                            <option value="">Transportation Allowance</option>
-                                                       </select>
-                                                  </td>
+                                                  <td class="border-t-2 border-gray-300 text-center">Meal Allowance</td>
                                                   <td class="border-t-2 border-gray-300">
                                                        <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
                                                   </td>
@@ -188,12 +183,11 @@
                                                   <td class="border-t-2 border-gray-300">
                                                        <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
                                                   </td>
-                                                  <td class="border-t-2 border-gray-300 text-center font-medium text-blue-500">+ Add Allowance</td>
+                                                  <td class="border-t-2 border-gray-300 text-center">Transportation Allowance</td>
                                                   <td class="border-t-2 border-gray-300">
                                                        <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
                                                   </td>
                                              </tr>
-
                                         </tbody>
                                    </table>
                               </div>

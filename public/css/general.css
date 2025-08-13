@@ -36,6 +36,22 @@ body {
     gap: 20px;
 }
 
+@media(max-width:1800px){
+    body{
+
+        padding: 40px 10%;
+
+    }
+}
+
+@media(max-width:1400px){
+    body{
+
+        padding: 40px 5%;
+
+    }
+}
+
 /* Header */
 .header {
     display: flex;

@@ -10,8 +10,8 @@
      <meta name="csrf-token" content="{{ csrf_token() }}">     
 
      <!-- Styling -->
-     @fluxAppearance
      @vite(['resources/css/app.css'])
+     @fluxAppearance
      <link rel="stylesheet" href="{{ asset('css/general.css') }} ">
      @stack('styles')
      <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
