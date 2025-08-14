@@ -18,3 +18,15 @@
     gap: 20px;
     height: 100%;
 }
+.content-block::-webkit-scrollbar {
+    width: 15px;
+}
+.content-block::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 6px;
+}
+.content-block::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 6px;
+    cursor: pointer;
+}

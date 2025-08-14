@@ -271,6 +271,7 @@ tbody td:last-child {
 }
 .input-group label{
      font-size: 18px;
+     white-space: nowrap;
 }
 .input-group input, .input-group textarea, .input-group select{
      border: solid;

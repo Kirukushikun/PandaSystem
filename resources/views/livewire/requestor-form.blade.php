@@ -1,8 +1,8 @@
 
-<section class="content-block h-full" id="content-block-2">
+<section class="content-block h-full overflow-x-auto" id="content-block-2">
     <h1 class="text-[22px]">Request Form</h1>
     <div class="form-container relative flex flex-col gap-5 h-full">
-        <div class="input-fields grid grid-cols-4 gap-4">
+        <div class="input-fields grid grid-cols md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="input-group">
                 <label for="">Employee Name:</label>
                 <input type="text">
@@ -61,7 +61,7 @@
         <div x-data="{ showModal: false, modalMessage: '' }">
 
             <!-- Buttons -->
-            <div class="form-buttons absolute bottom-0 right-0 flex gap-3 justify-end">
+            <div class="form-buttons bottom-0 right-0 flex gap-3 justify-end mb-10 md:mb-0 md:absolute">
                 <button @click="modalMessage = 'Are you sure you want to submit?'; showModal = true" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit</button>
                 <button @click="modalMessage = 'Save this as a draft?'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Save as Draft</button>
                 <button @click="modalMessage = 'Reset the form?'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
