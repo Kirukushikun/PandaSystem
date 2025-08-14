@@ -272,7 +272,7 @@ tbody td:last-child {
 .input-group label{
      font-size: 18px;
 }
-.input-group input, .input-group textarea{
+.input-group input, .input-group textarea, .input-group select{
      border: solid;
      border-radius: 7px;
      border-color: var(--color-gray-400);

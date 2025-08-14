@@ -10,25 +10,25 @@
         <div class="input-fields grid grid-cols-4 gap-4">
             <div class="input-group">
                 <label for="">Employee Name:</label>
-                <input type="text">
+                <input type="text" readonly>
             </div>
             <div class="input-group">
                 <label for="">Employee ID:</label>
-                <input type="text">
+                <input type="text" readonly>
             </div>
             <div class="input-group">
                 <label for="">Department:</label>
-                <input type="text">
+                <input type="text" readonly>
             </div>
             <div class="input-group">
                 <label for="">Type of Action:</label>
-                <input type="text">
+                <input type="text" readonly>
             </div>
         </div>
 
         <div class="input-group h-full">
             <label for="">Justification:</label>
-            <textarea name="" id="" class="w-full h-50 resize-none"></textarea>
+            <textarea name="" id="" class="w-full h-50 resize-none" readonly></textarea>
         </div>
 
         <div class="file-group flex flex-col gap-2">

@@ -32,25 +32,25 @@
                          <div class="input-fields grid grid-cols-4 gap-4">
                               <div class="input-group">
                                    <label for="">Employee Name:</label>
-                                   <input type="text">
+                                   <input type="text" readonly>
                               </div>
                               <div class="input-group">
                                    <label for="">Employee ID:</label>
-                                   <input type="text">
+                                   <input type="text" readonly>
                               </div>
                               <div class="input-group">
                                    <label for="">Department:</label>
-                                   <input type="text">
+                                   <input type="text" readonly>
                               </div>
                               <div class="input-group">
                                    <label for="">Type of Action:</label>
-                                   <input type="text">
+                                   <input type="text" readonly>
                               </div>
                          </div>
 
                          <div class="input-group h-full">
                               <label for="">Justification:</label>
-                              <textarea name="" id="" class="w-full h-50 resize-none"></textarea>
+                              <textarea name="" id="" class="w-full h-50 resize-none" readonly></textarea>
                          </div>
 
                          <div class="file-group flex flex-col gap-2">
@@ -80,19 +80,19 @@
                          <div class="input-fields grid grid-cols-4 gap-4">
                               <div class="input-group">
                                    <label for="">Date Hired:</label>
-                                   <input type="date">
+                                   <input type="date" readonly>
                               </div>
                               <div class="input-group">
                                    <label for="">Employement Status:</label>
-                                   <input type="text">
+                                   <input type="text" readonly>
                               </div>
                               <div class="input-group">
                                    <label for="">Division:</label>
-                                   <input type="text">
+                                   <input type="text" readonly>
                               </div>
                               <div class="input-group">
                                    <label for="">Date of Effectivity:</label>
-                                   <input type="date">
+                                   <input type="date" readonly>
                               </div>
                          </div>
 
@@ -112,65 +112,65 @@
                                         <tbody>
                                              <tr>
                                                   <td class="border-t-2 border-gray-300">
-                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" readonly />
                                                   </td>
                                                   <td class="border-t-2 border-gray-300 text-center">Section</td>
                                                   <td class="border-t-2 border-gray-300">
-                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" readonly />
                                                   </td>
                                              </tr>
                                              <tr>
                                                   <td class="border-t-2 border-gray-300">
-                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" readonly />
                                                   </td>
                                                   <td class="border-t-2 border-gray-300 text-center">Place of Assignment</td>
                                                   <td class="border-t-2 border-gray-300">
-                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" readonly />
                                                   </td>
                                              </tr>
                                              <tr>
                                                   <td class="border-t-2 border-gray-300">
-                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" readonly />
                                                   </td>
                                                   <td class="border-t-2 border-gray-300 text-center">Immediate Head</td>
                                                   <td class="border-t-2 border-gray-300">
-                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" readonly />
                                                   </td>
                                              </tr>
                                              <tr>
                                                   <td class="border-t-2 border-gray-300">
-                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" readonly />
                                                   </td>
                                                   <td class="border-t-2 border-gray-300 text-center">Position</td>
                                                   <td class="border-t-2 border-gray-300">
-                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" readonly />
                                                   </td>
                                              </tr>
                                              <tr>
                                                   <td class="border-t-2 border-gray-300">
-                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" readonly />
                                                   </td>
                                                   <td class="border-t-2 border-gray-300 text-center">Job Level</td>
                                                   <td class="border-t-2 border-gray-300">
-                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" readonly />
                                                   </td>
                                              </tr>
                                              <tr>
                                                   <td class="border-t-2 border-gray-300">
-                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" readonly />
                                                   </td>
                                                   <td class="border-t-2 border-gray-300 text-center">Basic</td>
                                                   <td class="border-t-2 border-gray-300">
-                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" readonly />
                                                   </td>
                                              </tr>
                                              <tr>
                                                   <td class="border-t-2 border-gray-300">
-                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" readonly />
                                                   </td>
                                                   <td class="border-t-2 border-gray-300 text-center">Meal Allowance</td>
                                                   <td class="border-t-2 border-gray-300">
-                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
+                                                       <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" readonly />
                                                   </td>
                                              </tr>
                                         </tbody>
@@ -180,7 +180,7 @@
 
                          <div class="input-group">
                               <label for="">Remarks and Other Consideration:</label>
-                              <textarea name="" id="" class="w-full h-30 resize-none"></textarea>
+                              <textarea name="" id="" class="w-full h-30 resize-none" readonly></textarea>
                          </div>
 
                          <div class="input-group">

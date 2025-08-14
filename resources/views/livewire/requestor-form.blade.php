@@ -13,11 +13,33 @@
             </div>
             <div class="input-group">
                 <label for="">Department:</label>
-                <input type="text">
+                <select name="" id="">
+                    <option value="">Select department</option>
+                    <option value="">FEEDMILL</option>
+                    <option value="">FOC</option>
+                    <option value="">GENERAL SERVICES</option>
+                    <option value="">HR</option>
+                    <option value="">IT & SECURITY</option>
+                    <option value="">POULTRY</option>
+                    <option value="">PURCHASING</option>
+                    <option value="">SALES & MARKETING</option>
+                    <option value="">SWINE</option>
+                </select>
             </div>
             <div class="input-group">
                 <label for="">Type of Action:</label>
-                <input type="text">
+                <select name="" id="">
+                    <option value="">Select type</option>
+                    <option value="">Regularization</option>
+                    <option value="">Salary Alignment</option>
+                    <option value="">Wage Order</option>
+                    <option value="">Lateral Transfer</option>
+                    <option value="">Developmental Assignment</option>
+                    <option value="">Interim Allowance</option>
+                    <option value="">Promotion</option>
+                    <option value="">Training Status</option>
+                    <option value="">Confirmation of Appointment</option>
+                </select>
             </div>
         </div>
 
