@@ -188,10 +188,39 @@
                               <p>Iverson Guno</p>
                          </div>
 
-                         <div class="form-buttons absolute bottom-0 right-0 flex gap-3 justify-end">
-                              <button class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800">Approve</button>
-                              <button class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reject</button>
-                              <button class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to HR</button>
+                         <!-- Alpine instance -->
+                         <div x-data="{ showModal: false, modalMessage: '' }">
+
+                              <!-- Buttons -->
+                              <div class="form-buttons absolute bottom-0 right-0 flex gap-3 justify-end">
+                                   <button @click="modalMessage = 'Are you sure you want to submit?'; showModal = true" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Approve</button>
+                                   <button @click="modalMessage = 'Save this as a draft?'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reject</button>
+                                   <button @click="modalMessage = 'Reset the form?'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to HR</button>
+                              </div>
+
+                              <!-- Overlay (instant) -->
+                              <div x-show="showModal" class="fixed inset-0 bg-black/50 z-40"></div>
+
+                              <!-- Modal box (with transition) -->
+                              <div
+                                   x-show="showModal"
+                                   x-transition:enter="transition ease-out duration-200"
+                                   x-transition:enter-start="opacity-0 scale-90"
+                                   x-transition:enter-end="opacity-100 scale-100"
+                                   x-transition:leave="transition ease-in duration-150"
+                                   x-transition:leave-start="opacity-100 scale-100"
+                                   x-transition:leave-end="opacity-0 scale-90"
+                                   class="fixed inset-0 flex items-center justify-center z-50"
+                              >
+                                   <div class="bg-white p-6 rounded-lg shadow-lg w-96 z-10">
+                                        <h2 class="text-lg font-semibold mb-4">Confirmation</h2>
+                                        <p class="mb-6" x-text="modalMessage"></p>
+                                        <div class="flex justify-end gap-3">
+                                        <button @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
+                                        <button @click="showModal = false" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
+                                        </div>
+                                   </div>
+                              </div>
                          </div>
                     </div>
                </section>
