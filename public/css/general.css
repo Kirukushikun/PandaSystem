@@ -274,12 +274,14 @@ tbody td:last-child {
      white-space: nowrap;
 }
 .input-group input, .input-group textarea, .input-group select{
-     border: solid;
+     border: 2px solid var(--color-gray-400);
      border-radius: 7px;
-     border-color: var(--color-gray-400);
-     border-width: 2px;
      padding: 7px 12px;
      outline: none;
+}
+
+.input-group input.error, .input-group select.error{
+     border: 3px solid var(--color-red-400);
 }
 
 

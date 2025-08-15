@@ -33,32 +33,41 @@
                                 <th class="w-1/3 border-gray-300 text-center">To</th>
                             </tr>
                     </thead>
-                    <tbody id="pan-tbody" 
+                    <tbody id="pan-tbody"
                         x-data="{
                             allowances: [],
                             allOptions: [
-                            'Communication Allowance',
-                            'Meal Allowance',
-                            'Living Allowance',
-                            'Transportation Allowance',
-                            'Clothing Allowance',
-                            'Fuel Allowance',
-                            'Management Allowance',
-                            'Developmental Assignments',
-                            'Professional Allowance',
-                            'Interim Allowance',
-                            'Training Allowance',
-                            'Mancom Allowance'
+                                'Communication Allowance',
+                                'Meal Allowance',
+                                'Living Allowance',
+                                'Transportation Allowance',
+                                'Clothing Allowance',
+                                'Fuel Allowance',
+                                'Management Allowance',
+                                'Developmental Assignments',
+                                'Professional Allowance',
+                                'Interim Allowance',
+                                'Training Allowance',
+                                'Mancom Allowance'
                             ],
+                            addAllowance() {
+                                this.allowances.push({
+                                    id: Date.now() + Math.random(), // unique ID
+                                    value: ''
+                                });
+                            },
                             updateAllowance(index, value) {
-                            this.allowances[index] = value;
+                                this.allowances[index].value = value;
                             },
                             getAvailableOptions(index) {
-                            return this.allOptions.filter(opt => 
-                                !this.allowances.includes(opt) || this.allowances[index] === opt
-                            );
+                                return this.allOptions.filter(opt =>
+                                    !this.allowances.map(a => a.value).includes(opt) ||
+                                    this.allowances[index].value === opt
+                                );
                             }
-                        }">
+                        }"
+                    >
+
 
                         <tr>
                             <td class="border-t-2 border-gray-300">
@@ -115,22 +124,22 @@
                             </td>
                         </tr>
                         <!-- Allowance rows -->
-                        <template x-for="(allowance, index) in allowances" :key="index">
+                        <template x-for="(allowance, index) in allowances" :key="allowance.id">
                             <tr>
                                 <td class="border-t-2 border-gray-300">
                                     <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" />
                                 </td>
                                 <td class="border-t-2 relative border-gray-300 text-center font-medium">
                                     <i class="fa-regular fa-trash-can absolute left-[10px] top-[15px] cursor-pointer text-red-600 hover:scale-110"
-                                    @click="allowances.splice(index, 1)">
+                                        @click="allowances.splice(index, 1)">
                                     </i>
                                     <select class="w-full border-none focus:ring-0 text-center outline-none p-0"
-                                            x-model="allowances[index]"
+                                            x-model="allowance.value"
                                             @change="updateAllowance(index, $event.target.value)">
-                                    <option value="">Select Allowance</option>
-                                    <template x-for="opt in getAvailableOptions(index)" :key="opt">
-                                        <option x-text="opt"></option>
-                                    </template>
+                                        <option value="">Select Allowance</option>
+                                        <template x-for="opt in getAvailableOptions(index)" :key="opt">
+                                            <option x-text="opt"></option>
+                                        </template>
                                     </select>
                                 </td>
                                 <td class="border-t-2 border-gray-300">
@@ -138,12 +147,13 @@
                                 </td>
                             </tr>
                         </template>
+                        <!-- Add allowance row -->
                         <tr>
                             <td class="border-t-2 border-gray-300">
                                 <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" disabled/>
                             </td>
                             <td class="border-t-2 border-gray-300 text-center font-medium">
-                                <div class="text-blue-500 cursor-pointer hover:scale-105" @click="allowances.push('')">+ Add Allowance</div>
+                                <div class="text-blue-500 cursor-pointer hover:scale-105" @click="addAllowance()">+ Add Allowance</div>
                             </td>
                             <td class="border-t-2 border-gray-300">
                                 <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" disabled/>
