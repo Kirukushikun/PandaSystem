@@ -23,7 +23,7 @@
                <livewire:requestor-table />
 
                <section class="content-block overflow-x-hidden" id="content-block-2">
-                    <livewire:requestor-form />
+                    <livewire:requestor-form mode="create" />
                </section>
 
                <!-- <section class="content-block" id="content-block-3">

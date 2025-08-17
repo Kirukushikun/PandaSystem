@@ -12,7 +12,18 @@ use App\Models\RequestorModel;
 class RequestorForm extends Component
 {      
     use WithFileUploads; // Use it
-    public $employee_name, $employee_id, $department, $type_of_action, $justification, $supporting_file;
+    public $request; //Entry Container
+    public $mode, $request_id; // Form State
+    public $employee_name, $employee_id, $department, $type_of_action, $justification, $supporting_file; // Form Fields
+
+    public function mount($mode = 'create', $request_id = null)
+    {
+        $this->mode = $mode;
+
+        if ($request_id) {
+            $this->request = RequestorModel::findOrFail($request_id);
+        }
+    }
 
     protected $rules = [
         'employee_name' => 'required|string',
@@ -23,6 +34,7 @@ class RequestorForm extends Component
         'supporting_file' => 'required|file|max:10240',
     ];
     
+    // Create Mode
     public function submitRequest(){
         $this->validate();
 
@@ -63,6 +75,15 @@ class RequestorForm extends Component
         $this->dispatch('requestSaved'); // Notify table
 
         return session()->flash('success', 'Request submitted successfully');
+    }
+
+    // View Mode
+    public function resubmitRequest($targetID){
+        Log::info($targetID);
+    }
+
+    public function withdrawRequest($targetID){
+        Log::info($targetID);
     }
     
 

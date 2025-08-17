@@ -40,7 +40,7 @@
                         <!-- <td>{{$request->updated_at->format('m/d/Y - h:i A')}}</td> -->
                          <td>{{$request->updated_at->format('m/d/Y')}}</td>
                         <td class="table-actions">
-                                <button class="bg-blue-600 text-white" onclick="window.location.href='/requestor-view?request={{$request->id}}'">View</button>
+                                <button class="bg-blue-600 text-white" onclick="window.location.href='/requestor-view?requestID={{$request->id}}'">View</button>
                                 <i class="fa-solid fa-box-archive"></i>
                         </td>
                     </tr>

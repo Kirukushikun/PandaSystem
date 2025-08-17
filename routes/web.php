@@ -2,12 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardController;
 
 use App\Utilities\GenericUtilities as GU;
 use App\Services\GenericServices as GS;
+
+use App\Models\RequestorModel;
 
 // Fixed Route for all new application that will use Auth
 Route::get('/app-login/{id}', [AuthenticationController::class, 'app_login'])->name('app.login');
@@ -40,8 +43,10 @@ Route::get('/approver', function(){
 });
 
 // Viewing Entry Page
-Route::get('/requestor-view', function(){
-	return view('panda.requestor-view');
+Route::get('/requestor-view', function(Request $request){
+	$requestID = $request->query('requestID');
+	$request = RequestorModel::findOrFail($requestID);
+	return view('panda.requestor-view', compact('request'));
 });
 
 Route::get('/preparer-view', function(){
