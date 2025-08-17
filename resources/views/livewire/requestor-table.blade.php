@@ -28,26 +28,23 @@
                         'Approved' => 'bg-green-100 text-green-600',
                     ];
                 @endphp
-                @for($i = 0; $i < 9; $i++)
-                    @php
-                        $statusText = array_rand($statuses);
-                        $statusColor = $statuses[$statusText];
-                    @endphp
+                @foreach($myRequests as $request)
                     <tr>
-                        <td>PAN-2025-001</td>
-                        <td>Juan Dela Cruz</td>
-                        <td>Promotion</td>
-                        <td>09/12/2025</td>
+                        <td>{{$request->request_no}}</td>
+                        <td>{{$request->employee_name}}</td>
+                        <td>{{$request->type_of_action ?? '--'}}</td>
+                        <td>{{$request->submitted_at ?? '--'}}</td>
                         <td>
-                                <div class="status-tag {{ $statusColor }}">{{ $statusText }}</div>
+                                <div class="status-tag {{ $statuses[$request->request_status] }}">{{$request->request_status}}</div>
                         </td>
-                        <td>09/12/2025</td>
+                        <!-- <td>{{$request->updated_at->format('m/d/Y - h:i A')}}</td> -->
+                         <td>{{$request->updated_at->format('m/d/Y')}}</td>
                         <td class="table-actions">
-                                <button class="bg-blue-600 text-white" onclick="window.location.href='/requestor-view'">View</button>
+                                <button class="bg-blue-600 text-white" onclick="window.location.href='/requestor-view?request={{$request->id}}'">View</button>
                                 <i class="fa-solid fa-box-archive"></i>
                         </td>
                     </tr>
-                @endfor
+                @endforeach
             </tbody>
         </table>
     </div>

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('requestor', function (Blueprint $table) {
             $table->id();
+            $table->string('request_no');
             $table->json('is_deleted_by')->nullable();
             $table->enum('request_status', [
                 'Draft', 
@@ -22,14 +23,14 @@ return new class extends Migration
                 'Returned to HR', 
                 'Approved', 
                 'Rejected'
-            ]);
-            $table->unsignedBigInteger('employee_id');
-            $table->string('employee_name');
-            $table->string('department');
-            $table->string('type_of_action'); // or enum if fixed set
+            ])->nullable();
+            $table->unsignedBigInteger('employee_id')->nullable();
+            $table->string('employee_name')->nullable();
+            $table->string('department')->nullable();
+            $table->string('type_of_action')->nullable(); // or enum if fixed set
             $table->text('justification')->nullable();
             $table->string('supporting_file_url')->nullable();
-            $table->string('requested_by');
+            $table->string('requested_by')->nullable();
             $table->timestamp('submitted_at')->nullable(); // Set upon submission
             $table->timestamps();
         });

@@ -4,18 +4,45 @@
     <!-- Alpine instance -->
     <div class="form-container relative flex flex-col gap-5 h-full" 
         x-data="{
-            validateBeforeModal(header, message) {
-                let fields = [
+            showModal: false,
+            showAction: false,
+
+            formAction: '',
+            modalHeader: '',
+            modalMessage: '',
+
+            // helper to collect all fields
+            get fields(){
+                return [
                     this.$refs.employee_name,
                     this.$refs.employee_id,
                     this.$refs.department,
                     this.$refs.type_of_action,
+                    this.$refs.justification,
                     this.$refs.supporting_file,
                 ];
+            },
+            
+            // Initialize their event listeners to a function
+            init() {
+                this.fields.forEach(field => {
+                    field.addEventListener('input', () => this.checkFields());
+                    field.addEventListener('change', () => this.checkFields()); // for file input
+                });
+            },
+
+            checkFields() {
+                this.showAction = this.fields.some(f => f.value?.trim() !== '');
+            },
+
+
+            validateBeforeModal(header, message) {
 
                 let hasEmpty = false;
 
-                fields.forEach(field => {
+                this.fields.forEach(field => {
+                    if (field.name === 'justification') return;
+
                     if (field.value.trim() === '') {
                         field.classList.add('!border-red-500'); // highlight
                         hasEmpty = true;
@@ -26,13 +53,20 @@
 
                 if (hasEmpty) return; // stop if any empty
 
+                this.showModal = true;
                 this.modalHeader = header;
                 this.modalMessage = message;
-                this.showModal = true;
+
             },
-            showModal: false,
-            modalHeader: '',
-            modalMessage: ''
+
+            resetForm(){
+                this.fields.forEach(field => {
+                    field.value = '';
+                    field.classList.remove('!border-red-500');
+                    this.checkFields();
+                });
+            }
+            
         }"
     >
     <!-- showModal: false, modalHeader: '', modalMessage: ''  -->
@@ -94,11 +128,10 @@
         </div>
 
         <!-- Buttons -->
-        <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-            <button type="button" @click="validateBeforeModal('Confirm Submission', 'Are you sure you want to submit this request for processing?')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit</button>
-            <!-- <button type="button" @click="modalHeader = 'Confirm Submission'; modalMessage = 'Are you sure you want to submit this request for processing?'; showModal = true" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit</button> -->
-            <button type="button" @click="modalHeader = 'Save Draft'; modalMessage = 'Do you want to save this request as a draft?'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Save as Draft</button>
-            <button type="button" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
+        <div disabled:="!showAction" x-show="showAction" class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+            <button type="button" @click="validateBeforeModal('Confirm Submission', 'Are you sure you want to submit this request for processing?'); formAction = 'submitRequest' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit</button>
+            <button type="button" @click="showModal = true; formAction = 'submitDraft'; modalHeader = 'Save Draft'; modalMessage = 'Do you want to save this request as a draft?' " class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Save as Draft</button>
+            <button type="button" @click="resetForm()" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
         </div>
 
         <!-- Overlay (instant) -->
@@ -120,7 +153,7 @@
                 <p class="mb-6" x-text="modalMessage"></p>
                 <div class="flex justify-end gap-3">
                     <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
-                    <button type="submit" @click="showModal = false" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
+                    <button type="button" @click="showModal = false; resetForm(); $wire[formAction]()" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
                 </div>
             </div>
         </div>
