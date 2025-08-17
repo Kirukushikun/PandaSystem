@@ -1,5 +1,5 @@
 
-<section class="content-block h-full overflow-x-auto" id="content-block-2">
+<form class="h-full pb-8" wire:submit.prevent="submitForm">
     <h1 class="text-[22px]">Request Form</h1>
     <!-- Alpine instance -->
     <div class="form-container relative flex flex-col gap-5 h-full" 
@@ -40,15 +40,15 @@
         <div class="input-fields grid grid-cols md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="input-group">
                 <label for="employee_name">Employee Name:</label>
-                <input type="text" name="employee_name" id="employee_name" x-ref="employee_name">
+                <input type="text" name="employee_name" id="employee_name" x-ref="employee_name" wire:model="employee_name">
             </div>
             <div class="input-group">
                 <label for="employee_id">Employee ID:</label>
-                <input type="text" name="employee_id" id="employee_id" x-ref="employee_id">
+                <input type="text" name="employee_id" id="employee_id" x-ref="employee_id" wire:model="employee_id">
             </div>
             <div class="input-group">
                 <label for="department">Department:</label>
-                <select name="department" id="department" x-ref="department" x-ref="department">
+                <select name="department" id="department" x-ref="department" x-ref="department" wire:model="department">
                     <option value="">Select department</option>
                     <option value="FEEDMILL">FEEDMILL</option>
                     <option value="FOC">FOC</option>
@@ -63,7 +63,7 @@
             </div>
             <div class="input-group">
                 <label for="type_of_action">Type of Action:</label>
-                <select name="type_of_action" id="type_of_action" x-ref="type_of_action">
+                <select name="type_of_action" id="type_of_action" x-ref="type_of_action" wire:model="type_of_action">
                     <option value="">Select type</option>
                     <option value="Regularization">Regularization</option>
                     <option value="Salary Alignment">Salary Alignment</option>
@@ -80,24 +80,25 @@
 
         <div class="input-group h-full">
             <label for="justification">Justification:</label>
-            <textarea name="justification" id="justification" class="w-full h-full resize-none" x-ref="justification"></textarea>
+            <textarea name="justification" id="justification" class="w-full h-full resize-none" x-ref="justification" wire:model="justification"></textarea>
         </div>
 
         <div class="file-group flex flex-col gap-2">
             <label for="supporting_file" class="text-[18px]">Supporting File:</label>
-            <input name="supporting_file" id="supporting_file" class="block w-full text-sm text-gray-500 border border-1 border-gray-600 rounded-md cursor-pointer bg-gray-50 focus:outline-none" type="file" x-ref="supporting_file">
+            <input name="supporting_file" id="supporting_file" class="block w-full text-sm text-gray-500 border border-1 border-gray-600 rounded-md cursor-pointer bg-gray-50 focus:outline-none" type="file" x-ref="supporting_file" wire:model="supporting_file">
         </div>
+
         <div class="input-group">
             <label>Requested By:</label>
             <p>Iverson Guno</p>
         </div>
 
         <!-- Buttons -->
-        <div class="form-buttons bottom-0 right-0 flex gap-3 justify-end mb-10 md:mb-0 md:absolute">
-            <button @click="validateBeforeModal('Confirm Submission', 'Are you sure you want to submit this request for processing?')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit</button>
-            <!-- <button @click="modalHeader = 'Confirm Submission'; modalMessage = 'Are you sure you want to submit this request for processing?'; showModal = true" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit</button> -->
-            <button @click="modalHeader = 'Save Draft'; modalMessage = 'Do you want to save this request as a draft?'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Save as Draft</button>
-            <button class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
+        <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+            <button type="button" @click="validateBeforeModal('Confirm Submission', 'Are you sure you want to submit this request for processing?')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit</button>
+            <!-- <button type="button" @click="modalHeader = 'Confirm Submission'; modalMessage = 'Are you sure you want to submit this request for processing?'; showModal = true" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit</button> -->
+            <button type="button" @click="modalHeader = 'Save Draft'; modalMessage = 'Do you want to save this request as a draft?'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Save as Draft</button>
+            <button type="button" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
         </div>
 
         <!-- Overlay (instant) -->
@@ -118,10 +119,10 @@
                 <h2 class="text-xl font-semibold mb-4" x-text="modalHeader"></h2>
                 <p class="mb-6" x-text="modalMessage"></p>
                 <div class="flex justify-end gap-3">
-                    <button @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
-                    <button @click="showModal = false" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
+                    <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
+                    <button type="submit" @click="showModal = false" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
                 </div>
             </div>
         </div>
     </div>    
-</section>
+</form>

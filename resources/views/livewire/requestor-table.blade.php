@@ -22,10 +22,10 @@
                     $statuses = [
                         'Draft' => 'bg-gray-100 text-gray-500',
                         'For Prep' => 'bg-blue-100 text-blue-500',
-                        'Returned' => 'bg-yellow-100 text-yellow-500',
+                        'Returned' => 'bg-yellow-100 text-yellow-600',
                         'For Approval' => 'bg-orange-100 text-orange-500',
                         'Rejected' => 'bg-red-100 text-red-500',
-                        'Approved' => 'bg-green-100 text-green-500',
+                        'Approved' => 'bg-green-100 text-green-600',
                     ];
                 @endphp
                 @for($i = 0; $i < 9; $i++)
