@@ -18,7 +18,7 @@
           <!-- Content Area -->
           <main class="content">
                <section class="content-block relative" id="content-block-1">
-                    <livewire:requestor-form mode="view" :request_id="$request->id" />
+                    <livewire:requestor-form mode="view" :requestID="$request->id" />
                </section>
                
                <livewire:preparer-log />

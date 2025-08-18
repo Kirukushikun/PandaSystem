@@ -18,16 +18,6 @@
                 </tr>
             </thead>
             <tbody>
-                @php
-                    $statuses = [
-                        'Draft' => 'bg-gray-100 text-gray-500',
-                        'For Prep' => 'bg-blue-100 text-blue-500',
-                        'Returned' => 'bg-yellow-100 text-yellow-600',
-                        'For Approval' => 'bg-orange-100 text-orange-500',
-                        'Rejected' => 'bg-red-100 text-red-500',
-                        'Approved' => 'bg-green-100 text-green-600',
-                    ];
-                @endphp
                 @foreach($myRequests as $request)
                     <tr>
                         <td>{{$request->request_no}}</td>
@@ -35,7 +25,7 @@
                         <td>{{$request->type_of_action ?? '--'}}</td>
                         <td>{{$request->submitted_at ?? '--'}}</td>
                         <td>
-                                <div class="status-tag {{ $statuses[$request->request_status] }}">{{$request->request_status}}</div>
+                                <x-statustag :status-text="$request->request_status" status-location="Table"/>
                         </td>
                         <!-- <td>{{$request->updated_at->format('m/d/Y - h:i A')}}</td> -->
                          <td>{{$request->updated_at->format('m/d/Y')}}</td>

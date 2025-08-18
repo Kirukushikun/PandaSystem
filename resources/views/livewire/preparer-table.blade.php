@@ -26,6 +26,7 @@
                         'For Approval' => 'bg-orange-100 text-orange-500',
                         'Rejected' => 'bg-red-100 text-red-500',
                         'Approved' => 'bg-green-100 text-green-500',
+                        'Withdrew' => 'bg-purple-100 text-purple-500',
                     ];
                 @endphp
                 @for($i = 0; $i < 9; $i++)

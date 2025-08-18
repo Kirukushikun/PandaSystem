@@ -13,25 +13,34 @@ class RequestorForm extends Component
 {      
     use WithFileUploads; // Use it
 
-    public $mode = 'create', $requestEntry;
-    public $request_id;
+    public $mode = 'create';
+    public $requestID, $requestEntry, $isDisabled = false;
 
     // form fields
     public $employee_name, $employee_id, $department, $type_of_action, $justification, $supporting_file;
 
-
-    public function mount($mode = 'create', $request_id = null){
+    public function mount($mode = 'create', $requestID = null, $isDisabled = false)
+    {
         $this->mode = $mode;
-        $this->request_id = $request_id;
+        $this->requestID = $requestID;
+        $this->isDisabled = $isDisabled;
 
-        if ($request_id) {
-            $this->requestEntry = RequestorModel::findOrFail($request_id);
-            // auto-fill fields
-            $this->employee_name  = $this->requestEntry->employee_name;
-            $this->employee_id    = $this->requestEntry->employee_id;
-            $this->department     = $this->requestEntry->department;
-            $this->type_of_action = $this->requestEntry->type_of_action;
-            $this->justification  = $this->requestEntry->justification;
+        if ($requestID) {
+            $this->requestEntry = RequestorModel::findOrFail($requestID);
+
+            // disable fields if not Draft or Returned
+            if (!in_array($this->requestEntry->request_status, ['Draft', 'Returned to Requestor'])) {
+                $this->isDisabled = true;
+            }
+
+            // auto-fill fields (mass assign)
+            $this->fill($this->requestEntry->only([
+                'employee_name',
+                'employee_id',
+                'department',
+                'type_of_action',
+                'justification'
+            ]));
         }
     }
 
@@ -47,25 +56,6 @@ class RequestorForm extends Component
     private function generateRequestNo()
     {
         return 'PAN-' . Carbon::now()->year . '-' . rand(100, 999);
-    }
-    
-    public function submitRequest(){
-        $this->validate();
-
-        RequestorModel::create([
-            'request_no'         => $this->generateRequestNo(),
-            'request_status'      => 'For Prep',
-            'employee_id'         => $this->employee_id,
-            'employee_name'       => $this->employee_name,
-            'department'          => $this->department,
-            'type_of_action'      => $this->type_of_action,
-            'justification'       => $this->justification ?? null,
-            'supporting_file_url' => $this->supporting_file ?? null,
-            'requested_by'        => 'Iverson Craig Guno',
-        ]);
-
-        $this->dispatch('requestSaved'); // Notify table
-        return session()->flash('success', 'Request submitted successfully');
     }
 
     public function submitDraft(){
@@ -86,18 +76,64 @@ class RequestorForm extends Component
         return session()->flash('success', 'Request submitted successfully');
     }
 
+    public function submitRequest(){
+
+        $this->validate();
+
+        RequestorModel::create([
+            'request_no'         => $this->generateRequestNo(),
+            'request_status'      => 'For Prep',
+            'employee_id'         => $this->employee_id,
+            'employee_name'       => $this->employee_name,
+            'department'          => $this->department,
+            'type_of_action'      => $this->type_of_action,
+            'justification'       => $this->justification ?? null,
+            'supporting_file_url' => $this->supporting_file ?? null,
+            'requested_by'        => 'Iverson Craig Guno',
+        ]);
+
+        $this->dispatch('requestSaved'); // Notify table
+        return session()->flash('success', 'Request submitted successfully');
+    }
 
     public function resubmitRequest()
     {   
-        $requestEntry = RequestorModel::find($this->request_id);
+        $this->validate();
+
+        $requestEntry = RequestorModel::find($this->requestID);
         $requestEntry->request_status = 'For Prep';
+        $requestEntry->employee_name = $this->employee_name;
+        $requestEntry->employee_id = $this->employee_id;
+        $requestEntry->department = $this->department;
+        $requestEntry->type_of_action = $this->type_of_action;
+        $requestEntry->justification = $this->justification;
         $requestEntry->save();
-        Log::info("Resubmitting {$this->request_id}");
+
+        $this->redirect('/requestor');
+        Log::info("Resubmitting {$this->requestID}");
     }
 
     public function withdrawRequest()
-    {
-        Log::info("Withdrawing {$this->request_id}");
+    {   
+        $requestEntry = RequestorModel::find($this->requestID);
+        $requestEntry->request_status = 'Withdrew';
+        $requestEntry->save();
+
+        $this->redirect('/requestor');
+        Log::info("Withdrawing {$this->requestID}");
+    }
+
+    public function deleteDraft(){
+        $requestEntry = RequestorModel::find($this->requestID);
+        $requestEntry->is_deleted_by = [
+            "requestor" => true,
+            "preparer"  => false,
+            "approver"  => false,
+        ];
+        $requestEntry->save();
+
+        $this->redirect('/requestor');
+        Log::info("Deleting Draft {$this->requestID}");
     }
     
 

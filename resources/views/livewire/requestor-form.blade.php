@@ -3,21 +3,7 @@
 <form class="h-full {{$mode == 'create' ? 'pb-8' : ''}}" wire:submit.prevent="submitForm">
     <!-- -- Status only in view mode -- -->
     @if($mode === 'view')
-        @php
-            $statuses = [
-                'Draft' => 'bg-gray-100 text-gray-500',
-                'For Prep' => 'bg-blue-100 text-blue-500',
-                'Returned' => 'bg-yellow-100 text-yellow-600',
-                'For Approval' => 'bg-orange-100 text-orange-500',
-                'Rejected' => 'bg-red-100 text-red-500',
-                'Approved' => 'bg-green-100 text-green-600',
-            ];
-        @endphp
-        <div class="absolute top-[35px] right-[40px] flex gap-3">
-            <div class="request-status {{$statuses[$requestEntry->request_status]}}">
-                {{ $requestEntry->request_status }}
-            </div>
-        </div>
+        <x-statustag :status-text="$requestEntry->request_status" status-location="Container"/>
     @endif
 
     <h1 class="text-[22px]">Request Form</h1>
@@ -91,15 +77,15 @@
         <div class="input-fields grid grid-cols md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="input-group">
                 <label for="employee_name">Employee Name:</label>
-                <input type="text" name="employee_name" id="employee_name" x-ref="employee_name" wire:model="employee_name">
+                <input type="text" name="employee_name" id="employee_name" x-ref="employee_name" wire:model="employee_name" {{$isDisabled ? 'Readonly' : ''}}>
             </div>
             <div class="input-group">
                 <label for="employee_id">Employee ID:</label>
-                <input type="text" name="employee_id" id="employee_id" x-ref="employee_id" wire:model="employee_id">
+                <input type="text" name="employee_id" id="employee_id" x-ref="employee_id" wire:model="employee_id" {{$isDisabled ? 'Readonly' : ''}}>
             </div>
             <div class="input-group">
                 <label for="department">Department:</label>
-                <select name="department" id="department" x-ref="department" x-ref="department" wire:model="department">
+                <select name="department" id="department" x-ref="department" x-ref="department" wire:model="department" {{$isDisabled ? 'Disabled' : ''}}>
                     <option value="">Select department</option>
                     <option value="FEEDMILL">FEEDMILL</option>
                     <option value="FOC">FOC</option>
@@ -114,7 +100,7 @@
             </div>
             <div class="input-group">
                 <label for="type_of_action">Type of Action:</label>
-                <select name="type_of_action" id="type_of_action" x-ref="type_of_action" wire:model="type_of_action">
+                <select name="type_of_action" id="type_of_action" x-ref="type_of_action" wire:model="type_of_action" {{$isDisabled ? 'Disabled' : ''}}>
                     <option value="">Select type</option>
                     <option value="Regularization">Regularization</option>
                     <option value="Salary Alignment">Salary Alignment</option>
@@ -131,13 +117,29 @@
 
         <div class="input-group h-full">
             <label for="justification">Justification:</label>
-            <textarea class="{{$mode == 'view' ? 'h-[200px] resize-none' : 'h-full'}}" name="justification" id="justification" class="w-full h-full resize-none" x-ref="justification" wire:model="justification"></textarea>
+            <textarea class="resize-none {{$mode == 'view' ? 'h-[200px]' : 'h-full'}}" name="justification" id="justification" class="w-full h-full resize-none" x-ref="justification" wire:model="justification" {{$isDisabled ? 'Readonly' : ''}}></textarea>
         </div>
 
-        <div class="file-group flex flex-col gap-2">
-            <label for="supporting_file" class="text-[18px]">Supporting File:</label>
-            <input name="supporting_file" id="supporting_file" class="block w-full text-sm text-gray-500 border border-1 border-gray-600 rounded-md cursor-pointer bg-gray-50 focus:outline-none" type="file" x-ref="supporting_file" wire:model="supporting_file">
-        </div>
+        @if($isDisabled)
+            <div class="file-group flex flex-col gap-2">
+                <label for="" class="text-[18px]">Supporting Files:</label>
+                <div class="flex w-full border border-gray-600 rounded-md overflow-hidden text-sm">
+                    <!-- Button -->
+                    <button type="button" class="bg-gray-600 text-white px-4 py-2.5 cursor-pointer hover:bg-gray-500">
+                        View File
+                    </button>
+                    <!-- File Name -->
+                    <div class="flex-1 bg-gray-50 text-gray-500 px-4 py-2.5">
+                        sample_document.pdf
+                    </div>
+                </div>
+            </div>
+        @else
+            <div class="file-group flex flex-col gap-2">
+                <label for="supporting_file" class="text-[18px]">Supporting File:</label>
+                <input name="supporting_file" id="supporting_file" class="block w-full text-sm text-gray-500 border border-1 border-gray-600 rounded-md cursor-pointer bg-gray-50 focus:outline-none" type="file" x-ref="supporting_file" wire:model="supporting_file">
+            </div>
+        @endif
 
         <div class="input-group">
             <label>Requested By:</label>
@@ -155,12 +157,11 @@
             <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                 @if($requestEntry->request_status == "Draft")
                     <button disabled:="!showAction" x-show="showAction" type="button" @click="validateBeforeModal('Confirm Submission', 'Are you sure you want to submit this draft for processing?'); formAction = 'resubmitRequest' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit to HR</button>
-                    <button type="button" @click="showModal = true; formAction = 'withdrawRequest'; modalHeader = 'Delete Draft'; modalMessage = 'Are you sure you want to delete this draft?' " class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Delete Draft</button>
-                @else
+                    <button type="button" @click="showModal = true; formAction = 'deleteDraft'; modalHeader = 'Delete Draft'; modalMessage = 'Are you sure you want to delete this draft?' " class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Delete Draft</button>
+                @elseif($requestEntry->request_status == "Returned to Requestor")
                     <button disabled:="!showAction" x-show="showAction" type="button" @click="validateBeforeModal('Confirm Resubmission', 'Are you sure you want to resubmit this request for processing?'); formAction = 'resubmitRequest' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Resubmit to HR</button>
                     <button type="button" @click="showModal = true; formAction = 'withdrawRequest'; modalHeader = 'Withdraw Request'; modalMessage = 'Are you sure you want to withdraw this request? This action will be recorded.' " class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Withdraw Request</button>
                 @endif
-
             </div>
         @endif
 

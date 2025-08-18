@@ -17,12 +17,13 @@ return new class extends Migration
             $table->json('is_deleted_by')->nullable();
             $table->enum('request_status', [
                 'Draft', 
-                'For Prep', 
-                'For Approval', 
+                'For Prep', // Disabled
+                'For Approval', // Disabled 
                 'Returned to Requestor', 
-                'Returned to HR', 
-                'Approved', 
-                'Rejected'
+                'Returned to HR', // Disabled
+                'Approved', // Disabled
+                'Rejected', // Disabled
+                'Withdrew' // Disabled
             ])->nullable();
             $table->unsignedBigInteger('employee_id')->nullable();
             $table->string('employee_name')->nullable();
