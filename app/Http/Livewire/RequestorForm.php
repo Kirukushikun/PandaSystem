@@ -90,6 +90,7 @@ class RequestorForm extends Component
             'justification'       => $this->justification ?? null,
             'supporting_file_url' => $this->supporting_file ?? null,
             'requested_by'        => 'Iverson Craig Guno',
+            'submitted_at'        => Carbon::now()
         ]);
 
         $this->dispatch('requestSaved'); // Notify table
