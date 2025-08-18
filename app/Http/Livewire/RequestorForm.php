@@ -58,8 +58,7 @@ class RequestorForm extends Component
         return 'PAN-' . Carbon::now()->year . '-' . rand(100, 999);
     }
 
-    public function submitDraft(){
-
+    public function saveDraft(){
         RequestorModel::create([
             'request_no'         => $this->generateRequestNo(),
             'request_status'      => 'Draft',
@@ -74,6 +73,38 @@ class RequestorForm extends Component
 
         $this->dispatch('requestSaved'); // Notify table
         return session()->flash('success', 'Request submitted successfully');
+    }
+
+    public function submitDraft(){
+
+        $this->validate();
+
+        $requestEntry = RequestorModel::find($this->requestID);
+        $requestEntry->request_status = 'For Prep';
+        $requestEntry->employee_name = $this->employee_name;
+        $requestEntry->employee_id = $this->employee_id;
+        $requestEntry->department = $this->department;
+        $requestEntry->type_of_action = $this->type_of_action;
+        $requestEntry->justification = $this->justification;
+        $requestEntry->supporting_file_url = $this->supporting_file;
+        $requestEntry->submitted_at = Carbon::now();
+        $requestEntry->save();
+
+        $this->redirect('/requestor');
+        Log::info("Resubmitting {$this->requestID}");
+    }
+
+    public function deleteDraft(){
+        $requestEntry = RequestorModel::find($this->requestID);
+        $requestEntry->is_deleted_by = [
+            "requestor" => true,
+            "preparer"  => false,
+            "approver"  => false,
+        ];
+        $requestEntry->save();
+
+        $this->redirect('/requestor');
+        Log::info("Deleting Draft {$this->requestID}");
     }
 
     public function submitRequest(){
@@ -122,19 +153,6 @@ class RequestorForm extends Component
 
         $this->redirect('/requestor');
         Log::info("Withdrawing {$this->requestID}");
-    }
-
-    public function deleteDraft(){
-        $requestEntry = RequestorModel::find($this->requestID);
-        $requestEntry->is_deleted_by = [
-            "requestor" => true,
-            "preparer"  => false,
-            "approver"  => false,
-        ];
-        $requestEntry->save();
-
-        $this->redirect('/requestor');
-        Log::info("Deleting Draft {$this->requestID}");
     }
     
 

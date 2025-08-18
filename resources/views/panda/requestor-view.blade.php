@@ -21,7 +21,7 @@
                     <livewire:requestor-form mode="view" :requestID="$request->id" />
                </section>
                
-               <livewire:preparer-log />
+               <livewire:preparer-log :requestID="$request->id"/>
           </main>
     </div>
 

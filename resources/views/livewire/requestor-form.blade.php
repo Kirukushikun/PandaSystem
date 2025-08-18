@@ -150,13 +150,13 @@
         @if($mode == "create")
             <div disabled:="!showAction" x-show="showAction" class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                 <button type="button" @click="validateBeforeModal('Confirm Submission', 'Are you sure you want to submit this request for processing?'); formAction = 'submitRequest' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit</button>
-                <button type="button" @click="showModal = true; formAction = 'submitDraft'; modalHeader = 'Save Draft'; modalMessage = 'Do you want to save this request as a draft?' " class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Save as Draft</button>
+                <button type="button" @click="showModal = true; formAction = 'saveDraft'; modalHeader = 'Save Draft'; modalMessage = 'Do you want to save this request as a draft?' " class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Save as Draft</button>
                 <button type="button" @click="resetForm()" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
             </div>
         @elseif($mode == "view")
             <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                 @if($requestEntry->request_status == "Draft")
-                    <button disabled:="!showAction" x-show="showAction" type="button" @click="validateBeforeModal('Confirm Submission', 'Are you sure you want to submit this draft for processing?'); formAction = 'resubmitRequest' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit to HR</button>
+                    <button disabled:="!showAction" x-show="showAction" type="button" @click="validateBeforeModal('Confirm Submission', 'Are you sure you want to submit this draft for processing?'); formAction = 'submitDraft' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit to HR</button>
                     <button type="button" @click="showModal = true; formAction = 'deleteDraft'; modalHeader = 'Delete Draft'; modalMessage = 'Are you sure you want to delete this draft?' " class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Delete Draft</button>
                 @elseif($requestEntry->request_status == "Returned to Requestor")
                     <button disabled:="!showAction" x-show="showAction" type="button" @click="validateBeforeModal('Confirm Resubmission', 'Are you sure you want to resubmit this request for processing?'); formAction = 'resubmitRequest' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Resubmit to HR</button>

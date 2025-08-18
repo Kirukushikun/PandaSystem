@@ -20,11 +20,11 @@
 
           <!-- Content Area -->
           <main class="content">
-               <livewire:preparer-form />
+               <livewire:preparer-form :requestID="$requestID"/>
 
                <livewire:preparer-pan />
                
-               <livewire:preparer-log />
+               <livewire:preparer-log :requestID="$requestID"/>
           </main>
     </div>
 
