@@ -22,7 +22,7 @@
           <main class="content">
                <livewire:preparer-form :requestID="$requestID"/>
 
-               <livewire:preparer-pan />
+               <livewire:preparer-pan :requestID="$requestID"/>
                
                <livewire:preparer-log :requestID="$requestID"/>
           </main>
