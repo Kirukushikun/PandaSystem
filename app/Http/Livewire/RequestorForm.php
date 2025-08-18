@@ -12,16 +12,26 @@ use App\Models\RequestorModel;
 class RequestorForm extends Component
 {      
     use WithFileUploads; // Use it
-    public $request; //Entry Container
-    public $mode, $request_id; // Form State
-    public $employee_name, $employee_id, $department, $type_of_action, $justification, $supporting_file; // Form Fields
 
-    public function mount($mode = 'create', $request_id = null)
-    {
+    public $mode = 'create', $requestEntry;
+    public $request_id;
+
+    // form fields
+    public $employee_name, $employee_id, $department, $type_of_action, $justification, $supporting_file;
+
+
+    public function mount($mode = 'create', $request_id = null){
         $this->mode = $mode;
+        $this->request_id = $request_id;
 
         if ($request_id) {
-            $this->request = RequestorModel::findOrFail($request_id);
+            $this->requestEntry = RequestorModel::findOrFail($request_id);
+            // auto-fill fields
+            $this->employee_name  = $this->requestEntry->employee_name;
+            $this->employee_id    = $this->requestEntry->employee_id;
+            $this->department     = $this->requestEntry->department;
+            $this->type_of_action = $this->requestEntry->type_of_action;
+            $this->justification  = $this->requestEntry->justification;
         }
     }
 
@@ -33,15 +43,17 @@ class RequestorForm extends Component
         'justification' => 'nullable',
         'supporting_file' => 'required|file|max:10240',
     ];
+
+    private function generateRequestNo()
+    {
+        return 'PAN-' . Carbon::now()->year . '-' . rand(100, 999);
+    }
     
-    // Create Mode
     public function submitRequest(){
         $this->validate();
 
-        $requestNo = 'PAN-' . Carbon::now()->year . '-' . rand(100, 999); // e.g., PAN-2025-482
-
         RequestorModel::create([
-            'request_no' => $requestNo, 
+            'request_no'         => $this->generateRequestNo(),
             'request_status'      => 'For Prep',
             'employee_id'         => $this->employee_id,
             'employee_name'       => $this->employee_name,
@@ -53,15 +65,13 @@ class RequestorForm extends Component
         ]);
 
         $this->dispatch('requestSaved'); // Notify table
-
         return session()->flash('success', 'Request submitted successfully');
     }
 
     public function submitDraft(){
-        $requestNo = 'PAN-' . Carbon::now()->year . '-' . rand(100, 999); // e.g., PAN-2025-482
 
         RequestorModel::create([
-            'request_no' => $requestNo, 
+            'request_no'         => $this->generateRequestNo(),
             'request_status'      => 'Draft',
             'employee_id'         => $this->employee_id ?? null,
             'employee_name'       => $this->employee_name ?? null,
@@ -73,17 +83,21 @@ class RequestorForm extends Component
         ]);
 
         $this->dispatch('requestSaved'); // Notify table
-
         return session()->flash('success', 'Request submitted successfully');
     }
 
-    // View Mode
-    public function resubmitRequest($targetID){
-        Log::info($targetID);
+
+    public function resubmitRequest()
+    {   
+        $requestEntry = RequestorModel::find($this->request_id);
+        $requestEntry->request_status = 'For Prep';
+        $requestEntry->save();
+        Log::info("Resubmitting {$this->request_id}");
     }
 
-    public function withdrawRequest($targetID){
-        Log::info($targetID);
+    public function withdrawRequest()
+    {
+        Log::info("Withdrawing {$this->request_id}");
     }
     
 
