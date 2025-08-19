@@ -1,4 +1,4 @@
-<section class="content-block" id="content-block-1">
+<div class="flex flex-col gap-5 h-full">
     <div class="table-header flex w-full gap-3 items-center">
         <h1 class="text-[22px] flex-none">My Requests</h1>
         <x-search-sort-filter/>
@@ -39,5 +39,51 @@
         </table>
     </div>
 
-    <x-pagination/>
-</section>
+    @php
+        $currentPage = $myRequests->currentPage();
+        $lastPage = $myRequests->lastPage();
+
+        // Calculate range of page numbers
+        $start = max(1, $currentPage - 2);
+        $end = min($lastPage, $start + 4);
+
+        // Adjust start if we're at the end
+        if ($end - $start < 4) {
+            $start = max(1, $end - 4);
+        }
+    @endphp
+
+    <div class="pagination-container flex items-center justify-end gap-3">
+        <div class="text-sm text-gray-600">
+            Showing {{ $myRequests->firstItem() }} to {{ $myRequests->lastItem() }} of {{ $myRequests->total() }} results
+        </div>
+        
+        {{-- Left Arrow --}}
+        @if ($currentPage > 1)
+            <button 
+                wire:click="goToPage({{ $currentPage - 1 }})"
+                class="px-4 py-2 rounded-md hover:scale-110 cursor-pointer bg-blue-100 text-blue-600">
+                <i class="fa-solid fa-caret-left"></i>
+            </button>
+        @endif
+
+        {{-- Page Numbers --}}
+        @for ($i = $start; $i <= $end; $i++)
+            <button 
+                wire:click="goToPage({{ $i }})"
+                class="{{ $i == $currentPage ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-600' }} 
+                    px-4 py-2 rounded-md hover:scale-110 cursor-pointer">
+                {{ $i }}
+            </button>
+        @endfor
+
+        {{-- Right Arrow --}}
+        @if ($currentPage < $lastPage)
+            <button 
+                wire:click="goToPage({{ $currentPage + 1 }})"
+                class="px-4 py-2 rounded-md hover:scale-110 cursor-pointer bg-blue-100 text-blue-600">
+                <i class="fa-solid fa-caret-right"></i>
+            </button>
+        @endif
+    </div> 
+</div>

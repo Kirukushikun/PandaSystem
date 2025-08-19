@@ -19,8 +19,9 @@
 
           <!-- Content Area -->
           <main class="content">
-
-               <livewire:requestor-table />
+               <section class="content-block" id="content-block-1">
+                    <livewire:requestor-table />
+               </section>
 
                <section class="content-block overflow-x-hidden" id="content-block-2">
                     <livewire:requestor-form mode="create" />
