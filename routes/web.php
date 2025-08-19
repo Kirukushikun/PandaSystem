@@ -54,8 +54,9 @@ Route::get('/preparer-view', function(Request $request){
 	return view('panda.preparer-view', compact('requestID'));
 });
 
-Route::get('/approver-view', function(){
-	return view('panda.approver-view');
+Route::get('/approver-view', function(Request $request){
+	$requestID = $request->query('requestID');
+	return view('panda.approver-view', compact('requestID'));
 });
 
 // Admin

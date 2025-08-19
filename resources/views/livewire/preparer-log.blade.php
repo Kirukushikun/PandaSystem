@@ -8,7 +8,7 @@
                 'approver' => 'Returned by Atty (Approver)'
             ]
         @endphp
-        @foreach($logs as $log)
+        @forelse($logs as $log)
             <div class="log-item border-b-2 border-gray-300 pb-5 mb-5">
                 <div class="log-header flex flex-col mb-4 md:flex-row md:justify-between md:items-center md:mb-0">
                     <div class="log-issue text-[17px] font-bold">{{$header[$log->origin]}}</div>
@@ -19,7 +19,11 @@
                     <p>Details: {{$log->details}}</p>
                 </div>
             </div>
-        @endforeach
-
+        @empty 
+            <div class="empty-promt w-full h-[200px] flex flex-col items-center justify-center rounded text-gray-400 select-none">
+                <i class="fa-solid fa-box-open text-xl mb-1"></i>
+                <p class="text-lg">There is no correction entry yet</p>
+            </div>
+        @endforelse
     </div>
 </section>

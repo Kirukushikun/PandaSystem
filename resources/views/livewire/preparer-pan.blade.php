@@ -6,19 +6,19 @@
         <div class="input-fields grid grid-cols md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="input-group">
                 <label for="date_hired">Date Hired:</label>
-                <input id="date_hired" type="date" x-ref="date_hired" wire:model="date_hired" />
+                <input id="date_hired" type="date" x-ref="date_hired" wire:model="date_hired" {{$isDisabled ? 'Readonly' : '' }}/>
             </div>
             <div class="input-group">
                 <label for="employment_status">Employment Status:</label>
-                <input id="employment_status" type="text" x-ref="employment_status" wire:model="employment_status" />
+                <input id="employment_status" type="text" x-ref="employment_status" wire:model="employment_status" {{$isDisabled ? 'Readonly' : '' }}/>
             </div>
             <div class="input-group">
                 <label for="division">Division:</label>
-                <input id="division" type="text" x-ref="division" wire:model="division" />
+                <input id="division" type="text" x-ref="division" wire:model="division" {{$isDisabled ? 'Readonly' : '' }}/>
             </div>
             <div class="input-group">
                 <label for="date_of_effectivity">Date of Effectivity:</label>
-                <input id="date_of_effectivity" type="date" x-ref="date_of_effectivity" wire:model="date_of_effectivity" />
+                <input id="date_of_effectivity" type="date" x-ref="date_of_effectivity" wire:model="date_of_effectivity" {{$isDisabled ? 'Readonly' : '' }}/>
             </div>
         </div>
 
@@ -37,128 +37,157 @@
                     </thead>
 
                     <tbody id="pan-tbody">
-                        <!-- Section Row -->
-                        <tr>
-                            <td class="border-t-2 border-gray-300">
-                                <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="section_from" wire:model="section_from" />
-                            </td>
-                            <td class="border-t-2 border-gray-300 text-center">
-                                Section
-                                <i class="fa-solid fa-circle-exclamation text-red-400" x-show="validationAttempted && !rows.section.valid"></i>
-                            </td>
-                            <td class="border-t-2 border-gray-300">
-                                <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="section_to" wire:model="section_to" />
-                            </td>
-                        </tr>
+                        @if($mode == "view")
+                            @foreach($referenceTableData as $item)
+                                <tr>
+                                    <td class="border-t-2 border-gray-300">
+                                        <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" value="{{$item['from']}}" Readonly />
+                                    </td>
+                                    <td class="border-t-2 border-gray-300 text-center capitalize">
+                                        @php
+                                            $labels = [
+                                                'place'    => 'Place of Assignment',
+                                                'head'     => 'Immediate Head',
+                                                'joblevel' => 'Job Level',
+                                            ];
+                                        @endphp
 
-                        <tr>
-                            <td class="border-t-2 border-gray-300">
-                                <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="place_from" wire:model="place_from" />
-                            </td>
-                            <td class="border-t-2 border-gray-300 text-center">
-                                Place of Assignment
-                                <i class="fa-solid fa-circle-exclamation text-red-400" x-show="validationAttempted && !rows.place.valid"></i>
-                            </td>
-                            <td class="border-t-2 border-gray-300">
-                                <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="place_to" wire:model="place_to" />
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td class="border-t-2 border-gray-300">
-                                <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="head_from" wire:model="head_from" />
-                            </td>
-                            <td class="border-t-2 border-gray-300 text-center">
-                                Immediate Head
-                                <i class="fa-solid fa-circle-exclamation text-red-400" x-show="validationAttempted && !rows.head.valid"></i>
-                            </td>
-                            <td class="border-t-2 border-gray-300">
-                                <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="head_to" wire:model="head_to" />
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td class="border-t-2 border-gray-300">
-                                <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="position_from" wire:model="position_from" />
-                            </td>
-                            <td class="border-t-2 border-gray-300 text-center">
-                                Position
-                                <i class="fa-solid fa-circle-exclamation text-red-400" x-show="validationAttempted && !rows.position.valid"></i>
-                            </td>
-                            <td class="border-t-2 border-gray-300">
-                                <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="position_to" wire:model="position_to" />
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td class="border-t-2 border-gray-300">
-                                <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="joblevel_from" wire:model="joblevel_from" />
-                            </td>
-                            <td class="border-t-2 border-gray-300 text-center">
-                                Job Level
-                                <i class="fa-solid fa-circle-exclamation text-red-400" x-show="validationAttempted && !rows.joblevel.valid"></i>
-                            </td>
-                            <td class="border-t-2 border-gray-300">
-                                <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="joblevel_to" wire:model="joblevel_to" />
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td class="border-t-2 border-gray-300">
-                                <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="basic_from" wire:model="basic_from" />
-                            </td>
-                            <td class="border-t-2 border-gray-300 text-center">
-                                Basic
-                                <i class="fa-solid fa-circle-exclamation text-red-400" x-show="validationAttempted && !rows.basic.valid"></i>
-                            </td>
-                            <td class="border-t-2 border-gray-300">
-                                <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="basic_to" wire:model="basic_to" />
-                            </td>
-                        </tr>
-
-                        <!-- Allowance Rows -->
-                        <template x-for="(allowance, index) in allowances" :key="index">
+                                        {{ $labels[$item['field']] ?? $item['field'] }}
+                                    </td>
+                                    <td class="border-t-2 border-gray-300">
+                                        <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" value="{{$item['to']}}" Readonly />
+                                    </td>
+                                </tr>                                
+                            @endforeach
+                        @elseif($mode == "create")
+                            <!-- Section Row -->
                             <tr>
                                 <td class="border-t-2 border-gray-300">
-                                    <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-model="allowance.from" @input="checkRows()" :name="'allowances['+index+'][from]'" />
+                                    <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="section_from" wire:model="section_from" {{$isDisabled ? 'Disabled' : ''}} />
                                 </td>
-                                <td class="border-t-2 relative border-gray-300 text-center font-medium">
-                                    <i class="fa-regular fa-trash-can absolute left-[10px] top-[15px] cursor-pointer text-red-600 hover:scale-110" @click="removeAllowance(index)"></i>
-
-                                    <select class="w-full border-none focus:ring-0 text-center outline-none p-0" x-model="allowance.value" @change="checkRows()" :name="'allowances['+index+'][value]'">
-                                        <option value="">Select Allowance</option>
-                                        <template x-for="opt in getAvailableOptions(index)" :key="opt">
-                                            <option x-text="opt"></option>
-                                        </template>
-                                    </select>
-
-                                    <!-- This will hide once allowance.valid flips true -->
-                                    <i class="fa-solid fa-circle-exclamation text-red-400 absolute right-10 top-[14px]" x-show="validationAttempted && !allowance.valid"></i>
+                                <td class="border-t-2 border-gray-300 text-center">
+                                    Section
+                                    <i class="fa-solid fa-circle-exclamation text-red-400" x-show="validationAttempted && !rows.section.valid"></i>
                                 </td>
                                 <td class="border-t-2 border-gray-300">
-                                    <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-model="allowance.to" @input="checkRows()" :name="'allowances['+index+'][to]'" />
+                                    <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="section_to" wire:model="section_to" {{$isDisabled ? 'Disabled' : ''}} />
                                 </td>
                             </tr>
-                        </template>
 
+                            <tr>
+                                <td class="border-t-2 border-gray-300">
+                                    <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="place_from" wire:model="place_from" {{$isDisabled ? 'Disabled' : ''}} />
+                                </td>
+                                <td class="border-t-2 border-gray-300 text-center">
+                                    Place of Assignment
+                                    <i class="fa-solid fa-circle-exclamation text-red-400" x-show="validationAttempted && !rows.place.valid"></i>
+                                </td>
+                                <td class="border-t-2 border-gray-300">
+                                    <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="place_to" wire:model="place_to" {{$isDisabled ? 'Disabled' : ''}} />
+                                </td>
+                            </tr>
 
-                        <!-- Add Allowance Row -->
-                        <tr>
-                            <td class="border-t-2 border-gray-300"></td>
-                            <td class="border-t-2 border-gray-300 text-center font-medium">
-                                <div class="text-blue-500 p-2 cursor-pointer hover:scale-105" @click="addAllowance()">+ Add Allowance</div>
-                            </td>
-                            <td class="border-t-2 border-gray-300"></td>
-                        </tr>
+                            <tr>
+                                <td class="border-t-2 border-gray-300">
+                                    <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="head_from" wire:model="head_from" {{$isDisabled ? 'Disabled' : ''}} />
+                                </td>
+                                <td class="border-t-2 border-gray-300 text-center">
+                                    Immediate Head
+                                    <i class="fa-solid fa-circle-exclamation text-red-400" x-show="validationAttempted && !rows.head.valid"></i>
+                                </td>
+                                <td class="border-t-2 border-gray-300">
+                                    <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="head_to" wire:model="head_to" {{$isDisabled ? 'Disabled' : ''}} />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="border-t-2 border-gray-300">
+                                    <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="position_from" wire:model="position_from" {{$isDisabled ? 'Disabled' : ''}} />
+                                </td>
+                                <td class="border-t-2 border-gray-300 text-center">
+                                    Position
+                                    <i class="fa-solid fa-circle-exclamation text-red-400" x-show="validationAttempted && !rows.position.valid"></i>
+                                </td>
+                                <td class="border-t-2 border-gray-300">
+                                    <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="position_to" wire:model="position_to" {{$isDisabled ? 'Disabled' : ''}} />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="border-t-2 border-gray-300">
+                                    <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="joblevel_from" wire:model="joblevel_from" {{$isDisabled ? 'Disabled' : ''}} />
+                                </td>
+                                <td class="border-t-2 border-gray-300 text-center">
+                                    Job Level
+                                    <i class="fa-solid fa-circle-exclamation text-red-400" x-show="validationAttempted && !rows.joblevel.valid"></i>
+                                </td>
+                                <td class="border-t-2 border-gray-300">
+                                    <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="joblevel_to" wire:model="joblevel_to" {{$isDisabled ? 'Disabled' : ''}} />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="border-t-2 border-gray-300">
+                                    <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="basic_from" wire:model="basic_from" {{$isDisabled ? 'Disabled' : ''}} />
+                                </td>
+                                <td class="border-t-2 border-gray-300 text-center">
+                                    Basic
+                                    <i class="fa-solid fa-circle-exclamation text-red-400" x-show="validationAttempted && !rows.basic.valid"></i>
+                                </td>
+                                <td class="border-t-2 border-gray-300">
+                                    <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-ref="basic_to" wire:model="basic_to" {{$isDisabled ? 'Disabled' : ''}} />
+                                </td>
+                            </tr>
+
+                        
+                            <!-- Allowance Rows -->
+                            <template x-for="(allowance, index) in allowances" :key="index">
+                                <tr>
+                                    <td class="border-t-2 border-gray-300">
+                                        <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-model="allowance.from" @input="checkRows()" :name="'allowances['+index+'][from]'" />
+                                    </td>
+                                    <td class="border-t-2 relative border-gray-300 text-center font-medium">
+                                        <i class="fa-regular fa-trash-can absolute left-[10px] top-[15px] cursor-pointer text-red-600 hover:scale-110" @click="removeAllowance(index)"></i>
+
+                                        <select class="w-full border-none focus:ring-0 text-center outline-none p-0" x-model="allowance.value" @change="checkRows()" :name="'allowances['+index+'][value]'">
+                                            <option value="">Select Allowance</option>
+                                            <template x-for="opt in getAvailableOptions(index)" :key="opt">
+                                                <option x-text="opt"></option>
+                                            </template>
+                                        </select>
+
+                                        <!-- This will hide once allowance.valid flips true -->
+                                        <i class="fa-solid fa-circle-exclamation text-red-400 absolute right-10 top-[14px]" x-show="validationAttempted && !allowance.valid"></i>
+                                    </td>
+                                    <td class="border-t-2 border-gray-300">
+                                        <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" x-model="allowance.to" @input="checkRows()" :name="'allowances['+index+'][to]'" />
+                                    </td>
+                                </tr>
+                            </template>
+
+                            <!-- Add Allowance Row -->
+                             @if(!$isDisabled)
+                                <tr>
+                                    <td class="border-t-2 border-gray-300"></td>
+                                    <td class="border-t-2 border-gray-300 text-center font-medium">
+                                        <div class="text-blue-500 p-2 cursor-pointer hover:scale-105" @click="addAllowance()">+ Add Allowance</div>
+                                    </td>
+                                    <td class="border-t-2 border-gray-300"></td>
+                                </tr>
+                             @endif
+
+                        @endif
+
                     </tbody>
                 </table>
             </div>
         </div>
 
+        
         <!-- Remarks -->
         <div class="input-group">
             <label>Remarks and Other Consideration:</label>
-            <textarea class="w-full h-30 resize-none"></textarea>
+            <textarea class="w-full h-30 resize-none" wire:model="remarks" {{$isDisabled ? 'Disabled' : ''}}></textarea>
         </div>
 
         <!-- Prepared By -->
@@ -167,143 +196,169 @@
             <p>Iverson Guno</p>
         </div>
 
-        <!-- Action Buttons -->
-        <div x-show="showAction" class="form-buttons bottom-0 right-0 flex gap-3 justify-end md:mb-0 md:absolute">
-            <button type="button" @click="validateBeforeModal('Submit for Approval', 'Send this PAN form to the approver for review?')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit for Approval</button>
-            <button type="button" @click="modalMessage = 'Reset the form?'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 hover:bg-gray-200">Reset</button>
-        </div>
+        @if($role == "approver")
+            @if($requestEntry->request_status == "For Approval")
+                <div class="form-buttons bottom-0 right-0 flex gap-3 justify-end md:mb-0 md:absolute">
+                    <button type="button" @click="showModal = true; formAction = 'approveRequest'; modalHeader = 'Approve Request'; modalMessage = 'Are you sure you want to approve this request?'" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-800 px-4 py-2">Approve</button>
+                    <button type="button" @click="showModal = true; formAction = 'rejectRequest'; modalHeader = 'Reject Request'; modalMessage = 'Are you sure you want to reject this request?'" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject</button>
+                    <button type="button" @click="validateBeforeModal('Return Request', 'Return this request to the requestor for correction?')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Return to HR</button>
+                </div>
+            @endif
 
-        <!-- Modal -->
-        <div x-show="showModal" class="fixed inset-0 bg-black/50 z-40"></div>
-        <div x-show="showModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90" class="fixed inset-0 flex items-center justify-center z-50">
-            <div class="bg-white p-6 rounded-lg shadow-lg w-96 z-10">
-                <h2 class="text-lg font-semibold mb-4" x-text="modalHeader"></h2>
-                <p class="mb-6" x-text="modalMessage"></p>
-                <div class="flex justify-end gap-3">
-                    <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
-                    <button type="button" @click="showModal = false" wire:click="submitPan" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
+            <!-- Modal -->
+            <div x-show="showModal" class="fixed inset-0 bg-black/50 z-40"></div>
+            <div x-show="showModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90" class="fixed inset-0 flex items-center justify-center z-50">
+                <div class="bg-white p-6 rounded-lg shadow-lg w-96 z-10">
+                    <h2 class="text-lg font-semibold mb-4" x-text="modalHeader"></h2>
+                    <p class="mb-6" x-text="modalMessage"></p>
+                    <div class="flex justify-end gap-3">
+                        <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
+                        <button type="button" @click="showModal = false; $wire[formAction]();" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
+                    </div>
                 </div>
             </div>
-        </div>
+        @else
+            <!-- Action Buttons -->
+            <div x-show="showAction" class="form-buttons bottom-0 right-0 flex gap-3 justify-end md:mb-0 md:absolute">
+                <button type="button" @click="validateBeforeModal('Submit for Approval', 'Send this PAN form to the approver for review?')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit for Approval</button>
+                <button type="button" @click="modalMessage = 'Reset the form?'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 hover:bg-gray-200">Reset</button>
+            </div>
+
+            <!-- Modal -->
+            <div x-show="showModal" class="fixed inset-0 bg-black/50 z-40"></div>
+            <div x-show="showModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90" class="fixed inset-0 flex items-center justify-center z-50">
+                <div class="bg-white p-6 rounded-lg shadow-lg w-96 z-10">
+                    <h2 class="text-lg font-semibold mb-4" x-text="modalHeader"></h2>
+                    <p class="mb-6" x-text="modalMessage"></p>
+                    <div class="flex justify-end gap-3">
+                        <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
+                        <button type="button" @click="showModal = false" wire:click="submitPan" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
     </div>
 </section>
 
 <script>
-function panForm() {
-    return {
-        // --- UI State ---
-        showModal: false,
-        showAction: false,
-        modalHeader: "",
-        modalMessage: "",
-        validationAttempted: false,
+    function panForm() {
+        return {
+            // --- UI State ---
+            showModal: false,
+            showAction: false,
+            modalHeader: "",
+            modalMessage: "",
+            formAction: '',
+            validationAttempted: false,
 
-        // --- Row validation state ---
-        rows: {
-            section: { valid: false },
-            place: { valid: false },
-            head: { valid: false },
-            position: { valid: false },
-            joblevel: { valid: false },
-            basic: { valid: false },
-        },
+            // --- Row validation state ---
+            rows: {
+                section: { valid: false },
+                place: { valid: false },
+                head: { valid: false },
+                position: { valid: false },
+                joblevel: { valid: false },
+                basic: { valid: false },
+            },
 
-        // --- Allowances ---
-        allowances: [],
-        allOptions: ["Communication Allowance", "Meal Allowance", "Living Allowance", "Transportation Allowance", "Clothing Allowance", "Fuel Allowance", "Management Allowance", "Developmental Assignments", "Professional Allowance", "Interim Allowance", "Training Allowance", "Mancom Allowance"],
+            // --- Allowances ---
+            allowances: [],
+            allOptions: ["Communication Allowance", "Meal Allowance", "Living Allowance", "Transportation Allowance", "Clothing Allowance", "Fuel Allowance", "Management Allowance", "Developmental Assignments", "Professional Allowance", "Interim Allowance", "Training Allowance", "Mancom Allowance"],
 
-        addAllowance() {
-            this.allowances.push({ from: "", to: "", value: "", valid: false });
-            this.syncAllowancesWithLivewire();
-        },
+            addAllowance() {
+                this.allowances.push({ from: "", to: "", value: "" });
+                this.syncAllowancesWithLivewire();
+            },
 
-        updateAllowance(index, value) {
-            this.allowances[index].value = value;
-            this.checkRows();
-            this.syncAllowancesWithLivewire();
-        },
+            updateAllowance(index, value) {
+                this.allowances[index].value = value;
+                this.checkRows();
+                this.syncAllowancesWithLivewire();
+            },
 
-        // Add this method to sync allowances with Livewire
-        syncAllowancesWithLivewire() {
-            // Send allowances to Livewire component
-            this.$wire.call('updateAllowances', this.allowances);
-        },
+            // Add this method to sync allowances with Livewire
+            syncAllowancesWithLivewire() {
+                // Clean the data by removing the 'valid' property before sending to Livewire
+                const cleanAllowances = this.allowances.map(({valid, ...allowance}) => allowance);
+                this.$wire.call('updateAllowances', cleanAllowances);
+            },
 
-        getAvailableOptions(index) {
-            return this.allOptions.filter((opt) => !this.allowances.map((a) => a.value).includes(opt) || this.allowances[index].value === opt);
-        },
+            getAvailableOptions(index) {
+                return this.allOptions.filter((opt) => !this.allowances.map((a) => a.value).includes(opt) || this.allowances[index].value === opt);
+            },
 
-        // --- Init ---
-        init() {
-            // Listen to static input fields
-            this.getFields().forEach((field) => {
-                ["input", "change"].forEach((evt) => field.addEventListener(evt, () => this.checkFields()));
-            });
-            this.checkFields();
-        },
+            // --- Init ---
+            init() {
+                // Listen to static input fields
+                this.getFields().forEach((field) => {
+                    ["input", "change"].forEach((evt) => field.addEventListener(evt, () => this.checkFields()));
+                });
+                this.checkFields();
+            },
 
-        // --- Field Helpers ---
-        getFields() {
-            return [this.$refs.date_hired, this.$refs.employment_status, this.$refs.division, this.$refs.date_of_effectivity];
-        },
+            // --- Field Helpers ---
+            getFields() {
+                return [this.$refs.date_hired, this.$refs.employment_status, this.$refs.division, this.$refs.date_of_effectivity];
+            },
 
-        // --- Validation ---
-        checkFields() {
-            this.showAction = this.getFields().some((f) => f.value?.trim() !== "");
-        },
+            // --- Validation ---
+            checkFields() {
+                this.showAction = this.getFields().some((f) => f.value?.trim() !== "");
+            },
 
-        checkRows() {
-            // static rows
-            Object.keys(this.rows).forEach((key) => {
-                const from = this.$refs[`${key}_from`]?.value?.trim();
-                const to = this.$refs[`${key}_to`]?.value?.trim();
-                this.rows[key].valid = !!(from && to);
-            });
+            checkRows() {
+                // static rows
+                Object.keys(this.rows).forEach((key) => {
+                    const from = this.$refs[`${key}_from`]?.value?.trim();
+                    const to = this.$refs[`${key}_to`]?.value?.trim();
+                    this.rows[key].valid = !!(from && to);
+                });
 
-            // allowance rows (directly from x-model)
-            this.allowances.forEach((a) => {
-                a.valid = !!(a.from?.trim() && a.to?.trim() && a.value);
-            });
+                // allowance rows (directly from x-model)
+                this.allowances.forEach((a) => {
+                    a.valid = !!(a.from?.trim() && a.to?.trim() && a.value);
+                });
 
-            // Sync with Livewire after validation
-            this.syncAllowancesWithLivewire();
-        },
+                // Sync with Livewire after validation
+                this.syncAllowancesWithLivewire();
+            },
 
-        validateBeforeModal(header, message) {
-            this.validationAttempted = true;
-            this.checkRows();
+            validateBeforeModal(header, message) {
+                this.validationAttempted = true;
+                this.checkRows();
 
-            // highlight required static fields
-            let hasEmpty = false;
-            this.getFields().forEach((field) => {
-                if (field.value.trim() === "") {
-                    field.classList.add("!border-red-500");
-                    hasEmpty = true;
-                } else {
-                    field.classList.remove("!border-red-500");
-                }
-            });
+                // highlight required static fields
+                let hasEmpty = false;
+                this.getFields().forEach((field) => {
+                    if (field.value.trim() === "") {
+                        field.classList.add("!border-red-500");
+                        hasEmpty = true;
+                    } else {
+                        field.classList.remove("!border-red-500");
+                    }
+                });
 
-            // check rows validity
-            const rowsInvalid = Object.values(this.rows).some((r) => !r.valid);
-            const allowancesInvalid = this.allowances.some((a) => !a.valid);
+                // check rows validity
+                const rowsInvalid = Object.values(this.rows).some((r) => !r.valid);
+                const allowancesInvalid = this.allowances.some((a) => !a.valid);
 
-            if (hasEmpty || rowsInvalid || allowancesInvalid) return;
+                if (hasEmpty || rowsInvalid || allowancesInvalid) return;
 
-            // Final sync before submission
-            this.syncAllowancesWithLivewire();
+                // Final sync before submission
+                this.syncAllowancesWithLivewire();
 
-            // open modal
-            this.showModal = true;
-            this.modalHeader = header;
-            this.modalMessage = message;
-        },
+                // open modal
+                this.showModal = true;
+                this.modalHeader = header;
+                this.modalMessage = message;
+            },
 
-        // Add method to handle allowance deletion
-        removeAllowance(index) {
-            this.allowances.splice(index, 1);
-            this.syncAllowancesWithLivewire();
-        }
-    };
-}
+            // Add method to handle allowance deletion
+            removeAllowance(index) {
+                this.allowances.splice(index, 1);
+                this.syncAllowancesWithLivewire();
+            }
+        };
+    }
 </script>
