@@ -39,5 +39,6 @@
             
         </table>
     </div>
-    <x-pagination/>
+    
+    <x-pagination :paginator="$approvalRequests" />
 </section>

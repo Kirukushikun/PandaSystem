@@ -72,7 +72,7 @@ class RequestorForm extends Component
         ]);
 
         $this->dispatch('requestSaved'); // Notify table
-        return session()->flash('success', 'Request submitted successfully');
+        $this->noreloadNotif('success', 'Draft Saved!', 'Your request has been saved as a draft. You can continue editing anytime.');
     }
 
     public function submitDraft(){
@@ -104,7 +104,7 @@ class RequestorForm extends Component
         $requestEntry->save();
 
         $this->redirect('/requestor');
-        Log::info("Deleting Draft {$this->requestID}");
+        $this->reloadNotif('success', 'Draft Deleted', 'The draft request has been permanently removed.');
     }
 
     public function submitRequest(){
@@ -159,5 +159,23 @@ class RequestorForm extends Component
     public function render()
     {
         return view('livewire.requestor-form');
+    }
+
+
+    private function reloadNotif($type, $header, $message){
+        session()->flash('notif', [
+            'type' => $type,
+            'header' => $header,
+            'message' => $message
+        ]);
+    }
+
+    private function noreloadNotif($type, $header, $message){
+        // Also fire event for SPA style
+        $this->dispatch('notify', [
+            'type' => $type,
+            'header' => $header,
+            'message' => $message,
+        ])->toBrowser(); // 👈 important
     }
 }

@@ -4,10 +4,20 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\RequestorModel;
+use Livewire\WithPagination;
 
 class ApproverTable extends Component
 {   
     protected $listeners = ['requestSaved' => '$refresh'];
+
+    use WithPagination;
+
+    protected $paginationTheme = 'tailwind'; // or 'bootstrap' or omit
+
+    public function goToPage($page)
+    {
+        $this->setPage($page);
+    }
 
     public function render()
     {   
@@ -16,7 +26,7 @@ class ApproverTable extends Component
             ->orWhere('request_status', 'Approved')
             ->orWhere('request_status', 'Rejected')
             ->latest()
-            ->get();
+            ->paginate(8);
 
         return view('livewire.approver-table', compact('approvalRequests'));
     }

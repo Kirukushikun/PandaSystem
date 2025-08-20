@@ -50,6 +50,54 @@
                </a>
           </div>
      </div>
+
+     <div x-data="{ show: false, type: '', header: '', message: '' }" 
+          x-init="
+               @if(session('notif'))
+                    // Handle reload flash notification
+                    type = '{{ session('notif.type') }}';
+                    header = '{{ session('notif.header') }}';
+                    message = '{{ session('notif.message') }}';
+                    setTimeout(() => {
+                         show = true;
+                         setTimeout(() => show = false, 4000);
+                    }, 1000);
+               @endif
+
+               // Handle SPA/Livewire notification
+               window.addEventListener('notify', (event) => {
+                    let data = event.detail
+                    type = data.type
+                    header = data.header
+                    message = data.message
+                    show = true
+                    setTimeout(() => {
+                         show = true;
+                         setTimeout(() => show = false, 4000);
+                    }, 1000);
+               })
+          "
+          class="absolute top-10 right-10">
+
+          <div x-show="show"
+               x-transition:enter="transition transform ease-out duration-500"
+               x-transition:enter-start="-translate-y-5 opacity-0"
+               x-transition:enter-end="translate-y-0 opacity-100"
+               x-transition:leave="transition transform ease-in duration-500"
+               x-transition:leave-start="translate-y-0 opacity-100"
+               x-transition:leave-end="-translate-y-5 opacity-0"
+               class="notification w-auto bg-white flex flex-col px-15 py-7 whitespace-nowrap rounded-lg border-solid shadow-xl">
+
+               <div class="notif-header font-bold text-lg flex items-center relative">
+                    <i class="fa-regular fa-circle-check absolute -left-8 text-green-500 text-xl"></i>
+                    <span x-text="header"></span>
+                    <i class="fa-solid fa-xmark absolute -right-8 text-gray-500 hover:text-gray-800 text-xl cursor-pointer" @click="show = false"></i>
+               </div>
+               
+               <div class="notif-body text-md text-gray-500" x-text="message">
+               </div>
+          </div>
+     </div>
      
      @yield('content')
 
