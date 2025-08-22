@@ -15,18 +15,23 @@ use App\Models\RequestorModel;
 // Fixed Route for all new application that will use Auth
 Route::get('/app-login/{id}', [AuthenticationController::class, 'app_login'])->name('app.login');
 // Login Route
-Route::get('/login', [LoginController::class, 'login'])->name('login');
-// Auth Middleware Group
-Route::middleware('auth')->group(function() {
-	// Main Session Check for Authetication
-	Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
-	// Dash/Dashboard
-	Route::get('/', [DashboardController::class, 'dash'])->name('dash');
+Route::post('/login', [LoginController::class, 'postLogin'])->name('login.post');
 
-});
+// // Auth Middleware Group
+// Route::middleware('auth')->group(function() {
+// 	// Main Session Check for Authetication
+// 	Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+// 	// Dash/Dashboard
+// 	Route::get('/', [DashboardController::class, 'dash'])->name('dash');
+
+// });
 
 Route::get('/gs', function () {
 	return GS::service1();
+});
+
+Route::get('/login', function () {
+	return view('auth.login');
 });
 
 // Landing Page

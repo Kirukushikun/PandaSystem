@@ -31,4 +31,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'auth_api' => [
+        'base_uri' => env('AUTH_API_BASE_URI', 'https://example.com'),
+        'api_key' => env('AUTH_API_KEY', '12345678'),
+        'auth_user_api_key' => env('AUTH_USER_API_KEY', '12345678'),
+    ],
+
 ];
