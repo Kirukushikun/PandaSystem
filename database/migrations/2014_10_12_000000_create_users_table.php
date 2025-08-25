@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('password')->nullable();
             $table->string('role', 20)->nullable();
+            $table->json('access')->nullable(); // No default here
             $table->timestamps();
         });
     }

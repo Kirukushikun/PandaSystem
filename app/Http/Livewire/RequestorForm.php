@@ -72,7 +72,7 @@ class RequestorForm extends Component
         ]);
 
         $this->dispatch('requestSaved'); // Notify table
-        $this->noreloadNotif('success', 'Draft Saved!', 'Your request has been saved as a draft. You can continue editing anytime.');
+        // $this->noreloadNotif('success', 'Draft Saved!', 'Your request has been saved as a draft. You can continue editing anytime.');
     }
 
     public function submitDraft(){
@@ -80,7 +80,7 @@ class RequestorForm extends Component
         $this->validate();
 
         $requestEntry = RequestorModel::find($this->requestID);
-        $requestEntry->request_status = 'For Prep';
+        $requestEntry->request_status = 'For Head Approval';
         $requestEntry->employee_name = $this->employee_name;
         $requestEntry->employee_id = $this->employee_id;
         $requestEntry->department = $this->department;
@@ -96,12 +96,7 @@ class RequestorForm extends Component
 
     public function deleteDraft(){
         $requestEntry = RequestorModel::find($this->requestID);
-        $requestEntry->is_deleted_by = [
-            "requestor" => true,
-            "preparer"  => false,
-            "approver"  => false,
-        ];
-        $requestEntry->save();
+        $requestEntry->delete();
 
         $this->redirect('/requestor');
         $this->reloadNotif('success', 'Draft Deleted', 'The draft request has been permanently removed.');
@@ -113,7 +108,7 @@ class RequestorForm extends Component
 
         RequestorModel::create([
             'request_no'         => $this->generateRequestNo(),
-            'request_status'      => 'For Prep',
+            'request_status'      => 'For Head Approval',
             'employee_id'         => $this->employee_id,
             'employee_name'       => $this->employee_name,
             'department'          => $this->department,

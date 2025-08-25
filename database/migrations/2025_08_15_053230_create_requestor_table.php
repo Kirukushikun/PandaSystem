@@ -16,11 +16,27 @@ return new class extends Migration
             $table->string('request_no');
             $table->json('is_deleted_by')->nullable();
             $table->enum('request_status', [
+                // Requestor -> Division Head
                 'Draft', 
-                'For Prep', // Disabled
-                'For Approval', // Disabled 
+                'For Head Approval',
+
+                // Division Head -> HR Preparer
+                'For HR Prep',
+
+                // HR Preparer -> Division Head
+                'For Confirmation',
+
+                // Division Head -> HR Approver/Preparer
+                'For HR Approval',
+                'For Resolution',
+
+                // HR Approver -> Final Approver
+                'For Final Approval',
+
                 'Returned to Requestor', 
-                'Returned to HR', // Disabled
+                'Returned to HR',
+
+                // General Status
                 'Approved', // Disabled
                 'Rejected', // Disabled
                 'Withdrew' // Disabled

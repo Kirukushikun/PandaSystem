@@ -27,7 +27,6 @@
      <x-loader/>
 
      <div class="navigator absolute left-[20px] top-[40px] flex flex-col gap-2 bg-white p-5 rounded-md">
-          <div class="label">Admin Navigator</div>
           <div class="navigations flex flex-col gap-2">
                <a href="/requestor"
                     class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('requestor*') ? 'bg-blue-700' : 'bg-blue-400' }}">

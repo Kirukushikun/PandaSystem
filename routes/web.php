@@ -12,6 +12,9 @@ use App\Services\GenericServices as GS;
 
 use App\Models\RequestorModel;
 
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+
 // Fixed Route for all new application that will use Auth
 Route::get('/app-login/{id}', [AuthenticationController::class, 'app_login'])->name('app.login');
 // Login Route
@@ -35,7 +38,16 @@ Route::get('/login', function () {
 });
 
 // Landing Page
+Route::get('/home', function(){
+	$user = User::find(1); 
+	Auth::login($user);
+	return view('home');
+});
+
+
 Route::get('/requestor', function(){
+	$user = User::find(1); 
+	Auth::login($user);
 	return view('panda.requestor');
 });
 
