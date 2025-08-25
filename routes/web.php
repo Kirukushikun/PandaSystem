@@ -70,12 +70,6 @@ Route::get('/request-view', function(Request $request){
 	return view('panda.request-view', compact('request'));
 });
 
-Route::get('/requestor-view', function(Request $request){
-	$requestID = $request->query('requestID');
-	$request = RequestorModel::findOrFail($requestID);
-	return view('panda.requestor-view', compact('request'));
-});
-
 Route::get('/preparer-view', function(Request $request){
 	$requestID = $request->query('requestID');
 	return view('panda.preparer-view', compact('requestID'));
