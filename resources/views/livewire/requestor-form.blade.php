@@ -6,7 +6,7 @@
         <x-statustag :status-text="$requestEntry->request_status" status-location="Container"/>
     @endif
 
-    <h1 class="text-[22px]">Request Form</h1>
+    <h1 class="text-[22px] pb-4">Request Form</h1>
     <div class="form-container relative flex flex-col gap-5 h-full" 
         x-data="{
             showModal: false,
@@ -125,7 +125,7 @@
                 <label for="" class="text-[18px]">Supporting Files:</label>
                 <div class="flex w-full border border-gray-600 rounded-md overflow-hidden text-sm">
                     <!-- Button -->
-                    <button type="button" class="bg-gray-600 text-white px-4 py-2.5 cursor-pointer hover:bg-gray-500">
+                    <button type="button" class="bg-gray-600 text-white px-4 py-2.5 cursor-pointer hover:bg-gray-500" x-ref="supporting_file">
                         View File
                     </button>
                     <!-- File Name -->

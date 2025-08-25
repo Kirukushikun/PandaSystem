@@ -33,6 +33,11 @@
                     Requestor
                </a>
 
+               <a href="/divisionhead"
+                    class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('divisionhead*') ? 'bg-blue-700' : 'bg-blue-400' }}">
+                    Division Head
+               </a>
+
                <a href="/preparer"
                     class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('preparer*') ? 'bg-blue-700' : 'bg-blue-400' }}">
                     Preparer

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('request_no');
             $table->json('is_deleted_by')->nullable();
+            $table->string('current_handler')->default('requestor');
             $table->enum('request_status', [
                 // Requestor -> Division Head
                 'Draft', 

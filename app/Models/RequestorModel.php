@@ -11,6 +11,7 @@ class RequestorModel extends Model
     protected $fillable = [
         'request_no',
         'is_deleted_by',
+        'current_handler',
         'request_status',
         'employee_id',
         'employee_name',

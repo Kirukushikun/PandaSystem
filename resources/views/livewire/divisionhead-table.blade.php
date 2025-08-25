@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-5 h-full">
     <div class="table-header flex w-full gap-3 items-center">
-        <h1 class="text-[22px] flex-none">My Requests</h1>
+        <h1 class="text-[22px] flex-none">Head Approval Requests</h1>
         <x-search-sort-filter/>
     </div>
 
@@ -18,7 +18,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($myRequests as $request)
+                @foreach($requests as $request)
                     <tr>
                         <td>{{$request->request_no}}</td>
                         <td>{{$request->employee_name}}</td>
@@ -39,6 +39,6 @@
         </table>
     </div>
 
-    <x-pagination :paginator="$myRequests" />
+    <x-pagination :paginator="$requests" />
 
 </div>

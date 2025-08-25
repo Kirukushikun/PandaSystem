@@ -39,16 +39,20 @@ Route::get('/login', function () {
 
 // Landing Page
 Route::get('/home', function(){
+	// {"DH_Module": true, "FA_Module": true, "RQ_Module": true, "HRA_Module": true, "HRP_Module": true}
 	$user = User::find(1); 
 	Auth::login($user);
 	return view('home');
 });
 
 
+
 Route::get('/requestor', function(){
-	$user = User::find(1); 
-	Auth::login($user);
 	return view('panda.requestor');
+});
+
+Route::get('/divisionhead', function(){
+	return view('panda.divisionhead');
 });
 
 Route::get('/preparer', function(){
@@ -60,6 +64,12 @@ Route::get('/approver', function(){
 });
 
 // Viewing Entry Page
+Route::get('/request-view', function(Request $request){
+	$requestID = $request->query('requestID');
+	$request = RequestorModel::findOrFail($requestID);
+	return view('panda.request-view', compact('request'));
+});
+
 Route::get('/requestor-view', function(Request $request){
 	$requestID = $request->query('requestID');
 	$request = RequestorModel::findOrFail($requestID);

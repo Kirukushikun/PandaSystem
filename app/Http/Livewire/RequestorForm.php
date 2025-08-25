@@ -81,6 +81,7 @@ class RequestorForm extends Component
 
         $requestEntry = RequestorModel::find($this->requestID);
         $requestEntry->request_status = 'For Head Approval';
+        $requestEntry->current_handler = 'division head';
         $requestEntry->employee_name = $this->employee_name;
         $requestEntry->employee_id = $this->employee_id;
         $requestEntry->department = $this->department;
@@ -109,6 +110,7 @@ class RequestorForm extends Component
         RequestorModel::create([
             'request_no'         => $this->generateRequestNo(),
             'request_status'      => 'For Head Approval',
+            'current_handler'     => 'division head',
             'employee_id'         => $this->employee_id,
             'employee_name'       => $this->employee_name,
             'department'          => $this->department,
@@ -147,6 +149,15 @@ class RequestorForm extends Component
         $requestEntry->save();
 
         $this->redirect('/requestor');
+        Log::info("Withdrawing {$this->requestID}");
+    }
+
+    public function submitForPrep(){
+        $requestEntry = RequestorModel::find($this->requestID);
+        $requestEntry->request_status = 'For HR Prep';
+        $requestEntry->save();
+
+        $this->redirect('/divisionhead');
         Log::info("Withdrawing {$this->requestID}");
     }
     
