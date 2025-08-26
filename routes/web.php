@@ -11,6 +11,7 @@ use App\Utilities\GenericUtilities as GU;
 use App\Services\GenericServices as GS;
 
 use App\Models\RequestorModel;
+use App\Models\PreparerModel;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
@@ -55,8 +56,12 @@ Route::get('/divisionhead', function(){
 	return view('panda.divisionhead');
 });
 
-Route::get('/preparer', function(){
-	return view('panda.preparer');
+Route::get('/hrpreparer', function(){
+	return view('panda.hrpreparer');
+});
+
+Route::get('/hrapprover', function(){
+	return view('panda.hrapprover');
 });
 
 Route::get('/approver', function(){
@@ -64,15 +69,27 @@ Route::get('/approver', function(){
 });
 
 // Viewing Entry Page
-Route::get('/request-view', function(Request $request){
+Route::get('/requestor-view', function(Request $request){
 	$requestID = $request->query('requestID');
 	$request = RequestorModel::findOrFail($requestID);
-	return view('panda.request-view', compact('request'));
+	return view('panda.requestor-view', compact('request'));
 });
 
-Route::get('/preparer-view', function(Request $request){
+Route::get('/divisionhead-view', function(Request $request){
 	$requestID = $request->query('requestID');
-	return view('panda.preparer-view', compact('requestID'));
+	$panExist = PreparerModel::where('request_id', $requestID)->exists();
+
+	return view('panda.divisionhead-view', compact('requestID', 'panExist'));
+});
+
+Route::get('/hrpreparer-view', function(Request $request){
+	$requestID = $request->query('requestID');
+	return view('panda.hrpreparer-view', compact('requestID'));
+});
+
+Route::get('/hrapprover-view', function(Request $request){
+	$requestID = $request->query('requestID');
+	return view('panda.hrapprover-view', compact('requestID'));
 });
 
 Route::get('/approver-view', function(Request $request){

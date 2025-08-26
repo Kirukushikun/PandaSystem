@@ -13,7 +13,7 @@ class Statustag extends Component
 
     public function __construct($statusText, $statusLocation)
     {   
-        $this->statusText = $statusText == 'Returned to Requestor' || $statusText == 'Returned to HR' ? 'Returned' : $statusText;
+        $this->statusText = $statusText == 'Returned to Requestor' || $statusText == 'Returned to Head' || $statusText == 'Returned to HR' ? 'Returned' : $statusText;
         $this->statusLocation = $statusLocation;
     }
 

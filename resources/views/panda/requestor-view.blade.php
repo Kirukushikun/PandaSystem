@@ -1,0 +1,29 @@
+@extends('layouts.app')
+
+@push('styles')
+     <link rel="stylesheet" href="{{ asset('css/dashboard-mb.css') }}">
+@endpush
+
+@section('content')
+    <!-- Header -->
+     <x-header/>
+
+     <!-- Layout -->
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+               <a href="/requestor"><div></div><i class="fa-solid fa-arrow-right-from-bracket rotate-180"></i></a>
+        </aside>
+
+          <!-- Content Area -->
+          <main class="content">
+               <section class="content-block relative" id="content-block-1">
+                    <livewire:requestor-form mode="view" module="requestor" :requestID="$request->id" />
+               </section>
+               
+               <livewire:preparer-log :requestID="$request->id"/>
+          </main>
+    </div>
+
+    <script src="{{ asset('js/dashboard-mb.js') }}"></script>
+@endsection

@@ -21,10 +21,15 @@ class ApproverTable extends Component
 
     public function render()
     {   
+        // Statuses relevant/visible only to the module
+        $statuses = [
+            'For Final Approval',
+            'Approved',
+            'Rejected'
+        ];
+
         $approvalRequests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.approver') != true")
-            ->where('request_status', 'For Approval')
-            ->orWhere('request_status', 'Approved')
-            ->orWhere('request_status', 'Rejected')
+            ->whereIn('request_status', $statuses)
             ->latest()
             ->paginate(8);
 

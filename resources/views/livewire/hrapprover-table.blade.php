@@ -1,6 +1,6 @@
 <section class="content-block" id="content-block-1">
     <div class="table-header flex w-full gap-3 items-center">
-        <h1 class="text-[22px] flex-none">PAN Requests</h1>
+        <h1 class="text-[22px] flex-none">PAN Approval Requests</h1>
         <x-search-sort-filter/>
     </div>
     <div class="table-container">
@@ -18,7 +18,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($panRequests as $request)
+                @foreach($requests as $request)
                     <tr>
                         <td>{{$request->request_no}}</td>
                         <td>{{$request->employee_name}}</td>
@@ -30,7 +30,7 @@
                         </td>
                         <td>{{$request->updated_at->format('m/d/Y')}}</td>
                         <td class="table-actions">
-                            <button class="bg-blue-600 text-white" onclick="window.location.href='/preparer-view?requestID={{$request->id}}'">View</button>
+                            <button class="bg-blue-600 text-white" onclick="window.location.href='/hrapprover-view?requestID={{$request->id}}'">View</button>
                             <i class="fa-solid fa-box-archive"></i>
                         </td>
                     </tr>
@@ -39,5 +39,5 @@
             
         </table>
     </div>
-    <x-pagination :paginator="$panRequests" />
+    <x-pagination :paginator="$requests" />
 </section>

@@ -14,14 +14,15 @@ class RequestorForm extends Component
     use WithFileUploads; // Use it
 
     public $mode = 'create';
-    public $requestID, $requestEntry, $isDisabled = false;
+    public $module, $requestID, $requestEntry, $isDisabled = false;
 
     // form fields
     public $employee_name, $employee_id, $department, $type_of_action, $justification, $supporting_file;
 
-    public function mount($mode = 'create', $requestID = null, $isDisabled = false)
+    public function mount($mode = 'create', $module = null, $requestID = null, $isDisabled = false)
     {
         $this->mode = $mode;
+        $this->module = $module;
         $this->requestID = $requestID;
         $this->isDisabled = $isDisabled;
 

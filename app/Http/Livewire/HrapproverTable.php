@@ -6,7 +6,7 @@ use Livewire\Component;
 use App\Models\RequestorModel;
 use Livewire\WithPagination;
 
-class PreparerTable extends Component
+class HrapproverTable extends Component
 {   
     protected $listeners = ['requestSaved' => '$refresh'];
 
@@ -20,12 +20,19 @@ class PreparerTable extends Component
     }
 
     public function render()
-    {
-        $panRequests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.preparer') != true")
-            ->whereNot('request_status', 'Draft')
+    {   
+        // Statuses relevant/visible only to the module
+        $statuses = [
+            'For HR Approval',
+            'Approved',
+            'Rejected'
+        ];
+
+        $requests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.preparer') != true")
+            ->whereIn('request_status', $statuses)
             ->latest()
             ->paginate(8);
 
-        return view('livewire.preparer-table', compact('panRequests'));
+        return view('livewire.hrapprover-table', compact('requests'));
     }
 }

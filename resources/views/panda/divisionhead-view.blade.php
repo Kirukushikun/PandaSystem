@@ -12,19 +12,18 @@
     <div class="layout">
         <!-- Sidebar -->
         <aside class="sidebar">
-               <a href="/approver"><div></div><i class="fa-solid fa-arrow-right-from-bracket rotate-180"></i></a>
-               <a href="#content-block-1" class="active"><div></div><p>RF</p></a>
-               <a href="#content-block-2"><div></div><p>PF</p></a>
-               <a href="#content-block-3"><div></div><i class="fa-solid fa-file-pen"></i></a>
+               <a href="/divisionhead"><div></div><i class="fa-solid fa-arrow-right-from-bracket rotate-180"></i></a>
         </aside>
 
           <!-- Content Area -->
           <main class="content">
                <section class="content-block relative" id="content-block-1">
-                    <livewire:requestor-form mode="view" module="final_approver" :requestID="$requestID" />
+                    <livewire:requestor-form mode="view" module="division_head" :requestID="$requestID" />
                </section>
-               
-               <livewire:preparer-pan module="final_approver" :requestID="$requestID"/>
+
+               @if($panExist)
+                    <livewire:preparer-pan module="division_head" :requestID="$requestID"/>
+               @endif 
                
                <livewire:preparer-log :requestID="$requestID"/>
           </main>

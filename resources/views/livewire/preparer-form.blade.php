@@ -50,7 +50,7 @@
         <!-- Alpine instance -->
         <div x-data="{ showModal: false, modalMessage: '' }">
 
-            @if($requestEntry->request_status == "For Prep")
+            @if($requestEntry->request_status == "For HR Prep")
                 <!-- Buttons -->
                 <div class="form-buttons bottom-0 right-0 flex gap-3 justify-end md:mb-0 md:absolute">
                     <button type="button" @click="modalMessage = 'Are you sure you want to submit?'; showModal = true" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Return to Requestor</button>

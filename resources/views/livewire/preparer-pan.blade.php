@@ -196,47 +196,59 @@
             <p>Iverson Guno</p>
         </div>
 
-        @if($role == "approver")
-            @if($requestEntry->request_status == "For Approval")
-                <div class="form-buttons bottom-0 right-0 flex gap-3 justify-end md:mb-0 md:absolute">
-                    <button type="button" @click="showModal = true; formAction = 'approveRequest'; modalHeader = 'Approve Request'; modalMessage = 'Are you sure you want to approve this request?'" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-800 px-4 py-2">Approve</button>
-                    <button type="button" @click="showModal = true; formAction = 'rejectRequest'; modalHeader = 'Reject Request'; modalMessage = 'Are you sure you want to reject this request?'" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject</button>
-                    <button type="button" @click="validateBeforeModal('Return Request', 'Return this request to the requestor for correction?')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Return to HR</button>
+        <!-- Form Actions -->
+        <div class="flex gap-4">
+            
+            @if($module == 'hr_preparer')
+                <div class="flex flex-col">
+                    <h1><b>HR Preparer Actions:</b></h1>
+                    @if($requestEntry->request_status == 'For HR Prep')
+                        <h2>Status (For HR Prep)</h2>
+                        <li>Submit for Confirmation</li>
+                        <li>Reset</li>
+                    @endif
+                    
+                    @if($requestEntry->request_status == 'For Resolution')
+                        <h2>Status (For Resolution)</h2>
+                        <li>Resubmit for Confirmation</li>
+                    @endif
+                </div>            
+            @endif
+            
+            @if($module == 'division_head')
+                <div class="flex flex-col">
+                    <h1><b>Division Head Actions:</b></h1>
+                    @if($requestEntry->request_status == 'For Confirmation')
+                        <h2>Status (For Confirmation)</h2>
+                        <li>Confirm PAN Form</li>
+                        <li>Flag for Resolution</li> 
+                    @endif
+                </div>     
+            @endif
+
+            @if($module == 'hr_approver')
+                <div class="flex flex-col">
+                    <h1><b>HR Approver Actions:</b></h1>
+                    @if($requestEntry->request_status == 'For HR Approval')
+                        <h2>Status (For HR Approval)</h2>
+                        <li>Approve Request</li>
+                        <li>Reject Request</li>
+                    @endif
                 </div>
             @endif
 
-            <!-- Modal -->
-            <div x-show="showModal" class="fixed inset-0 bg-black/50 z-40"></div>
-            <div x-show="showModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90" class="fixed inset-0 flex items-center justify-center z-50">
-                <div class="bg-white p-6 rounded-lg shadow-lg w-96 z-10">
-                    <h2 class="text-lg font-semibold mb-4" x-text="modalHeader"></h2>
-                    <p class="mb-6" x-text="modalMessage"></p>
-                    <div class="flex justify-end gap-3">
-                        <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
-                        <button type="button" @click="showModal = false; $wire[formAction]();" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
-                    </div>
-                </div>
-            </div>
-        @else
-            <!-- Action Buttons -->
-            <div x-show="showAction" class="form-buttons bottom-0 right-0 flex gap-3 justify-end md:mb-0 md:absolute">
-                <button type="button" @click="validateBeforeModal('Submit for Approval', 'Send this PAN form to the approver for review?')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit for Approval</button>
-                <button type="button" @click="modalMessage = 'Reset the form?'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 hover:bg-gray-200">Reset</button>
-            </div>
+            @if($module == 'final_approver')
+                <div class="flex flex-col">
+                    <h1><b>Final Approver Actions:</b></h1>
+                    @if($requestEntry->request_status == 'For Final Approval')
+                        <h2>Status (For Final Approval)</h2>
+                        <li>Approve Request</li>
+                        <li>Reject Request</li>
+                    @endif
+                </div>            
+            @endif
 
-            <!-- Modal -->
-            <div x-show="showModal" class="fixed inset-0 bg-black/50 z-40"></div>
-            <div x-show="showModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90" class="fixed inset-0 flex items-center justify-center z-50">
-                <div class="bg-white p-6 rounded-lg shadow-lg w-96 z-10">
-                    <h2 class="text-lg font-semibold mb-4" x-text="modalHeader"></h2>
-                    <p class="mb-6" x-text="modalMessage"></p>
-                    <div class="flex justify-end gap-3">
-                        <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
-                        <button type="button" @click="showModal = false" wire:click="submitPan" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
-                    </div>
-                </div>
-            </div>
-        @endif
+        </div>
 
     </div>
 </section>
@@ -361,4 +373,49 @@
             }
         };
     }
+</script>
+
+
+<script>
+    // @if($role == "approver")
+    //     @if($requestEntry->request_status == "For Approval")
+    //         <div class="form-buttons bottom-0 right-0 flex gap-3 justify-end md:mb-0 md:absolute">
+    //             <button type="button" @click="showModal = true; formAction = 'approveRequest'; modalHeader = 'Approve Request'; modalMessage = 'Are you sure you want to approve this request?'" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-800 px-4 py-2">Approve</button>
+    //             <button type="button" @click="showModal = true; formAction = 'rejectRequest'; modalHeader = 'Reject Request'; modalMessage = 'Are you sure you want to reject this request?'" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject</button>
+    //             <button type="button" @click="validateBeforeModal('Return Request', 'Return this request to the requestor for correction?')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Return to HR</button>
+    //         </div>
+    //     @endif
+
+    //     <!-- Modal -->
+    //     <div x-show="showModal" class="fixed inset-0 bg-black/50 z-40"></div>
+    //     <div x-show="showModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90" class="fixed inset-0 flex items-center justify-center z-50">
+    //         <div class="bg-white p-6 rounded-lg shadow-lg w-96 z-10">
+    //             <h2 class="text-lg font-semibold mb-4" x-text="modalHeader"></h2>
+    //             <p class="mb-6" x-text="modalMessage"></p>
+    //             <div class="flex justify-end gap-3">
+    //                 <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
+    //                 <button type="button" @click="showModal = false; $wire[formAction]();" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
+    //             </div>
+    //         </div>
+    //     </div>
+    // @else
+    //     <!-- Action Buttons -->
+    //     <div x-show="showAction" class="form-buttons bottom-0 right-0 flex gap-3 justify-end md:mb-0 md:absolute">
+    //         <button type="button" @click="validateBeforeModal('Submit for Approval', 'Send this PAN form to the approver for review?')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit for Approval</button>
+    //         <button type="button" @click="modalMessage = 'Reset the form?'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 hover:bg-gray-200">Reset</button>
+    //     </div>
+
+    //     <!-- Modal -->
+    //     <div x-show="showModal" class="fixed inset-0 bg-black/50 z-40"></div>
+    //     <div x-show="showModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90" class="fixed inset-0 flex items-center justify-center z-50">
+    //         <div class="bg-white p-6 rounded-lg shadow-lg w-96 z-10">
+    //             <h2 class="text-lg font-semibold mb-4" x-text="modalHeader"></h2>
+    //             <p class="mb-6" x-text="modalMessage"></p>
+    //             <div class="flex justify-end gap-3">
+    //                 <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
+    //                 <button type="button" @click="showModal = false" wire:click="submitPan" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
+    //             </div>
+    //         </div>
+    //     </div>
+    // @endif
 </script>

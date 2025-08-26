@@ -9,8 +9,9 @@ use Illuminate\Support\Facades\Log;
 
 class PreparerPan extends Component
 {   
-    public $role; // Temporary role based
+    public $role = 'approver'; // Temporary role based
     public $mode = 'create';
+    public $module;
     public $isDisabled, $requestID, $requestEntry, $panEntry, $referenceTableData;
     public $date_hired, $employment_status, $division, $date_of_effectivity, $remarks;
     public 
@@ -23,9 +24,8 @@ class PreparerPan extends Component
 
     public $allowances = []; 
 
-    public function mount($requestID = null, $role = null){
-
-        $this->role = $role;
+    public function mount($module = null, $requestID = null){
+        $this->module = $module;
         
         if($requestID){
             // Request existing entry
@@ -50,8 +50,8 @@ class PreparerPan extends Component
                 $this->mode = 'view';
             }
 
-            // disable fields if not Draft or Returned
-            if (!in_array($this->requestEntry->request_status, ['For Prep', 'Returned to HR'])) {
+            // disable fields if not Draft or Returned to HR
+            if (!in_array($this->requestEntry->request_status, ['For HR Prep', 'Returned to HR'])) {
                 $this->isDisabled = true;
             }
 
@@ -118,7 +118,7 @@ class PreparerPan extends Component
             ];
         };
 
-        $this->requestEntry->request_status = 'For Approval';
+        $this->requestEntry->request_status = 'For Confirmation';
         $this->requestEntry->save();
 
         PreparerModel::create([
@@ -133,7 +133,7 @@ class PreparerPan extends Component
         ]);
 
         $this->dispatch('requestSaved'); // Notify table
-        $this->redirect("/preparer");
+        $this->redirect("/hrpreparer");
         session()->flash('message', 'PAN form submitted successfully!');
     }
 

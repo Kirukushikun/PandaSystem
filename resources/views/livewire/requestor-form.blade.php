@@ -146,47 +146,115 @@
             <p>{{ $mode === 'view' ? $requestEntry->requested_by : 'Iverson Guno' }}</p>
         </div>
 
-        <!-- Buttons -->
-        @if($mode == "create")
-            <div x-show="showAction" class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                <button type="button" @click="validateBeforeModal('Confirm Submission', 'Are you sure you want to submit this request for processing?'); formAction = 'submitRequest' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit to Head</button>
-                <button type="button" @click="showModal = true; formAction = 'saveDraft'; modalHeader = 'Save Draft'; modalMessage = 'Do you want to save this request as a draft?' " class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Save as Draft</button>
-                <button type="button" @click="resetForm()" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
-            </div>
-        @elseif($mode == "view")
-            <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                @if($requestEntry->request_status == "Draft")
-                    <button x-show="showAction" type="button" @click="validateBeforeModal('Confirm Submission', 'Are you sure you want to submit this draft for processing?'); formAction = 'submitDraft' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit to Head</button>
-                    <button type="button" @click="showModal = true; formAction = 'deleteDraft'; modalHeader = 'Delete Draft'; modalMessage = 'Are you sure you want to delete this draft?' " class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Delete Draft</button>
-                @elseif($requestEntry->request_status == "Returned to Requestor")
-                    <button x-show="showAction" type="button" @click="validateBeforeModal('Confirm Resubmission', 'Are you sure you want to resubmit this request for processing?'); formAction = 'resubmitRequest' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Resubmit to Head</button>
-                    <button type="button" @click="showModal = true; formAction = 'withdrawRequest'; modalHeader = 'Withdraw Request'; modalMessage = 'Are you sure you want to withdraw this request? This action will be recorded.' " class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Withdraw Request</button>
-                @endif
-            </div>
-        @endif
+        <!-- Form Actions -->
+        <div class="flex gap-4">
+            @if($module == 'requestor')
+                <div class="flex flex-col">
+                    <h1><b>Requestor Actions:</b></h1>
+                    @if($mode == 'create')
+                        <li>Submit to Head</li>
+                        <li>Save Draft</li>
+                        <li>Reset</li>
+                    @endif
 
-        <!-- Overlay (instant) -->
-        <div x-show="showModal" class="fixed inset-0 bg-black/50"></div>
+                    @if($mode == 'view')
+                        @if($requestEntry->request_status == 'Draft')
+                            <h2>Status (Draft)</h2>
+                            <li>Submit to Head</li>
+                            <li>Delete Draft</li>
+                        @endif
 
-        <!-- Modal box (with transition) -->
-        <div
-            x-show="showModal"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 scale-90"
-            x-transition:enter-end="opacity-100 scale-100"
-            x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100 scale-100"
-            x-transition:leave-end="opacity-0 scale-90"
-            class="fixed inset-0 flex items-center justify-center"
-        >
-            <div class="bg-white p-6 rounded-lg shadow-lg w-96 z-10">
-                <h2 class="text-xl font-semibold mb-4" x-text="modalHeader"></h2>
-                <p class="mb-6" x-text="modalMessage"></p>
-                <div class="flex justify-end gap-3">
-                    <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
-                    <button type="button" @click="showModal = false; $wire[formAction](); {{$mode == 'create' ? 'resetForm();' : ''}}" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
-                </div>
-            </div>
+                        @if($requestEntry->request_status == 'Returned to Requestor')
+                            <h2>Status (Returned to Requestor)</h2>
+                            <li>Resubmit to Head</li>
+                            <li>Withdraw</li>
+                        @endif                        
+                    @endif
+                </div>  
+            @endif       
+
+            @if($module == 'division_head')
+                <div class="flex flex-col">
+                    <h1><b>Division Head Actions:</b></h1>
+                    @if($requestEntry->request_status == 'For Head Approval')
+                        <h2>Status (For Head Approval)</h2>
+                        <li>Approve Request</li>
+                        <li>Reject Request</li>
+                        <li>Return to Requestor</li>                        
+                    @endif
+
+                    @if($requestEntry->request_status == 'Returned to Head')
+                        <h2>Status (Returned to Head)</h2>
+                        <li>Resubmit to HR for Prep</li>
+                    @endif
+                </div>                
+            @endif
+
+            @if($module == 'hr_preparer')
+                <div class="flex flex-col">
+                    <h1><b>HR Preparer Actions:</b></h1>
+                    @if($requestEntry->request_status == 'For HR Prep')
+                        <h2>Status (For HR Prep)</h2>
+                        <li>Return to Head</li>                      
+                    @endif
+                </div>  
+            @endif
         </div>
+
     </div>
 </form>
+
+<script>
+    // <!-- Buttons -->
+    // @if($mode == "create")
+    //     <div x-show="showAction" class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+    //         <button type="button" @click="validateBeforeModal('Confirm Submission', 'Are you sure you want to submit this request for processing?'); formAction = 'submitRequest' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit to Head</button>
+    //         <button type="button" @click="showModal = true; formAction = 'saveDraft'; modalHeader = 'Save Draft'; modalMessage = 'Do you want to save this request as a draft?' " class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Save as Draft</button>
+    //         <button type="button" @click="resetForm()" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
+    //     </div>
+    // @elseif($mode == "view")
+    //     <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+    //         @if($module == 'requestor')
+    //             @if($requestEntry->request_status == "Draft")
+    //                 <button x-show="showAction" type="button" @click="validateBeforeModal('Confirm Submission', 'Are you sure you want to submit this draft for processing?'); formAction = 'submitDraft' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit to Head</button>
+    //                 <button type="button" @click="showModal = true; formAction = 'deleteDraft'; modalHeader = 'Delete Draft'; modalMessage = 'Are you sure you want to delete this draft?' " class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Delete Draft</button>
+    //             @elseif($requestEntry->request_status == "Returned to Requestor")
+    //                 <button x-show="showAction" type="button" @click="validateBeforeModal('Confirm Resubmission', 'Are you sure you want to resubmit this request for processing?'); formAction = 'resubmitRequest' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Resubmit to Head</button>
+    //                 <button type="button" @click="showModal = true; formAction = 'withdrawRequest'; modalHeader = 'Withdraw Request'; modalMessage = 'Are you sure you want to withdraw this request? This action will be recorded.' " class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Withdraw Request</button>
+    //             @endif                    
+    //         @endif
+
+    //         @if($module == 'divisionhead')
+    //             @if($requestEntry->request_status == "For Head Approval")
+    //                 <button type="button" @click="showModal = true; formAction = 'submitForPrep'; modalHeader = 'Approve request'; modalMessage = 'Are you sure you want to approve this request and forward to HR for preparation?' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Approve Request</button>
+    //                 <button type="button" @click="showModal = true; formAction = 'rejectRequest'; modalHeader = 'Reject request'; modalMessage = 'Are you sure you want to delete this draft?' " class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject</button>
+    //             @endif
+    //         @endif
+
+    //     </div>
+    // @endif
+
+    // <!-- Overlay (instant) -->
+    // <div x-show="showModal" class="fixed inset-0 bg-black/50"></div>
+
+    // <!-- Modal box (with transition) -->
+    // <div
+    //     x-show="showModal"
+    //     x-transition:enter="transition ease-out duration-200"
+    //     x-transition:enter-start="opacity-0 scale-90"
+    //     x-transition:enter-end="opacity-100 scale-100"
+    //     x-transition:leave="transition ease-in duration-150"
+    //     x-transition:leave-start="opacity-100 scale-100"
+    //     x-transition:leave-end="opacity-0 scale-90"
+    //     class="fixed inset-0 flex items-center justify-center"
+    // >
+    //     <div class="bg-white p-6 rounded-lg shadow-lg w-md z-10">
+    //         <h2 class="text-xl font-semibold mb-4" x-text="modalHeader"></h2>
+    //         <p class="mb-6" x-text="modalMessage"></p>
+    //         <div class="flex justify-end gap-3">
+    //             <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
+    //             <button type="button" @click="showModal = false; $wire[formAction](); {{$mode == 'create' ? 'resetForm();' : ''}}" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
+    //         </div>
+    //     </div>
+    // </div>
+</script>

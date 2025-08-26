@@ -38,9 +38,14 @@
                     Division Head
                </a>
 
-               <a href="/preparer"
-                    class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('preparer*') ? 'bg-blue-700' : 'bg-blue-400' }}">
-                    Preparer
+               <a href="/hrpreparer"
+                    class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('hrpreparer*') ? 'bg-blue-700' : 'bg-blue-400' }}">
+                    HR Preparer
+               </a>
+
+               <a href="/hrapprover"
+                    class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('hrapprover*') ? 'bg-blue-700' : 'bg-blue-400' }}">
+                    HR Approver
                </a>
 
                <a href="/approver"
