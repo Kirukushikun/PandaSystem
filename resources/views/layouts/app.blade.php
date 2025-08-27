@@ -75,15 +75,15 @@
 
                // Handle SPA/Livewire notification
                window.addEventListener('notify', (event) => {
+                    console.log(event.detail); // 👈 check what you actually receive
                     let data = event.detail
                     type = data.type
                     header = data.header
                     message = data.message
                     show = true
                     setTimeout(() => {
-                         show = true;
-                         setTimeout(() => show = false, 4000);
-                    }, 1000);
+                         setTimeout(() => show = false, 4000)
+                    }, 1000)
                })
           "
           class="absolute top-10 right-10">

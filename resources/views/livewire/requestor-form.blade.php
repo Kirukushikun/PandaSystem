@@ -1,6 +1,6 @@
 
 
-<form class="h-full {{$mode == 'create' ? 'pb-8' : ''}}" wire:submit.prevent="submitForm">
+<form class="h-full {{$mode == 'create' ? 'pb-10' : ''}}" wire:submit.prevent="submitForm">
     <!-- -- Status only in view mode -- -->
     @if($mode === 'view')
         <x-statustag :status-text="$requestEntry->request_status" status-location="Container"/>
@@ -12,9 +12,72 @@
             showModal: false,
             showAction: false,
 
-            formAction: '',
-            modalHeader: '',
-            modalMessage: '',
+            modalTarget: '',
+            modalConfig: {
+                submit: {
+                    header: 'Confirm Submission',
+                    message: 'Are you sure you want to submit this request for processing?',
+                    action: 'submitRequest',
+                    needsInput: false
+                },
+                resubmit: {
+                    header: 'Confirm Resubmission',
+                    message: 'Are you sure you want to resubmit this request for processing?',
+                    action: 'resubmitRequest',
+                    needsInput: false
+                },
+                
+
+                savedraft: {
+                    header: 'Save Draft',
+                    message: 'Do you want to save this request as a draft?',
+                    action: 'saveDraft',
+                    needsInput: false
+                },
+                submitdraft: {
+                    header: 'Confirm Submission',
+                    message: 'Are you sure you want to submit this request for processing?',
+                    action: 'submitDraft',
+                    needsInput: false
+                },
+                deletedraft: {
+                    header: 'Delete Draft',
+                    message: 'Are you sure you want to delete this draft? This action can’t be undone.',
+                    action: 'deleteDraft',
+                    needsInput: false
+                },
+
+                approverequest: {
+                    header: 'Approve Request',
+                    message: 'Are you sure you want to approve this request? This request will be forwarded to HR for preparation.',
+                    action: 'approveRequest',
+                    needsInput: false
+                },
+                rejectrequest: {
+                    header: 'Reject Request',
+                    message: 'Are you sure you want to reject this request? This action will be recorded.',
+                    action: 'rejectRequest',
+                    needsInput: false
+                },
+
+                returnrequestor: {
+                    header: 'Return Request to Requestor',
+                    action: 'returnRequestor',
+                    needsInput: true
+                },
+                returnhead: {
+                    header: 'Return Request to Head',
+                    action: 'returnHead',
+                    needsInput: true
+                },
+
+                withdraw: {
+                    header: 'Withdraw Request',
+                    message: 'Are you sure you want to withdraw this request? This action can’t be undone.',
+                    action: 'withdrawRequest',
+                    needsInput: false
+                },
+            },
 
             // helper to collect all fields
             get fields(){
@@ -27,7 +90,7 @@
                     this.$refs.supporting_file,
                 ];
             },
-            
+
             // Initialize their event listeners to a function
             init() {
                 this.fields.forEach(field => {
@@ -40,8 +103,7 @@
                 this.showAction = this.fields.some(f => f.value?.trim() !== '');
             },
 
-
-            validateBeforeModal(header, message) {
+            validateBeforeModal(action) {
 
                 let hasEmpty = false;
 
@@ -58,12 +120,10 @@
 
                 if (hasEmpty) return; // stop if any empty
 
+                this.modalTarget = action;
                 this.showModal = true;
-                this.modalHeader = header;
-                this.modalMessage = message;
-
             },
-
+            
             resetForm(){
                 this.fields.forEach(field => {
                     field.value = '';
@@ -111,6 +171,8 @@
                     <option value="Promotion">Promotion</option>
                     <option value="Training Status">Training Status</option>
                     <option value="Confirmation of Appointment">Confirmation of Appointment</option>
+                    <option value="Discontinuance of Interim Allowance">Discontinuance of Allowance</option>
+                    <option value="Confirmation of Development Assignment">Confirmation of Dev. Assignment</option>
                 </select>
             </div>
         </div>
@@ -152,22 +214,26 @@
                 <div class="flex flex-col">
                     <h1><b>Requestor Actions:</b></h1>
                     @if($mode == 'create')
-                        <li>Submit to Head</li>
-                        <li>Save Draft</li>
-                        <li>Reset</li>
+                        <div x-show="showAction" class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                            <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit to Head</button>
+                            <button type="button" @click="modalTarget = 'savedraft'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Save as Draft</button>
+                            <button type="button" @click="resetForm(); showModal = false" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
+                        </div>
                     @endif
 
                     @if($mode == 'view')
                         @if($requestEntry->request_status == 'Draft')
-                            <h2>Status (Draft)</h2>
-                            <li>Submit to Head</li>
-                            <li>Delete Draft</li>
+                            <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                                <button type="button" @click="validateBeforeModal('submitdraft')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit to Head</button>
+                                <button type="button" @click="modalTarget = 'deletedraft'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Delete Draft</button>
+                            </div>
                         @endif
 
                         @if($requestEntry->request_status == 'Returned to Requestor')
-                            <h2>Status (Returned to Requestor)</h2>
-                            <li>Resubmit to Head</li>
-                            <li>Withdraw</li>
+                            <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                                <button x-show="showAction" type="button" @click="validateBeforeModal('resubmit')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Resubmit to Head</button>
+                                <button type="button" @click="modalTarget = 'withdraw'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Withdraw Request</button>
+                            </div>
                         @endif                        
                     @endif
                 </div>  
@@ -177,15 +243,11 @@
                 <div class="flex flex-col">
                     <h1><b>Division Head Actions:</b></h1>
                     @if($requestEntry->request_status == 'For Head Approval')
-                        <h2>Status (For Head Approval)</h2>
-                        <li>Approve Request</li>
-                        <li>Reject Request</li>
-                        <li>Return to Requestor</li>                        
-                    @endif
-
-                    @if($requestEntry->request_status == 'Returned to Head')
-                        <h2>Status (Returned to Head)</h2>
-                        <li>Resubmit to HR for Prep</li>
+                        <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                            <button type="button" @click="modalTarget = 'approverequest'; showModal = true" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-800 px-4 py-2">Approve Request</button>
+                            <button type="button" @click="modalTarget = 'rejectrequest'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject Request</button>
+                            <button type="button" @click="modalTarget = 'returnrequestor'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to Requestor</button>
+                        </div>
                     @endif
                 </div>                
             @endif
@@ -194,67 +256,55 @@
                 <div class="flex flex-col">
                     <h1><b>HR Preparer Actions:</b></h1>
                     @if($requestEntry->request_status == 'For HR Prep')
-                        <h2>Status (For HR Prep)</h2>
-                        <li>Return to Head</li>                      
+                        <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                            <button type="button" @click="modalTarget = 'returnrequestor'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to Requestor</button>
+                        </div>                   
                     @endif
                 </div>  
             @endif
         </div>
 
+        <!-- Overlay (instant) -->
+        <div x-show="showModal" class="fixed inset-0 bg-black/50"></div>
+        
+        <div
+            x-show="showModal"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-90"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-90"
+            class="fixed inset-0 flex items-center justify-center z-40"
+        >
+            <div class="bg-white p-6 rounded-lg shadow-lg w-md z-10">
+                <h2 class="text-xl font-semibold mb-4" x-text="modalConfig[modalTarget]?.header"></h2>
+                <p class="mb-6" x-show="!modalConfig[modalTarget]?.needsInput" x-text="modalConfig[modalTarget]?.message"></p>
+
+                <!-- For input type -->
+                <template x-if="modalConfig[modalTarget]?.needsInput">
+                    <div class="flex flex-col gap-3 mb-5">
+                        <div class="input-group">
+                            <label for="reason">Reason:</label>
+                            <select name="reason" wire:model="reason" required>
+                                <option value="">Select reason</option>
+                                <option value="Missing Supporting File">Missing Supporting File</option>
+                                <option value="Incorrect Employee Info">Incorrect Employee Info</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Details:</label>
+                            <textarea class="w-full h-24 resize-none" placeholder="(Optional)" wire:model="details"></textarea>
+                        </div>
+                    </div>
+                </template>
+
+                <div class="flex justify-end gap-3">
+                    <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
+                    <button type="button" @click="showModal = false; $wire[modalConfig[modalTarget]?.action](); resetForm()" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
+                </div>
+            </div>
+
+        </div>
     </div>
 </form>
-
-<script>
-    // <!-- Buttons -->
-    // @if($mode == "create")
-    //     <div x-show="showAction" class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-    //         <button type="button" @click="validateBeforeModal('Confirm Submission', 'Are you sure you want to submit this request for processing?'); formAction = 'submitRequest' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit to Head</button>
-    //         <button type="button" @click="showModal = true; formAction = 'saveDraft'; modalHeader = 'Save Draft'; modalMessage = 'Do you want to save this request as a draft?' " class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Save as Draft</button>
-    //         <button type="button" @click="resetForm()" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
-    //     </div>
-    // @elseif($mode == "view")
-    //     <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-    //         @if($module == 'requestor')
-    //             @if($requestEntry->request_status == "Draft")
-    //                 <button x-show="showAction" type="button" @click="validateBeforeModal('Confirm Submission', 'Are you sure you want to submit this draft for processing?'); formAction = 'submitDraft' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit to Head</button>
-    //                 <button type="button" @click="showModal = true; formAction = 'deleteDraft'; modalHeader = 'Delete Draft'; modalMessage = 'Are you sure you want to delete this draft?' " class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Delete Draft</button>
-    //             @elseif($requestEntry->request_status == "Returned to Requestor")
-    //                 <button x-show="showAction" type="button" @click="validateBeforeModal('Confirm Resubmission', 'Are you sure you want to resubmit this request for processing?'); formAction = 'resubmitRequest' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Resubmit to Head</button>
-    //                 <button type="button" @click="showModal = true; formAction = 'withdrawRequest'; modalHeader = 'Withdraw Request'; modalMessage = 'Are you sure you want to withdraw this request? This action will be recorded.' " class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Withdraw Request</button>
-    //             @endif                    
-    //         @endif
-
-    //         @if($module == 'divisionhead')
-    //             @if($requestEntry->request_status == "For Head Approval")
-    //                 <button type="button" @click="showModal = true; formAction = 'submitForPrep'; modalHeader = 'Approve request'; modalMessage = 'Are you sure you want to approve this request and forward to HR for preparation?' " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Approve Request</button>
-    //                 <button type="button" @click="showModal = true; formAction = 'rejectRequest'; modalHeader = 'Reject request'; modalMessage = 'Are you sure you want to delete this draft?' " class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject</button>
-    //             @endif
-    //         @endif
-
-    //     </div>
-    // @endif
-
-    // <!-- Overlay (instant) -->
-    // <div x-show="showModal" class="fixed inset-0 bg-black/50"></div>
-
-    // <!-- Modal box (with transition) -->
-    // <div
-    //     x-show="showModal"
-    //     x-transition:enter="transition ease-out duration-200"
-    //     x-transition:enter-start="opacity-0 scale-90"
-    //     x-transition:enter-end="opacity-100 scale-100"
-    //     x-transition:leave="transition ease-in duration-150"
-    //     x-transition:leave-start="opacity-100 scale-100"
-    //     x-transition:leave-end="opacity-0 scale-90"
-    //     class="fixed inset-0 flex items-center justify-center"
-    // >
-    //     <div class="bg-white p-6 rounded-lg shadow-lg w-md z-10">
-    //         <h2 class="text-xl font-semibold mb-4" x-text="modalHeader"></h2>
-    //         <p class="mb-6" x-text="modalMessage"></p>
-    //         <div class="flex justify-end gap-3">
-    //             <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
-    //             <button type="button" @click="showModal = false; $wire[formAction](); {{$mode == 'create' ? 'resetForm();' : ''}}" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
-    //         </div>
-    //     </div>
-    // </div>
-</script>

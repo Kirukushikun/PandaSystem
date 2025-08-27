@@ -8,18 +8,22 @@ use Livewire\WithFileUploads; // Import
 use Carbon\Carbon;
 
 use App\Models\RequestorModel;
+use App\Models\LogModel;
 
 class RequestorForm extends Component
 {      
     use WithFileUploads; // Use it
 
-    public $mode = 'create';
+    public $mode;
     public $module, $requestID, $requestEntry, $isDisabled = false;
 
     // form fields
     public $employee_name, $employee_id, $department, $type_of_action, $justification, $supporting_file;
 
-    public function mount($mode = 'create', $module = null, $requestID = null, $isDisabled = false)
+    // return request fields
+    public $reason, $details;
+
+    public function mount($mode = null, $module = null, $requestID = null, $isDisabled = false)
     {
         $this->mode = $mode;
         $this->module = $module;
@@ -29,8 +33,10 @@ class RequestorForm extends Component
         if ($requestID) {
             $this->requestEntry = RequestorModel::findOrFail($requestID);
 
-            // disable fields if not Draft or Returned
-            if (!in_array($this->requestEntry->request_status, ['Draft', 'Returned to Requestor'])) {
+            // disable fields if request status is Draft or Returned and active module is Requestor
+            if (in_array($this->requestEntry->request_status, ['Draft', 'Returned to Requestor']) && $this->module == 'requestor') {
+                $this->isDisabled = false;
+            } else {
                 $this->isDisabled = true;
             }
 
@@ -59,6 +65,8 @@ class RequestorForm extends Component
         return 'PAN-' . Carbon::now()->year . '-' . rand(100, 999);
     }
 
+    // REQUESTOR
+
     public function saveDraft(){
         RequestorModel::create([
             'request_no'         => $this->generateRequestNo(),
@@ -73,7 +81,7 @@ class RequestorForm extends Component
         ]);
 
         $this->dispatch('requestSaved'); // Notify table
-        // $this->noreloadNotif('success', 'Draft Saved!', 'Your request has been saved as a draft. You can continue editing anytime.');
+        $this->noreloadNotif('success', 'Draft Saved!', 'Your request has been saved as a draft. You can continue editing anytime.');
     }
 
     public function submitDraft(){
@@ -93,7 +101,7 @@ class RequestorForm extends Component
         $requestEntry->save();
 
         $this->redirect('/requestor');
-        Log::info("Resubmitting {$this->requestID}");
+        $this->reloadNotif('success', 'Request Submitted!', 'Your request has been successfully submitted for processing.');
     }
 
     public function deleteDraft(){
@@ -123,6 +131,7 @@ class RequestorForm extends Component
         ]);
 
         $this->dispatch('requestSaved'); // Notify table
+        $this->noreloadNotif('success', 'Request Submitted!', 'Your request has been successfully submitted for processing.');
         return session()->flash('success', 'Request submitted successfully');
     }
 
@@ -131,7 +140,7 @@ class RequestorForm extends Component
         $this->validate();
 
         $requestEntry = RequestorModel::find($this->requestID);
-        $requestEntry->request_status = 'For Prep';
+        $requestEntry->request_status = 'For Head Approval';
         $requestEntry->employee_name = $this->employee_name;
         $requestEntry->employee_id = $this->employee_id;
         $requestEntry->department = $this->department;
@@ -140,7 +149,7 @@ class RequestorForm extends Component
         $requestEntry->save();
 
         $this->redirect('/requestor');
-        Log::info("Resubmitting {$this->requestID}");
+        $this->reloadNotif('success', 'Request Resubmitted!', 'Your request has been successfully resubmitted for processing.');
     }
 
     public function withdrawRequest()
@@ -161,28 +170,93 @@ class RequestorForm extends Component
         $this->redirect('/divisionhead');
         Log::info("Withdrawing {$this->requestID}");
     }
+
+    // DIVISION HEAD
+
+    public function approveRequest()
+    {   
+        $requestEntry = RequestorModel::find($this->requestID);
+        $requestEntry->request_status = 'For HR Approval';
+        $requestEntry->save();
+
+        $this->redirect('/divisionhead');
+        $this->reloadNotif('success', 'Request Approved!', 'The request has been approved and now forwarded to HR for preparation.');
+        Log::info("Withdrawing {$this->requestID}");
+    }
+
+    public function rejectRequest()
+    {   
+        $requestEntry = RequestorModel::find($this->requestID);
+        $requestEntry->request_status = 'Rejected by Head';
+        $requestEntry->save();
+
+        $this->redirect('/divisionhead');
+        $this->reloadNotif('success', 'Request Rejected', 'The request has been rejected and recorded in the system.');
+        Log::info("Withdrawing {$this->requestID}");
+    }
+
+    public function returnRequestor(){
+        $this->validate([
+            'reason' => 'required|string',
+            'details' => 'nullable|string'
+        ]);
+
+        LogModel::create([
+            'request_id' => $this->requestID,
+            'origin' => 'Returned by Division Head',
+            'reason' => $this->reason,
+            'details' => $this->details
+        ]);
+
+        $requestEntry = RequestorModel::find($this->requestID);
+        $requestEntry->request_status = 'Returned to Requestor';
+        $requestEntry->save();
+
+        $this->redirect('/divisionhead');
+        $this->reloadNotif('success', 'Returned to Requestor', 'The request has been returned for correction. Please review the remarks provided.');
+    }
+
+    public function returnHead(){
+        $this->validate([
+            'reason' => 'required|string',
+            'details' => 'nullable|string'
+        ]);
+
+        LogModel::create([
+            'request_id' => $this->requestID,
+            'origin' => 'Returned by HR (Preparer)',
+            'reason' => $this->reason,
+            'details' => $this->details
+        ]);
+
+        $requestEntry = RequestorModel::find($this->requestID);
+        $requestEntry->request_status = 'Returned to Head';
+        $requestEntry->save();
+
+        $this->redirect('/divisionhead');
+        $this->reloadNotif('success', 'Returned to Head', 'The request has been returned for correction. Please review the remarks provided.');
+    }
     
+    //RENDER
 
     public function render()
     {
         return view('livewire.requestor-form');
     }
 
+    // HELPER FUNCTIONS
 
-    private function reloadNotif($type, $header, $message){
+    private function noreloadNotif($type, $header, $message)
+    {
+        $this->dispatch('notify', type: $type, header: $header, message: $message);
+    }
+
+    private function reloadNotif($type, $header, $message)
+    {
         session()->flash('notif', [
             'type' => $type,
             'header' => $header,
             'message' => $message
         ]);
-    }
-
-    private function noreloadNotif($type, $header, $message){
-        // Also fire event for SPA style
-        $this->dispatch('notify', [
-            'type' => $type,
-            'header' => $header,
-            'message' => $message,
-        ])->toBrowser(); // 👈 important
     }
 }

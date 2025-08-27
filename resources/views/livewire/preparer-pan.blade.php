@@ -206,6 +206,11 @@
                         <h2>Status (For HR Prep)</h2>
                         <li>Submit for Confirmation</li>
                         <li>Reset</li>
+
+                        <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                            <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit for Confirmation</button>
+                            <button type="button" @click="resetForm()" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
+                        </div>
                     @endif
                     
                     @if($requestEntry->request_status == 'For Resolution')
@@ -250,6 +255,31 @@
 
         </div>
 
+        <!-- Overlay (instant) -->
+        <div x-show="showModal" class="fixed inset-0 bg-black/50 z-30"></div>
+
+        <div
+            x-show="showModal"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-90"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-90"
+            class="fixed inset-0 flex items-center justify-center z-40"
+        >
+            <div class="bg-white p-6 rounded-lg shadow-lg w-md z-10">
+                <h2 class="text-xl font-semibold mb-4" x-text="modalConfig[modalTarget]?.header"></h2>
+                <p class="mb-6" x-show="!modalConfig[modalTarget]?.needsInput" x-text="modalConfig[modalTarget]?.message"></p>
+
+                <div class="flex justify-end gap-3">
+                    <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
+                    <button type="button" @click="showModal = false; $wire[modalConfig[modalTarget]?.action](); resetForm()" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
+                </div>
+            </div>
+
+        </di>
+
     </div>
 </section>
 
@@ -259,9 +289,17 @@
             // --- UI State ---
             showModal: false,
             showAction: false,
-            modalHeader: "",
-            modalMessage: "",
-            formAction: '',
+
+            modalTarget: '',
+            modalConfig: {
+                submit: {
+                    header: 'Submit for Confirmation',
+                    message: 'This PAN form will be forwarded to the Division Head for confirmation. Are you sure you want to proceed?',
+                    action: 'submitPan',
+                    needsInput: false
+                },
+            },
+
             validationAttempted: false,
 
             // --- Row validation state ---
@@ -311,7 +349,12 @@
 
             // --- Field Helpers ---
             getFields() {
-                return [this.$refs.date_hired, this.$refs.employment_status, this.$refs.division, this.$refs.date_of_effectivity];
+                return [
+                    this.$refs.date_hired, 
+                    this.$refs.employment_status, 
+                    this.$refs.division, 
+                    this.$refs.date_of_effectivity
+                ];
             },
 
             // --- Validation ---
@@ -336,9 +379,8 @@
                 this.syncAllowancesWithLivewire();
             },
 
-            validateBeforeModal(header, message) {
+            validateBeforeModal(action) {
                 this.validationAttempted = true;
-                this.checkRows();
 
                 // highlight required static fields
                 let hasEmpty = false;
@@ -351,24 +393,46 @@
                     }
                 });
 
-                // check rows validity
+                if (hasEmpty) return; // Stop here if static fields are empty
+
+                // Now check rows only if static fields are valid
+                this.checkRows();
+
                 const rowsInvalid = Object.values(this.rows).some((r) => !r.valid);
                 const allowancesInvalid = this.allowances.some((a) => !a.valid);
 
-                if (hasEmpty || rowsInvalid || allowancesInvalid) return;
+                if (rowsInvalid || allowancesInvalid) return;
 
-                // Final sync before submission
                 this.syncAllowancesWithLivewire();
 
-                // open modal
+                this.modalTarget = action;
                 this.showModal = true;
-                this.modalHeader = header;
-                this.modalMessage = message;
             },
 
             // Add method to handle allowance deletion
             removeAllowance(index) {
                 this.allowances.splice(index, 1);
+                this.syncAllowancesWithLivewire();
+            },
+
+            resetForm() {
+                // Reset all refs
+                this.getFields().forEach(field => field.value = "");
+
+                // Reset rows
+                Object.keys(this.rows).forEach(key => {
+                    this.rows[key].valid = false;
+                    if (this.$refs[`${key}_from`]) this.$refs[`${key}_from`].value = "";
+                    if (this.$refs[`${key}_to`]) this.$refs[`${key}_to`].value = "";
+                });
+
+                // Reset allowances
+                this.allowances = [];
+
+                // Reset validation
+                this.validationAttempted = false;
+
+                // Sync to Livewire (optional, if you want Livewire to clear too)
                 this.syncAllowancesWithLivewire();
             }
         };

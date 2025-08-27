@@ -134,7 +134,6 @@ class PreparerPan extends Component
 
         $this->dispatch('requestSaved'); // Notify table
         $this->redirect("/hrpreparer");
-        session()->flash('message', 'PAN form submitted successfully!');
     }
 
     public function approveRequest(){

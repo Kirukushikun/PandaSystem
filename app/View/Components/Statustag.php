@@ -13,7 +13,14 @@ class Statustag extends Component
 
     public function __construct($statusText, $statusLocation)
     {   
-        $this->statusText = $statusText == 'Returned to Requestor' || $statusText == 'Returned to Head' || $statusText == 'Returned to HR' ? 'Returned' : $statusText;
+        if (in_array($statusText, ['Returned to Requestor', 'Returned to Head', 'Returned to HR'])) {
+            $this->statusText = 'Returned';
+        } elseif (in_array($statusText, ['Rejected by Head', 'Rejected by HR', 'Rejected by Approver'])) {
+            $this->statusText = 'Rejected';
+        } else {
+            $this->statusText = $statusText;
+        }
+
         $this->statusLocation = $statusLocation;
     }
 

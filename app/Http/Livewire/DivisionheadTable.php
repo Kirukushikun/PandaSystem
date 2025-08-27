@@ -29,8 +29,11 @@ class DivisionheadTable extends Component
             'For HR Approval',
             'For Confirmation',
             'For Resolution',
-            'Approved',
-            'Rejected'
+            'Returned to Requestor',
+            'Returned to Head',
+            'Rejected by Head',
+            'Withdrew',
+            'Approved'
         ];
 
         $requests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.requestor') != true")
