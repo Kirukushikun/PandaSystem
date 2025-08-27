@@ -21,7 +21,7 @@ class RequestorForm extends Component
     public $employee_name, $employee_id, $department, $type_of_action, $justification, $supporting_file;
 
     // return request fields
-    public $reason, $details;
+    public $header, $body;
 
     public function mount($mode = null, $module = null, $requestID = null, $isDisabled = false)
     {
@@ -176,7 +176,7 @@ class RequestorForm extends Component
     public function approveRequest()
     {   
         $requestEntry = RequestorModel::find($this->requestID);
-        $requestEntry->request_status = 'For HR Approval';
+        $requestEntry->request_status = 'For HR Prep';
         $requestEntry->save();
 
         $this->redirect('/divisionhead');
@@ -195,17 +195,17 @@ class RequestorForm extends Component
         Log::info("Withdrawing {$this->requestID}");
     }
 
-    public function returnRequestor(){
+    public function returnedHead(){
         $this->validate([
-            'reason' => 'required|string',
-            'details' => 'nullable|string'
+            'header' => 'required|string',
+            'body' => 'nullable|string'
         ]);
 
         LogModel::create([
             'request_id' => $this->requestID,
             'origin' => 'Returned by Division Head',
-            'reason' => $this->reason,
-            'details' => $this->details
+            'header' => 'Reason: ' . $this->header,
+            'body' => 'Details: ' . $this->body
         ]);
 
         $requestEntry = RequestorModel::find($this->requestID);
@@ -216,25 +216,25 @@ class RequestorForm extends Component
         $this->reloadNotif('success', 'Returned to Requestor', 'The request has been returned for correction. Please review the remarks provided.');
     }
 
-    public function returnHead(){
+    public function returnedHr(){
         $this->validate([
-            'reason' => 'required|string',
-            'details' => 'nullable|string'
+            'header' => 'required|string',
+            'body' => 'nullable|string'
         ]);
 
         LogModel::create([
             'request_id' => $this->requestID,
             'origin' => 'Returned by HR (Preparer)',
-            'reason' => $this->reason,
-            'details' => $this->details
+            'header' => 'Reason: ' . $this->header,
+            'body' => 'Details: ' . $this->body
         ]);
 
         $requestEntry = RequestorModel::find($this->requestID);
-        $requestEntry->request_status = 'Returned to Head';
+        $requestEntry->request_status = 'Returned to Requestor';
         $requestEntry->save();
 
-        $this->redirect('/divisionhead');
-        $this->reloadNotif('success', 'Returned to Head', 'The request has been returned for correction. Please review the remarks provided.');
+        $this->redirect('/hrpreparer');
+        $this->reloadNotif('success', 'Returned to Requestor', 'The request has been returned for correction. Please review the remarks provided.');
     }
     
     //RENDER

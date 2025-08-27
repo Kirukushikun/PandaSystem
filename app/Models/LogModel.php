@@ -11,11 +11,11 @@ class LogModel extends Model
     protected $fillable = [
         'request_id',
         'origin',
-        'reason',
-        'details'
+        'header',
+        'body'
     ];
 
-    protected $casts = [
-        'details' => 'array',
-    ];
+    // protected $casts = [
+    //     'details' => 'array',
+    // ];
 }

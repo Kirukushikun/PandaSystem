@@ -8,8 +8,8 @@
                     <div class="log-date">{{$log->created_at->format('M d, Y | h:m A')}}</div>
                 </div>
                 <div class="log-content">
-                    <h1>Reason: {{$log->reason}}</h1>
-                    <p>Details: {{$log->details}}</p>
+                    <h1>{{$log->header}}</h1>
+                    <p>{{$log->body}}</p>
                 </div>
             </div>
         @empty 

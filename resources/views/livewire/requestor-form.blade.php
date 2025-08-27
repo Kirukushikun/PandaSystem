@@ -60,14 +60,14 @@
                     needsInput: false
                 },
 
-                returnrequestor: {
+                returnedhead: {
                     header: 'Return Request to Requestor',
-                    action: 'returnRequestor',
+                    action: 'returnedHead',
                     needsInput: true
                 },
-                returnhead: {
+                returnedhr: {
                     header: 'Return Request to Head',
-                    action: 'returnHead',
+                    action: 'returnedHr',
                     needsInput: true
                 },
 
@@ -246,7 +246,7 @@
                         <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                             <button type="button" @click="modalTarget = 'approverequest'; showModal = true" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-800 px-4 py-2">Approve Request</button>
                             <button type="button" @click="modalTarget = 'rejectrequest'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject Request</button>
-                            <button type="button" @click="modalTarget = 'returnrequestor'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to Requestor</button>
+                            <button type="button" @click="modalTarget = 'returnedhead'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to Requestor</button>
                         </div>
                     @endif
                 </div>                
@@ -257,7 +257,7 @@
                     <h1><b>HR Preparer Actions:</b></h1>
                     @if($requestEntry->request_status == 'For HR Prep')
                         <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                            <button type="button" @click="modalTarget = 'returnrequestor'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to Requestor</button>
+                            <button type="button" @click="modalTarget = 'returnedhr'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to Requestor</button>
                         </div>                   
                     @endif
                 </div>  
@@ -285,16 +285,19 @@
                 <template x-if="modalConfig[modalTarget]?.needsInput">
                     <div class="flex flex-col gap-3 mb-5">
                         <div class="input-group">
-                            <label for="reason">Reason:</label>
-                            <select name="reason" wire:model="reason" required>
+                            <label for="header">Return Reason :</label>
+                            <select name="header" wire:model="header" required>
                                 <option value="">Select reason</option>
-                                <option value="Missing Supporting File">Missing Supporting File</option>
-                                <option value="Incorrect Employee Info">Incorrect Employee Info</option>
+                                <option value="Incomplete Employee Details">Incomplete Employee Details</option>
+                                <option value="Missing Supporting Documents">Missing Supporting Documents</option>
+                                <option value="Incorrect Type of Action">Incorrect Type of Action</option>
+                                <option value="Unclear or Insufficient Justification">Unclear or Insufficient Justification</option>
+                                <option value="Other">Other (Please Specify)</option>
                             </select>
                         </div>
                         <div class="input-group">
-                            <label>Details:</label>
-                            <textarea class="w-full h-24 resize-none" placeholder="(Optional)" wire:model="details"></textarea>
+                            <label>Details :</label>
+                            <textarea class="w-full h-24 resize-none" placeholder="(Optional)" wire:model="body"></textarea>
                         </div>
                     </div>
                 </template>

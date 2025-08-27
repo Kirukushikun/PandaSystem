@@ -5,11 +5,11 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use App\Models\RequestorModel;
 use App\Models\PreparerModel;
+use App\Models\LogModel;
 use Illuminate\Support\Facades\Log;
 
 class PreparerPan extends Component
 {   
-    public $role = 'approver'; // Temporary role based
     public $mode = 'create';
     public $module;
     public $isDisabled, $requestID, $requestEntry, $panEntry, $referenceTableData;
@@ -23,6 +23,9 @@ class PreparerPan extends Component
         $basic_from, $basic_to;
 
     public $allowances = []; 
+
+    // dispute request fields
+    public $header, $body;
 
     public function mount($module = null, $requestID = null){
         $this->module = $module;
@@ -51,10 +54,45 @@ class PreparerPan extends Component
             }
 
             // disable fields if not Draft or Returned to HR
-            if (!in_array($this->requestEntry->request_status, ['For HR Prep', 'Returned to HR'])) {
+            if (in_array($this->requestEntry->request_status, ['For HR Prep', 'Returned to HR', 'For Resolution']) && in_array($this->module, ['hr_preparer', 'hr_approver'])) {
+                $this->isDisabled = false;
+            } else {
                 $this->isDisabled = true;
             }
 
+            // determine mode
+            if ($this->requestEntry->request_status === 'For Resolution' && $this->module == 'hr_preparer') {
+                $this->mode = 'create';
+                $this->prepopulateDisputeFields();
+            } else {
+                $this->mode = 'view';
+            }
+
+        }
+    }
+
+    private function prepopulateDisputeFields()
+    {
+        if (!empty($this->referenceTableData)) {
+            foreach ($this->referenceTableData as $item) {
+                $field = $item['field'];
+
+                // handle main fields
+                if (property_exists($this, "{$field}_from") && property_exists($this, "{$field}_to")) {
+                    $this->{"{$field}_from"} = $item['from'] ?? '';
+                    $this->{"{$field}_to"}   = $item['to'] ?? '';
+                }
+
+                // // handle allowances (if any)
+                // if ($item['field'] === 'allowance') {
+                //     $this->allowances[] = [
+                //         'from'  => $item['from'] ?? '',
+                //         'to'    => $item['to'] ?? '',
+                //         'value' => $item['label'] ?? '',
+                //         'valid' => true
+                //     ];
+                // }
+            }
         }
     }
 
@@ -154,8 +192,52 @@ class PreparerPan extends Component
         $this->redirect('/approver');
     }
 
+    public function confirmPan(){
+        $this->requestEntry->request_status = 'For HR Approval';
+        $this->requestEntry->save();
+
+        $this->redirect('/divisionhead');
+    }
+
+    public function disputeHead(){
+        $this->validate([
+            'header' => 'required|string',
+            'body' => 'nullable|string'
+        ]);
+
+        LogModel::create([
+            'request_id' => $this->requestID,
+            'origin' => 'Dispute Raised by Division Head',
+            'header' => 'Subject: ' . $this->header,
+            'body' => 'Details: ' . $this->body
+        ]);
+
+        $requestEntry = RequestorModel::find($this->requestID);
+        $requestEntry->request_status = 'For Resolution';
+        $requestEntry->save();
+
+        $this->redirect('/divisionhead');
+        $this->reloadNotif('success', 'Returned to Requestor', 'The request has been returned for correction. Please review the remarks provided.');
+    }
+
     public function render()
     {
         return view('livewire.preparer-pan');
+    }
+
+    // HELPER FUNCTIONS
+
+    private function noreloadNotif($type, $header, $message)
+    {
+        $this->dispatch('notify', type: $type, header: $header, message: $message);
+    }
+
+    private function reloadNotif($type, $header, $message)
+    {
+        session()->flash('notif', [
+            'type' => $type,
+            'header' => $header,
+            'message' => $message
+        ]);
     }
 }

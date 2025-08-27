@@ -16,8 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('request_id');
             $table->foreign('request_id')->references('id')->on('requestor')->onDelete('cascade');
             $table->string('origin');
-            $table->string('reason')->nullable();
-            $table->json('details')->nullable();
+            $table->string('header')->nullable();
+            $table->text('body')->nullable();
             $table->timestamps();
         });
     }

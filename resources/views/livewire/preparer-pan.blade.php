@@ -177,7 +177,6 @@
                              @endif
 
                         @endif
-
                     </tbody>
                 </table>
             </div>
@@ -227,6 +226,11 @@
                         <h2>Status (For Confirmation)</h2>
                         <li>Confirm PAN Form</li>
                         <li>Flag for Resolution</li> 
+
+                        <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                            <button type="button" @click="modalTarget = 'confirmpan'; showModal = true " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Confirm PAN Form</button>
+                            <button type="button" @click="modalTarget = 'disputeHead'; showModal = true " class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Flag for Resolution</button>
+                        </div>
                     @endif
                 </div>     
             @endif
@@ -256,7 +260,7 @@
         </div>
 
         <!-- Overlay (instant) -->
-        <div x-show="showModal" class="fixed inset-0 bg-black/50 z-30"></div>
+        <div x-show="showModal" class="fixed inset-0 bg-black/50 z-50"></div>
 
         <div
             x-show="showModal"
@@ -266,11 +270,36 @@
             x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-90"
-            class="fixed inset-0 flex items-center justify-center z-40"
+            class="fixed inset-0 flex items-center justify-center z-50"
         >
             <div class="bg-white p-6 rounded-lg shadow-lg w-md z-10">
                 <h2 class="text-xl font-semibold mb-4" x-text="modalConfig[modalTarget]?.header"></h2>
                 <p class="mb-6" x-show="!modalConfig[modalTarget]?.needsInput" x-text="modalConfig[modalTarget]?.message"></p>
+
+                <!-- For input type -->
+                <template x-if="modalConfig[modalTarget]?.needsInput">
+                    <div class="flex flex-col gap-3 mb-5">
+                        <div class="input-group">
+                            <label for="header">Dispute Subject :</label>
+                            <!-- <input type="text" name="header" wire:model="header" required> -->
+                            <select name="header" wire:model="header" required>
+                                <option value="">Select subject</option>
+                                <option value="Incorrect Salary/Allowance Adjustment">Incorrect Salary/Allowance Adjustment</option>
+                                <option value="Wrong Effectivity Date">Wrong Effectivity Date</option>
+                                <option value="Position/Job Level Mismatch">Position/Job Level Mismatch</option>
+                                <option value="Unjustified Action Type">Unjustified Action Type</option>
+                                <option value="Incorrect Division or Assignment">Incorrect Division or Assignment</option>
+                                <option value="Budgetary/Approval Concerns">Budgetary/Approval Concerns</option>
+                                <option value="Policy Compliance Concerns">Policy Compliance Concerns</option>
+                                <option value="Other">Other (Specify)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Details :</label>
+                            <textarea class="w-full h-24 resize-none" wire:model="body" required></textarea>
+                        </div>
+                    </div>
+                </template>
 
                 <div class="flex justify-end gap-3">
                     <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
@@ -297,6 +326,19 @@
                     message: 'This PAN form will be forwarded to the Division Head for confirmation. Are you sure you want to proceed?',
                     action: 'submitPan',
                     needsInput: false
+                },
+
+                confirmpan: {
+                    header: 'Confirm PAN Form',
+                    message: 'This PAN form will be forwarded to the HR Approver for approval. Are you sure you want to proceed?',
+                    action: 'confirmPan',
+                    needsInput: false
+                },
+
+                disputeHead: {
+                    header: 'Flag for Resolution',
+                    action: 'disputeHead',
+                    needsInput: true
                 },
             },
 
@@ -439,47 +481,3 @@
     }
 </script>
 
-
-<script>
-    // @if($role == "approver")
-    //     @if($requestEntry->request_status == "For Approval")
-    //         <div class="form-buttons bottom-0 right-0 flex gap-3 justify-end md:mb-0 md:absolute">
-    //             <button type="button" @click="showModal = true; formAction = 'approveRequest'; modalHeader = 'Approve Request'; modalMessage = 'Are you sure you want to approve this request?'" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-800 px-4 py-2">Approve</button>
-    //             <button type="button" @click="showModal = true; formAction = 'rejectRequest'; modalHeader = 'Reject Request'; modalMessage = 'Are you sure you want to reject this request?'" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject</button>
-    //             <button type="button" @click="validateBeforeModal('Return Request', 'Return this request to the requestor for correction?')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Return to HR</button>
-    //         </div>
-    //     @endif
-
-    //     <!-- Modal -->
-    //     <div x-show="showModal" class="fixed inset-0 bg-black/50 z-40"></div>
-    //     <div x-show="showModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90" class="fixed inset-0 flex items-center justify-center z-50">
-    //         <div class="bg-white p-6 rounded-lg shadow-lg w-96 z-10">
-    //             <h2 class="text-lg font-semibold mb-4" x-text="modalHeader"></h2>
-    //             <p class="mb-6" x-text="modalMessage"></p>
-    //             <div class="flex justify-end gap-3">
-    //                 <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
-    //                 <button type="button" @click="showModal = false; $wire[formAction]();" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
-    //             </div>
-    //         </div>
-    //     </div>
-    // @else
-    //     <!-- Action Buttons -->
-    //     <div x-show="showAction" class="form-buttons bottom-0 right-0 flex gap-3 justify-end md:mb-0 md:absolute">
-    //         <button type="button" @click="validateBeforeModal('Submit for Approval', 'Send this PAN form to the approver for review?')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit for Approval</button>
-    //         <button type="button" @click="modalMessage = 'Reset the form?'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 hover:bg-gray-200">Reset</button>
-    //     </div>
-
-    //     <!-- Modal -->
-    //     <div x-show="showModal" class="fixed inset-0 bg-black/50 z-40"></div>
-    //     <div x-show="showModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90" class="fixed inset-0 flex items-center justify-center z-50">
-    //         <div class="bg-white p-6 rounded-lg shadow-lg w-96 z-10">
-    //             <h2 class="text-lg font-semibold mb-4" x-text="modalHeader"></h2>
-    //             <p class="mb-6" x-text="modalMessage"></p>
-    //             <div class="flex justify-end gap-3">
-    //                 <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
-    //                 <button type="button" @click="showModal = false" wire:click="submitPan" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
-    //             </div>
-    //         </div>
-    //     </div>
-    // @endif
-</script>
