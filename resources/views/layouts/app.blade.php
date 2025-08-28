@@ -98,7 +98,8 @@
                class="notification w-auto bg-white flex flex-col px-15 py-7 whitespace-nowrap rounded-lg border-solid shadow-xl">
 
                <div class="notif-header font-bold text-lg flex items-center relative">
-                    <i class="fa-regular fa-circle-check absolute -left-8 text-green-500 text-xl"></i>
+                    <i x-show="type == 'success'" class="fa-regular fa-circle-check absolute -left-8 text-green-500 text-xl"></i>
+                    <i x-show="type == 'failed'" class="fa-regular fa-circle-xmark absolute -left-8 text-red-500 text-xl"></i>
                     <span x-text="header"></span>
                     <i class="fa-solid fa-xmark absolute -right-8 text-gray-500 hover:text-gray-800 text-xl cursor-pointer" @click="show = false"></i>
                </div>

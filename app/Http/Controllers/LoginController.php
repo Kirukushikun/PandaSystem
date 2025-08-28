@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class LoginController extends Controller
 {
@@ -43,11 +44,24 @@ class LoginController extends Controller
 
                 // Validate and login user using Laravel Auth
                 try {
-                    Auth::loginUsingId($query_id['id']);
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Authentication successful',
-                    ], 200);
+
+                    $user = User::find($query_id['id']); // returns null if not found
+                    if ($user) {
+                        Auth::loginUsingId($user->id);
+                        return view('home');
+                    } else {
+                        session()->flash('notif', [
+                            'type' => 'failed',
+                            'header' => 'Unauthorized User',
+                            'message' => 'Sorry you are not authorized to access this system'
+                        ]);
+                        return redirect()->route('login');
+                    }
+
+                    // return response()->json([
+                    //     'success' => true,
+                    //     'message' => 'Authentication successful',
+                    // ], 200);
                 }
                 catch(\Throwable $e) {
                     return abort(500);
@@ -66,5 +80,10 @@ class LoginController extends Controller
                 'message' => 'Authentication failed: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function logout(){
+        Auth::logout(); // Logs the user out
+        return redirect('/login'); // Redirects the user to the login page
     }
 }

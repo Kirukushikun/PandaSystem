@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\RequestorModel;
 use Livewire\WithPagination;
 
+
 class RequestorTable extends Component
 {   
 

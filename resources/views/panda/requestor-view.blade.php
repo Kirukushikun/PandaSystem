@@ -18,10 +18,10 @@
           <!-- Content Area -->
           <main class="content">
                <section class="content-block relative" id="content-block-1">
-                    <livewire:requestor-form mode="view" module="requestor" :requestID="$request->id" />
+                    <livewire:requestor-form mode="view" module="requestor" :requestID="$requestID" />
                </section>
                
-               <livewire:preparer-log :requestID="$request->id"/>
+               <livewire:preparer-log :requestID="$requestID"/>
           </main>
     </div>
 
