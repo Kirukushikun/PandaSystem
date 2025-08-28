@@ -12,28 +12,28 @@
         @if(Auth()->user()->access['DH_Module'] == true)
             <div class="module flex flex-col justify-center bg-blue-100">
                 Division Head module
-                <a href="/requestor">ENTER</a>
+                <a href="/divisionhead">ENTER</a>
             </div>
         @endif
 
         @if(Auth()->user()->access['HRP_Module'] == true)
             <div class="module flex flex-col justify-center bg-blue-100">
                 HR Preparation module
-                <a href="/requestor">ENTER</a>
+                <a href="/hrpreparer">ENTER</a>
             </div>
         @endif
 
         @if(Auth()->user()->access['HRA_Module'] == true)
             <div class="module flex flex-col justify-center bg-blue-100">
                 HR Approval module
-                <a href="/requestor">ENTER</a>
+                <a href="/hrapprover">ENTER</a>
             </div>
         @endif
 
         @if(Auth()->user()->access['FA_Module'] == true)
             <div class="module flex flex-col justify-center bg-blue-100">
                 Final Approval module
-                <a href="/requestor">ENTER</a>
+                <a href="/approver">ENTER</a>
             </div>
         @endif
 

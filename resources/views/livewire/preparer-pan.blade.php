@@ -199,62 +199,58 @@
         <div class="flex gap-4">
             
             @if($module == 'hr_preparer')
-                <div class="flex flex-col">
-                    <h1><b>HR Preparer Actions:</b></h1>
-                    @if($requestEntry->request_status == 'For HR Prep')
-                        <h2>Status (For HR Prep)</h2>
-                        <li>Submit for Confirmation</li>
-                        <li>Reset</li>
 
-                        <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                            <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit for Confirmation</button>
-                            <button type="button" @click="resetForm()" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
-                        </div>
-                    @endif
-                    
-                    @if($requestEntry->request_status == 'For Resolution')
-                        <h2>Status (For Resolution)</h2>
-                        <li>Resubmit for Confirmation</li>
-                    @endif
-                </div>            
+                <!-- HR Preparer Actions: -->
+                @if($requestEntry->request_status == 'For HR Prep')
+                    <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                        <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit for Confirmation</button>
+                        <button type="button" @click="resetForm()" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
+                    </div>
+                @endif
+                
+                @if($requestEntry->request_status == 'For Resolution')
+                    <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                        <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Resubmit for Confirmation</button>
+                        <button type="button" @click="resetForm()" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
+                    </div>
+                @endif
+           
             @endif
             
             @if($module == 'division_head')
-                <div class="flex flex-col">
-                    <h1><b>Division Head Actions:</b></h1>
-                    @if($requestEntry->request_status == 'For Confirmation')
-                        <h2>Status (For Confirmation)</h2>
-                        <li>Confirm PAN Form</li>
-                        <li>Flag for Resolution</li> 
 
-                        <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                            <button type="button" @click="modalTarget = 'confirmpan'; showModal = true " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Confirm PAN Form</button>
-                            <button type="button" @click="modalTarget = 'disputeHead'; showModal = true " class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Flag for Resolution</button>
-                        </div>
-                    @endif
-                </div>     
+                <!-- Division Head Actions: -->
+                @if($requestEntry->request_status == 'For Confirmation')
+                    <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                        <button type="button" @click="modalTarget = 'confirmpan'; showModal = true " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Confirm PAN Form</button>
+                        <button type="button" @click="modalTarget = 'disputeHead'; showModal = true " class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Flag for Resolution</button>
+                    </div>
+                @endif
+
             @endif
 
             @if($module == 'hr_approver')
-                <div class="flex flex-col">
-                    <h1><b>HR Approver Actions:</b></h1>
-                    @if($requestEntry->request_status == 'For HR Approval')
-                        <h2>Status (For HR Approval)</h2>
-                        <li>Approve Request</li>
-                        <li>Reject Request</li>
-                    @endif
-                </div>
+
+                <!-- HR Approver Actions: -->
+                @if($requestEntry->request_status == 'For HR Approval')
+                    <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                        <button type="button" @click="modalTarget = 'approvehr'; showModal = true" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-800 px-4 py-2">Approve Request</button>
+                        <button type="button" @click="modalTarget = 'rejecthr'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject Request</button>
+                    </div>
+                @endif
+
             @endif
 
             @if($module == 'final_approver')
-                <div class="flex flex-col">
-                    <h1><b>Final Approver Actions:</b></h1>
-                    @if($requestEntry->request_status == 'For Final Approval')
-                        <h2>Status (For Final Approval)</h2>
-                        <li>Approve Request</li>
-                        <li>Reject Request</li>
-                    @endif
-                </div>            
+
+                <!-- Final Approver Actions: -->
+                @if($requestEntry->request_status == 'For Final Approval')
+                    <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                        <button type="button" @click="modalTarget = 'approvefinal'; showModal = true" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-800 px-4 py-2">Approve Request</button>
+                        <button type="button" @click="modalTarget = 'rejectfinal'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject Request</button>
+                    </div>
+                @endif
+           
             @endif
 
         </div>
@@ -340,6 +336,34 @@
                     action: 'disputeHead',
                     needsInput: true
                 },
+
+                approvehr: {
+                    header: 'Approve Request',
+                    message: 'This PAN form will be forwarded to the HR Approver for approval. Are you sure you want to proceed?',
+                    action: 'approveHr',
+                    needsInput: false
+                },
+
+                rejecthr: {
+                    header: 'Reject Request',
+                    message: 'This PAN form will be forwarded to the HR Approver for approval. Are you sure you want to proceed?',
+                    action: 'rejectHr',
+                    needsInput: false
+                },
+
+                approvefinal: {
+                    header: 'Approve Request',
+                    message: 'This PAN form will be forwarded to the HR Approver for approval. Are you sure you want to proceed?',
+                    action: 'approveFinal',
+                    needsInput: false
+                },
+
+                rejectfinal: {
+                    header: 'Reject Request',
+                    message: 'This PAN form will be forwarded to the HR Approver for approval. Are you sure you want to proceed?',
+                    action: 'rejectFinal',
+                    needsInput: false
+                },
             },
 
             validationAttempted: false,
@@ -387,6 +411,15 @@
                     ["input", "change"].forEach((evt) => field.addEventListener(evt, () => this.checkFields()));
                 });
                 this.checkFields();
+                
+                // Get allowances from Livewire with a small delay to ensure data is ready
+                this.$nextTick(() => {
+                    const livewireAllowances = this.$wire.get('allowances');
+                    if (livewireAllowances && livewireAllowances.length > 0) {
+                        this.allowances = [...livewireAllowances]; // this sets the value
+                        this.$nextTick(() => this.checkRows()); // ensure recalculation
+                    }
+                });
             },
 
             // --- Field Helpers ---
@@ -480,4 +513,3 @@
         };
     }
 </script>
-

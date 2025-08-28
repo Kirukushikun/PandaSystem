@@ -61,38 +61,40 @@ class PreparerPan extends Component
             }
 
             // determine mode
-            if ($this->requestEntry->request_status === 'For Resolution' && $this->module == 'hr_preparer') {
+            if ($this->requestEntry->request_status == 'For Resolution' && $this->module == 'hr_preparer') {
                 $this->mode = 'create';
                 $this->prepopulateDisputeFields();
-            } else {
-                $this->mode = 'view';
-            }
+            } 
 
         }
     }
 
+
     private function prepopulateDisputeFields()
     {
         if (!empty($this->referenceTableData)) {
+            // Define static fields
+            $staticFields = ['section', 'place', 'head', 'position', 'joblevel', 'basic'];
+            
             foreach ($this->referenceTableData as $item) {
                 $field = $item['field'];
-
-                // handle main fields
-                if (property_exists($this, "{$field}_from") && property_exists($this, "{$field}_to")) {
+                
+                if (in_array($field, $staticFields)) {
+                    // Populate static fields
                     $this->{"{$field}_from"} = $item['from'] ?? '';
-                    $this->{"{$field}_to"}   = $item['to'] ?? '';
+                    $this->{"{$field}_to"} = $item['to'] ?? '';
+                } else {
+                    // Populate dynamic allowances
+                    $this->allowances[] = [
+                        'from' => $item['from'] ?? '',
+                        'to' => $item['to'] ?? '',
+                        'value' => $field // The allowance name (e.g., "Transportation Allowance")
+                    ];
                 }
-
-                // // handle allowances (if any)
-                // if ($item['field'] === 'allowance') {
-                //     $this->allowances[] = [
-                //         'from'  => $item['from'] ?? '',
-                //         'to'    => $item['to'] ?? '',
-                //         'value' => $item['label'] ?? '',
-                //         'valid' => true
-                //     ];
-                // }
             }
+            
+            Log::info('Populated static fields and allowances');
+            Log::info('Allowances:', $this->allowances);
         }
     }
 
@@ -218,6 +220,34 @@ class PreparerPan extends Component
 
         $this->redirect('/divisionhead');
         $this->reloadNotif('success', 'Returned to Requestor', 'The request has been returned for correction. Please review the remarks provided.');
+    }
+
+    public function approveHr(){
+        $this->requestEntry->request_status = 'For Final Approval';
+        $this->requestEntry->save();
+
+        $this->redirect('/hrapprover');
+    }
+
+    public function rejectHr(){
+        $this->requestEntry->request_status = 'Rejected by HR';
+        $this->requestEntry->save();
+
+        $this->redirect('/hrapprover');
+    }
+
+    public function approveFinal(){
+        $this->requestEntry->request_status = 'Approved';
+        $this->requestEntry->save();
+
+        $this->redirect('/hrapprover');
+    }
+
+    public function rejectFinal(){
+        $this->requestEntry->request_status = 'Rejected by Approver';
+        $this->requestEntry->save();
+
+        $this->redirect('/hrapprover');
     }
 
     public function render()
