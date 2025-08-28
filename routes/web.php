@@ -99,14 +99,16 @@ Route::middleware('auth')->group(function() {
 	})->middleware('module.access:FA');
 
 
-	// ADMIN
-	Route::get('/admin', function(){
-		return view('admin.admin');
-	});
+
 
 	Route::get('testing', function(){
 		return view('testing');
 	});
+});
+
+// ADMIN
+Route::get('/admin', function(){
+	return view('admin.admin');
 });
 
 
