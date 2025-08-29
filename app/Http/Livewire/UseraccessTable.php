@@ -16,9 +16,9 @@ class UseraccessTable extends Component
         $response = Http::withHeaders([
             'x-api-key' => '123456789bgc'
         ])
-        ->withOptions([
-            'verify' => storage_path('cacert.pem'),
-        ])
+        // ->withOptions([
+        //     'verify' => storage_path('cacert.pem'),
+        // ])
         ->post('https://bfcgroup.ph/api/v1/users');
 
         if ($response->successful()) {

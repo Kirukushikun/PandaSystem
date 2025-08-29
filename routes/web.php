@@ -40,7 +40,7 @@ Route::middleware('auth')->group(function() {
 		// $user = User::find(1); 
 		// Auth::login($user);
 		return view('home');
-	});
+	})->name('home');
 
 	// REQUESTOR
 	Route::get('/requestor', function(){

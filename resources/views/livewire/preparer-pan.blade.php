@@ -513,3 +513,134 @@
         };
     }
 </script>
+
+<!-- <script>
+    function panForm() {
+        return {
+            // --- UI State ---
+            showModal: false,
+            showAction: false,
+
+
+
+            validationAttempted: false,
+
+            // --- Row validation state ---
+            rows: {
+                section: { valid: false },
+                place: { valid: false },
+                head: { valid: false },
+                position: { valid: false },
+                joblevel: { valid: false },
+                basic: { valid: false },
+            },
+
+            // --- Allowances ---
+            allowances: [],
+            allOptions: ["Communication Allowance", "Meal Allowance", "Living Allowance", "Transportation Allowance", "Clothing Allowance", "Fuel Allowance", "Management Allowance", "Developmental Assignments", "Professional Allowance", "Interim Allowance", "Training Allowance", "Mancom Allowance"],
+
+            addAllowance() {
+                this.allowances.push({ from: "", to: "", value: "" });
+            },
+
+            updateAllowance(index, value) {
+                this.allowances[index].value = value;
+                this.checkRows();
+            },
+
+            getAvailableOptions(index) {
+                return this.allOptions.filter((opt) => !this.allowances.map((a) => a.value).includes(opt) || this.allowances[index].value === opt);
+            },
+
+            // --- Init ---
+            init() {
+                
+            },
+
+            // --- Field Helpers ---
+            getFields() {
+                return [
+                    this.$refs.date_hired, 
+                    this.$refs.employment_status, 
+                    this.$refs.division, 
+                    this.$refs.date_of_effectivity
+                ];
+            },
+
+            // --- Validation ---
+            checkFields() {
+                this.showAction = this.getFields().some((f) => f.value?.trim() !== "");
+            },
+
+            checkRows() {
+                // static rows
+                Object.keys(this.rows).forEach((key) => {
+                    const from = this.$refs[`${key}_from`]?.value?.trim();
+                    const to = this.$refs[`${key}_to`]?.value?.trim();
+                    this.rows[key].valid = !!(from && to);
+                });
+
+                // allowance rows (directly from x-model)
+                this.allowances.forEach((a) => {
+                    a.valid = !!(a.from?.trim() && a.to?.trim() && a.value);
+                });
+
+                // Sync with Livewire after validation
+            },
+
+            validateBeforeModal(action) {
+                this.validationAttempted = true;
+
+                // highlight required static fields
+                let hasEmpty = false;
+                this.getFields().forEach((field) => {
+                    if (field.value.trim() === "") {
+                        field.classList.add("!border-red-500");
+                        hasEmpty = true;
+                    } else {
+                        field.classList.remove("!border-red-500");
+                    }
+                });
+
+                if (hasEmpty) return; // Stop here if static fields are empty
+
+                // Now check rows only if static fields are valid
+                this.checkRows();
+
+                const rowsInvalid = Object.values(this.rows).some((r) => !r.valid);
+                const allowancesInvalid = this.allowances.some((a) => !a.valid);
+
+                if (rowsInvalid || allowancesInvalid) return;
+
+
+                this.modalTarget = action;
+                this.showModal = true;
+            },
+
+            // Add method to handle allowance deletion
+            removeAllowance(index) {
+                this.allowances.splice(index, 1);
+            },
+
+            resetForm() {
+                // Reset all refs
+                this.getFields().forEach(field => field.value = "");
+
+                // Reset rows
+                Object.keys(this.rows).forEach(key => {
+                    this.rows[key].valid = false;
+                    if (this.$refs[`${key}_from`]) this.$refs[`${key}_from`].value = "";
+                    if (this.$refs[`${key}_to`]) this.$refs[`${key}_to`].value = "";
+                });
+
+                // Reset allowances
+                this.allowances = [];
+
+                // Reset validation
+                this.validationAttempted = false;
+
+                // Sync to Livewire (optional, if you want Livewire to clear too)
+            }
+        };
+    }
+</script> -->

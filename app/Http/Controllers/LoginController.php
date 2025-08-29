@@ -13,11 +13,13 @@ class LoginController extends Controller
     public function postLogin(Request $request)
     {
         try {
+            // 1. Prepare authentication API request
             $base_uri = config('services.auth_api.base_uri');
             $api_key = config('services.auth_api.api_key');
             $auth_user_api_key = config('services.auth_api.auth_user_api_key');
 
-            $response = Http::withHeaders([
+            // 2. Attempt to authenticate via external API
+            $authResponse = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $api_key,
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
@@ -26,61 +28,64 @@ class LoginController extends Controller
                 'password' => $request->input('password'),
             ]);
 
-            if($response->successful()) {
-                $response = $response->json();
-                $token = $response['token'] ?? null;
-                $token_expires = $response['expires_at'] ?? null;
-                $email = $response['email'] ?? null;
+            // 3. Check if external API authentication was successful
+            if ($authResponse->successful()) {
+                $data = $authResponse->json();
+
+                // Extract token and user email from API response
+                $token = $data['token'] ?? null;
+                $token_expires = $data['expires_at'] ?? null;
+                $email = $data['email'] ?? null;
 
                 // Store authentication data in session
-                session(['auth_token' => $token, 'token_expires' => $token_expires, 'email' => $email]);
+                session([
+                    'auth_token' => $token,
+                    'token_expires' => $token_expires,
+                    'email' => $email
+                ]);
 
-                // Get user ID using email
-                $query_id = Http::withHeaders([
+                // 4. Retrieve user ID from your system using the authenticated email
+                $userResponse = Http::withHeaders([
                     'x-api-key' => $auth_user_api_key,
                     'Accept' => 'application/json',
                     'Content-Type' => 'application/json',
                 ])->get($base_uri . "/api/v1/users/get-user-id?email=" . $email);
 
-                // Validate and login user using Laravel Auth
-                try {
-
-                    $user = User::find($query_id['id']); // returns null if not found
-                    if ($user) {
-                        Auth::loginUsingId($user->id);
-                        return view('home');
-                    } else {
-                        session()->flash('notif', [
-                            'type' => 'failed',
-                            'header' => 'Unauthorized User',
-                            'message' => 'Sorry you are not authorized to access this system'
-                        ]);
-                        return redirect()->route('login');
-                    }
-
-                    // return response()->json([
-                    //     'success' => true,
-                    //     'message' => 'Authentication successful',
-                    // ], 200);
+                // Handle failed user ID retrieval
+                if (!$userResponse->successful()) {
+                    return back()->withErrors([
+                        'login' => 'Failed to retrieve user information from the system.'
+                    ])->withInput();
                 }
-                catch(\Throwable $e) {
-                    return abort(500);
+
+                $userData = $userResponse->json();
+                $user = User::find($userData['id'] ?? null); // May return null if not registered
+
+                // 5. Log in the user if found in your system
+                if ($user) {
+                    Auth::loginUsingId($user->id);
+                    return redirect()->route('home'); // Use route instead of direct view
                 }
+
+                // 6. If user not found in your database, show "Not authorized"
+                return back()->withErrors([
+                    'login' => 'You are not authorized to access this system.'
+                ])->withInput();
             }
-            else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Authentication failed: ' . $response->json()['message'] ?? 'Unknown error',
-                ], $response->status());
-            }
-        }
-        catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Authentication failed: ' . $e->getMessage(),
-            ], 500);
+
+            // 7. Handle external API authentication failure (wrong email/password)
+            return back()->withErrors([
+                'login' => $authResponse->json()['message'] ?? 'Incorrect username or password.'
+            ])->withInput();
+
+        } catch (\Exception $e) {
+            // 8. Handle unexpected errors (API down, network issues, etc.)
+            return back()->withErrors([
+                'login' => 'Authentication failed: ' . $e->getMessage()
+            ])->withInput();
         }
     }
+
 
     public function logout(){
         Auth::logout(); // Logs the user out
