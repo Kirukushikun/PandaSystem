@@ -259,7 +259,7 @@ class PreparerPan extends Component
 
     private function noreloadNotif($type, $header, $message)
     {
-        $this->dispatch('notify', type: $type, header: $header, message: $message);
+        $this->dispatch('notif', type: $type, header: $header, message: $message);
     }
 
     private function reloadNotif($type, $header, $message)

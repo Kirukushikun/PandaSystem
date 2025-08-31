@@ -98,9 +98,6 @@ Route::middleware('auth')->group(function() {
 		return view('panda.approver-view', compact('requestID'));
 	})->middleware('module.access:FA');
 
-
-
-
 	Route::get('testing', function(){
 		return view('testing');
 	});

@@ -76,7 +76,7 @@
                @endif
 
                // Handle SPA/Livewire notification
-               window.addEventListener('notify', (event) => {
+               window.addEventListener('notif', (event) => {
                     console.log(event.detail); // 👈 check what you actually receive
                     let data = event.detail
                     type = data.type
@@ -88,7 +88,7 @@
                     }, 1000)
                })
           "
-          class="absolute top-10 right-10">
+          class="absolute top-10 right-10 z-50">
 
           <div x-show="show"
                x-transition:enter="transition transform ease-out duration-500"
@@ -97,7 +97,7 @@
                x-transition:leave="transition transform ease-in duration-500"
                x-transition:leave-start="translate-y-0 opacity-100"
                x-transition:leave-end="-translate-y-5 opacity-0"
-               class="notification w-auto bg-white flex flex-col px-15 py-7 whitespace-nowrap rounded-lg border-solid shadow-xl">
+               class="notification w-auto bg-white flex flex-col px-15 py-7 whitespace-nowrap rounded-lg border-solid shadow-xl z-50">
 
                <div class="notif-header font-bold text-lg flex items-center relative">
                     <i x-show="type == 'success'" class="fa-regular fa-circle-check absolute -left-8 text-green-500 text-xl"></i>

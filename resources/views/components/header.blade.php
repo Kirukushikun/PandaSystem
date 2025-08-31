@@ -11,10 +11,10 @@
         </div>
         <!-- Icon with toggle dropdown -->
         <div @mouseenter="open = true" @mouseleave="open = false" class="relative">
-            <i class="fa-solid fa-circle-user text-[30px] cursor-pointer hover:scale-110 transition-transform duration-200"></i>
+            <i class="fa-solid fa-circle-user text-[30px] cursor-pointer hover:scale-110"></i>
 
             <!-- Dropdown Menu -->
-            <div x-show="open" x-transition class="absolute left-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-50">
+            <div x-show="open" x-transition class="absolute left-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg">
                 <ul class="py-2">
                     <!-- <li>
                         <a href="#" class="block px-4 py-2 hover:bg-gray-100">Settings</a>
