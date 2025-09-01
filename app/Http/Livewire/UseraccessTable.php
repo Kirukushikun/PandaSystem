@@ -6,6 +6,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
+use Illuminate\Support\Facades\Crypt;
 
 class UseraccessTable extends Component
 {   
@@ -24,53 +25,40 @@ class UseraccessTable extends Component
 
     public function fetchUsers()
     {
-        
-        // $response = Http::withHeaders([
-        //     'x-api-key' => '123456789bgc'
-        // ])
-        // ->withOptions([
-        //     'verify' => storage_path('cacert.pem'),
-        // ])
-        // ->post('https://bfcgroup.ph/api/v1/users');
+        $response = Http::withHeaders([
+            'x-api-key' => '123456789bgc'
+        ])
+        ->withOptions([
+            'verify' => storage_path('cacert.pem'),
+        ])
+        ->post('https://bfcgroup.ph/api/v1/users');
 
-        // if ($response->successful()) {
-        //     $json = $response->json();
+        if ($response->successful()) {
+            $json = $response->json();
 
-        //     // Check if data key exists, otherwise store entire response
-        //     $this->users = $json['data'] ?? $json;
+            // Check if data key exists, otherwise store entire response
+            $users = $json['data'] ?? $json;
+            
+            // Decrypt the user IDs
+            $this->users = array_map(function($user) {
+                try {
+                    $user['id'] = Crypt::decryptString($user['id']);
+                } catch (\Exception $e) {
+                    Log::error('Failed to decrypt user ID for: ' . $user['first_name'] . ' ' . $user['last_name']);
+                }
+                return $user;
+            }, $users);
 
-        //     Log::info('Fetched Users:', $this->users);
-        // } else {
-        //     $this->users = [];
-        //     session()->flash('error', 'Failed to fetch users. Status: ' . $response->status());
-        //     Log::info('API Error: ' . $response->status());
-        // }
-
-        // Temporary static data from the actual API response
-        $this->users = [
-            [
-                "id" => "2",
-                "first_name" => "Michael Adam",
-                "last_name" => "Trinidad",
-                "middle_name" => null,
-                "created_at" => null,
-                "updated_at" => "2025-08-27T03:20:14.000000Z"
-            ],
-            [
-                "id" => "3",
-                "first_name" => "Ghel",
-                "last_name" => "Dantes",
-                "middle_name" => null,
-                "created_at" => "2022-06-30T16:44:47.000000Z",
-                "updated_at" => "2025-07-24T16:32:43.000000Z"
-            ],
-            // ... include the rest as needed
-        ];
+            Log::info('Fetched Users:', $this->users);
+        } else {
+            $this->users = [];
+            session()->flash('error', 'Failed to fetch users. Status: ' . $response->status());
+            Log::info('API Error: ' . $response->status());
+        }
     }
 
-    public function manageAccess($userId, $action, $role)
+    public function manageAccess($userId, $action, $role, $name = null)
     {   
-
         // Map the role to the JSON key
         $roleMap = [
             'Requestor'      => 'RQ_Module',
@@ -81,11 +69,12 @@ class UseraccessTable extends Component
         ];
 
         if (!isset($roleMap[$role])) {
-            return session()->flash('notif', [
+            session()->flash('notif', [
                 'type' => 'error',
                 'header' => 'Invalid Role',
                 'message' => 'The selected role is not recognized.'
             ]);
+            return;
         }
 
         $key = $roleMap[$role];
@@ -103,41 +92,51 @@ class UseraccessTable extends Component
         $user = User::find($userId);
 
         if (!$user) {
-            // Create new user if granting
+            // Only create new user if granting access
             if ($action === 'grant') {
                 $defaultAccess[$key] = true;
-                $user = User::create([
+                $newUser = User::create([
                     'id' => $userId,
+                    'name' => $name,
                     'access' => $defaultAccess
                 ]);
-
+                
+                // CRUCIAL: Update the dbUsers collection with the new user
+                $this->dbUsers->put($userId, $newUser);
+                
                 $this->noreloadNotif("success", "User Created", "New user created with {$role} Module access granted.");
+            } else {
+                // Can't revoke from non-existent user
+                $this->noreloadNotif("error", "User Not Found", "Cannot revoke access from a user that doesn't exist.");
             }
+            return;
         }
 
         // Update access for existing user
         $access = $user->access ?? $defaultAccess;
         $access[$key] = $action === 'grant';
 
-        // If no module is true → delete user
+        // Check if all modules will be false after the update
         if (!in_array(true, $access, true)) {
+            // Delete user if no active modules remain
             $user->delete();
             
-            return session()->flash('notif', [
-                'type' => 'success',
-                'header' => 'User Removed',
-                'message' => "User {$userId} was removed because no active module access remains."
-            ]);
+            // CRUCIAL: Remove from dbUsers collection
+            $this->dbUsers->forget($userId);
+            
+            $this->noreloadNotif('success', 'User Removed', "User {$userId} was removed because no active module access remains.");
+            return;
         }
 
-        // Otherwise, update access
+        // Update and save user access
         $user->access = $access;
         $user->save();
-
-        $this->dispatch('accessUpdated'); // Notify table
+        
+        // CRUCIAL: Update the dbUsers collection with the updated user
+        $this->dbUsers->put($userId, $user);
+        
         $this->noreloadNotif('success', ucfirst($action) . ' Successful', "The user's access for {$role} Module has been successfully {$action}ed.");
     }
-
 
     public function render()
     {
