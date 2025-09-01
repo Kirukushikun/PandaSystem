@@ -1,6 +1,6 @@
 
 
-<form class="h-full {{$mode == 'create' ? 'pb-10' : ''}}" wire:submit.prevent="submitForm">
+<form class="h-full {{$mode == 'create' ? 'pb-10' : ''}}" wire:submit.prevent="submitForm" enctype="multipart/form-data">
     <!-- -- Status only in view mode -- -->
     @if($mode === 'view')
         <x-statustag :status-text="$requestEntry->request_status" status-location="Container"/>
@@ -187,32 +187,31 @@
                 <label for="" class="text-[18px]">Supporting Files:</label>
                 <div class="flex w-full border border-gray-600 rounded-md overflow-hidden text-sm">
                     <!-- Button -->
-                    <button type="button" class="bg-gray-600 text-white px-4 py-2.5 cursor-pointer hover:bg-gray-500" x-ref="supporting_file">
+                    <a href="{{ Storage::url($requestEntry->supporting_file_url) }}" target="_blank" type="button" class="bg-gray-600 text-white px-4 py-2.5 cursor-pointer hover:bg-gray-500" x-ref="supporting_file">
                         View File
-                    </button>
+                    </a>
                     <!-- File Name -->
                     <div class="flex-1 bg-gray-50 text-gray-500 px-4 py-2.5">
-                        sample_document.pdf
+                        {{$requestEntry->supporting_file_name}}
                     </div>
                 </div>
             </div>
         @else
             <div class="file-group flex flex-col gap-2">
                 <label for="supporting_file" class="text-[18px]">Supporting File:</label>
-                <input name="supporting_file" id="supporting_file" class="block w-full text-sm text-gray-500 border border-1 border-gray-600 rounded-md cursor-pointer bg-gray-50 focus:outline-none" type="file" x-ref="supporting_file" wire:model="supporting_file">
+                <input name="supporting_file" id="supporting_file" class="block w-full text-sm text-gray-500 border border-1 border-gray-600 rounded-md cursor-pointer bg-gray-50 focus:outline-none" type="file" accept="application/pdf" x-ref="supporting_file" wire:model="supporting_file">
             </div>
         @endif
 
         <div class="input-group">
             <label>Requested By:</label>
-            <p>{{ $mode === 'view' ? $requestEntry->requested_by : 'Iverson Guno' }}</p>
+            <p>{{ $mode === 'view' ? $requestEntry->requested_by : Auth::user()->name }}</p>
         </div>
 
         <!-- Form Actions -->
         <div class="flex gap-4">
             @if($module == 'requestor')
                 <div class="flex flex-col">
-                    <h1><b>Requestor Actions:</b></h1>
                     @if($mode == 'create')
                         <div x-show="showAction" class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                             <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit to Head</button>
@@ -241,7 +240,6 @@
 
             @if($module == 'division_head')
                 <div class="flex flex-col">
-                    <h1><b>Division Head Actions:</b></h1>
                     @if($requestEntry->request_status == 'For Head Approval')
                         <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                             <button type="button" @click="modalTarget = 'approverequest'; showModal = true" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-800 px-4 py-2">Approve Request</button>
@@ -254,7 +252,6 @@
 
             @if($module == 'hr_preparer')
                 <div class="flex flex-col">
-                    <h1><b>HR Preparer Actions:</b></h1>
                     @if($requestEntry->request_status == 'For HR Prep')
                         <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                             <button type="button" @click="modalTarget = 'returnedhr'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to Requestor</button>

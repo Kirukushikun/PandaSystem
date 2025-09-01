@@ -4,21 +4,26 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Log;
-use Livewire\WithFileUploads; // Import
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 use App\Models\RequestorModel;
 use App\Models\LogModel;
 
+use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
+
 class RequestorForm extends Component
 {      
-    use WithFileUploads; // Use it
+    use WithFileUploads;
 
     public $mode;
     public $module, $requestID, $requestEntry, $isDisabled = false;
 
     // form fields
-    public $employee_name, $employee_id, $department, $type_of_action, $justification, $supporting_file;
+    public $employee_name, $employee_id, $department, $type_of_action, $justification;
+
+    public $supporting_file;
 
     // return request fields
     public $header, $body;
@@ -57,7 +62,7 @@ class RequestorForm extends Component
         'department' => 'required|string',
         'type_of_action' => 'required|string',
         'justification' => 'nullable',
-        'supporting_file' => 'required|file|max:10240',
+        'supporting_file' => 'required|file|mimes:pdf|max:2048'
     ];
 
     private function generateRequestNo()
@@ -77,7 +82,7 @@ class RequestorForm extends Component
             'type_of_action'      => $this->type_of_action ?? null,
             'justification'       => $this->justification ?? null,
             'supporting_file_url' => $this->supporting_file ?? null,
-            'requested_by'        => 'Iverson Craig Guno',
+            'requested_by'        => Auth::user()->name,
         ]);
 
         $this->dispatch('requestSaved'); // Notify table
@@ -97,6 +102,7 @@ class RequestorForm extends Component
         $requestEntry->type_of_action = $this->type_of_action;
         $requestEntry->justification = $this->justification;
         $requestEntry->supporting_file_url = $this->supporting_file;
+        $requestEntry->requested_by = Auth::user()->name;
         $requestEntry->submitted_at = Carbon::now();
         $requestEntry->save();
 
@@ -116,6 +122,10 @@ class RequestorForm extends Component
 
         $this->validate();
 
+        // store on the "public" disk in storage/app/public/pdfs
+        $path = $this->supporting_file->store('supporting_files', 'public');
+        $originalName = $this->supporting_file->getClientOriginalName();
+
         RequestorModel::create([
             'request_no'         => $this->generateRequestNo(),
             'request_status'      => 'For Head Approval',
@@ -125,8 +135,9 @@ class RequestorForm extends Component
             'department'          => $this->department,
             'type_of_action'      => $this->type_of_action,
             'justification'       => $this->justification ?? null,
-            'supporting_file_url' => $this->supporting_file ?? null,
-            'requested_by'        => 'Iverson Craig Guno',
+            'supporting_file_url' => $path,
+            'supporting_file_name' => $originalName,
+            'requested_by'        => Auth::user()->name,
             'submitted_at'        => Carbon::now()
         ]);
 

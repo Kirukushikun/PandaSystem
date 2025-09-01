@@ -1,13 +1,13 @@
 <div class="header">
-    <div class="logo flex items-center">
+    <div class="logo flex items-center text-sm">
         <img src="{{asset('BGC-logo.png')}}" alt="">
-        <h2 class="whitespace-nowrap">| PANDA</h2>
+        <h2 class="whitespace-nowrap">| Personnel Action Notice Document Automation</h2>
     </div>
     
     <div x-data="{ open: false }" class="profile flex items-center gap-3">
-        <div class="details text-right text-sm">
-            <div class="name">Iverson Guno</div>
-            <div class="email">iversonguno@bgcgroup.ph</div>
+        <div class="details text-right text-lg">
+            <div class="name">{{Auth::user()->name}}</div>
+            <!-- <div class="email">iversonguno@bgcgroup.ph</div> -->
         </div>
         <!-- Icon with toggle dropdown -->
         <div @mouseenter="open = true" @mouseleave="open = false" class="relative">

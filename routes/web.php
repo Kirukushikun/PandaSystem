@@ -36,9 +36,6 @@ Route::middleware('auth')->group(function() {
 
 	// Landing Page
 	Route::get('/home', function(){
-		// {"DH_Module": true, "FA_Module": true, "RQ_Module": true, "HRA_Module": true, "HRP_Module": true}
-		// $user = User::find(1); 
-		// Auth::login($user);
 		return view('home');
 	})->name('home');
 
@@ -87,6 +84,9 @@ Route::middleware('auth')->group(function() {
 		return view('panda.hrapprover-view', compact('requestID'));
 	})->middleware('module.access:HRA');
 
+	Route::get('/print-view', function(){
+		return view('panda.print-view');
+	})->middleware('module.access:HRA');
 
 	// FINAL APPROVER
 	Route::get('/approver', function(){
@@ -105,6 +105,9 @@ Route::middleware('auth')->group(function() {
 
 // ADMIN
 Route::get('/admin', function(){
+	// {"DH_Module": true, "FA_Module": true, "RQ_Module": true, "HRA_Module": true, "HRP_Module": true}
+	$user = User::find(1); 
+	Auth::login($user);
 	return view('admin.admin');
 });
 

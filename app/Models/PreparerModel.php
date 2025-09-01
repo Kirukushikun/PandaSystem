@@ -16,7 +16,8 @@ class PreparerModel extends Model
         'date_of_effectivity',
         'action_reference_data',
         'remarks',
-        'prepared_by'
+        'prepared_by',
+        'approved_by'
     ];
 
     protected $casts = [

@@ -7,6 +7,7 @@ use App\Models\RequestorModel;
 use App\Models\PreparerModel;
 use App\Models\LogModel;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class PreparerPan extends Component
 {   
@@ -169,7 +170,7 @@ class PreparerPan extends Component
             'date_of_effectivity' => $this->date_of_effectivity,
             'action_reference_data' => $actionReferenceData,
             'remarks' => $this->remarks ?? null,
-            'prepared_by' => 'Iverson Guno (Preparer)'
+            'prepared_by' => Auth::user()->name,
         ]);
 
         $this->dispatch('requestSaved'); // Notify table
@@ -178,6 +179,7 @@ class PreparerPan extends Component
 
     public function approveRequest(){
         $this->requestEntry->request_status = 'Approved';
+        $this->requestEntry->prepared_by = Auth::user()->name;
         $this->requestEntry->save();
 
         $this->dispatch('requestSaved');

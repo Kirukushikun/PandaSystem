@@ -23,7 +23,7 @@
                     <livewire:accesslogs-table />
                </section>
                <section class="content-block" id="content-block-2">
-                    <livewire:useraccess-table />
+                    
                </section>
           </main>
      </div>

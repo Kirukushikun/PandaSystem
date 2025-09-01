@@ -22,7 +22,7 @@ return new class extends Migration
             $table->json('action_reference_data')->nullable();
             $table->text('remarks')->nullable();
             $table->string('prepared_by');
-            $table->string('approved_by');
+            $table->string('approved_by')->nullable();
             $table->timestamps();
         });
     }

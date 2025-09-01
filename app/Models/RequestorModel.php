@@ -19,6 +19,7 @@ class RequestorModel extends Model
         'type_of_action',
         'justification',
         'supporting_file_url',
+        'supporting_file_name',
         'requested_by',
         'submitted_at',
     ];

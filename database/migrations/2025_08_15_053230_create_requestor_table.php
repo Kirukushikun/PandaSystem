@@ -52,6 +52,7 @@ return new class extends Migration
             $table->string('type_of_action')->nullable(); // or enum if fixed set
             $table->text('justification')->nullable();
             $table->string('supporting_file_url')->nullable();
+            $table->text('supporting_file_name')->nullable();
             $table->string('requested_by')->nullable();
             $table->timestamp('submitted_at')->nullable(); // Set upon submission
             $table->timestamps();

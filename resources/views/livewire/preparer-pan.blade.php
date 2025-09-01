@@ -188,12 +188,21 @@
             <label>Remarks and Other Consideration:</label>
             <textarea class="w-full h-30 resize-none" wire:model="remarks" {{$isDisabled ? 'Disabled' : ''}}></textarea>
         </div>
+        
+        <div class="flex gap-20">
+            <!-- Prepared By -->
+            <div class="input-group">
+                <label>Prepared By:</label>
+                <p>{{ $mode === 'view' ? $requestEntry->requested_by : Auth::user()->name }}</p>
+            </div>
 
-        <!-- Prepared By -->
-        <div class="input-group">
-            <label>Prepared By:</label>
-            <p>Iverson Guno</p>
+            <!-- Prepared By -->
+            <div class="input-group">
+                <label>Prepared By:</label>
+                <p>{{ $mode === 'view' ? $requestEntry->requested_by : Auth::user()->name }}</p>
+            </div>            
         </div>
+
 
         <!-- Form Actions -->
         <div class="flex gap-4">
