@@ -26,7 +26,7 @@
      
      <x-loader/>
 
-     @if(Auth::check())
+     @if(Auth::check() && !request()->is('print-view*'))
           <div class="navigator absolute left-[20px] top-[40px] flex flex-col gap-2 bg-white p-5 rounded-md">
                <div class="navigations flex flex-col gap-2">
                     <a href="/requestor"

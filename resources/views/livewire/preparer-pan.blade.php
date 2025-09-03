@@ -192,15 +192,17 @@
         <div class="flex gap-20">
             <!-- Prepared By -->
             <div class="input-group">
-                <label>Prepared By:</label>
+                <label>{{$requestEntry->request_status == 'For HR Prep' ? 'Being' : ''}} Prepared By:</label>
                 <p>{{ $mode === 'view' ? $requestEntry->requested_by : Auth::user()->name }}</p>
             </div>
-
-            <!-- Prepared By -->
-            <div class="input-group">
-                <label>Prepared By:</label>
-                <p>{{ $mode === 'view' ? $requestEntry->requested_by : Auth::user()->name }}</p>
-            </div>            
+            
+            @if($requestEntry->request_status == 'Approved' || $module == 'final_approver')
+                <!-- Prepared By -->
+                <div class="input-group">
+                    <label>{{$requestEntry->request_status != 'Approved' ? 'Being' : ''}} Approved By:</label>
+                    <p>{{ $mode === 'view' ? $requestEntry->requested_by : Auth::user()->name }}</p>
+                </div> 
+            @endif           
         </div>
 
 
@@ -245,6 +247,10 @@
                     <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                         <button type="button" @click="modalTarget = 'approvehr'; showModal = true" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-800 px-4 py-2">Approve Request</button>
                         <button type="button" @click="modalTarget = 'rejecthr'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject Request</button>
+                    </div>
+                @elseif($requestEntry->request_status == 'Approved')
+                    <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                        <button type="button" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-800 px-4 py-2" onclick="window.location.href='/print-view?requestID={{ encrypt($requestID) }}'"><i class="fa-solid fa-print"></i> Print Request</button>
                     </div>
                 @endif
 
@@ -299,6 +305,13 @@
                                 <option value="Other">Other (Specify)</option>
                             </select>
                         </div>
+
+                        <!-- Show this input if "Other" is selected -->
+                        <div class="input-group" x-show="$wire.header === 'Other'">
+                            <label>Custom Reason :</label>
+                            <input type="text" class="w-full" placeholder="Type your reason" wire:model="customHeader">
+                        </div>
+
                         <div class="input-group">
                             <label>Details :</label>
                             <textarea class="w-full h-24 resize-none" wire:model="body" required></textarea>
@@ -317,7 +330,7 @@
     </div>
 </section>
 
-<script>
+<!-- <script>
     function panForm() {
         return {
             // --- UI State ---
@@ -327,15 +340,15 @@
             modalTarget: '',
             modalConfig: {
                 submit: {
-                    header: 'Submit for Confirmation',
-                    message: 'This PAN form will be forwarded to the Division Head for confirmation. Are you sure you want to proceed?',
+                    header: 'Send for Division Head Confirmation',
+                    message: 'Are you sure you want to forward this prepared PAN to the Division Head for confirmation?',
                     action: 'submitPan',
                     needsInput: false
                 },
 
                 confirmpan: {
                     header: 'Confirm PAN Form',
-                    message: 'This PAN form will be forwarded to the HR Approver for approval. Are you sure you want to proceed?',
+                    message: 'This PAN form will be sent to the HR Approver for review. Are you sure you want to proceed?',
                     action: 'confirmPan',
                     needsInput: false
                 },
@@ -347,29 +360,236 @@
                 },
 
                 approvehr: {
-                    header: 'Approve Request',
-                    message: 'This PAN form will be forwarded to the HR Approver for approval. Are you sure you want to proceed?',
+                    header: 'Approve PAN',
+                    message: 'Do you want to approve this PAN and forward it to the Final Approver?',
                     action: 'approveHr',
                     needsInput: false
                 },
 
                 rejecthr: {
-                    header: 'Reject Request',
-                    message: 'This PAN form will be forwarded to the HR Approver for approval. Are you sure you want to proceed?',
+                    header: 'Reject PAN',
+                    message: 'Are you sure you want to reject this PAN? It will be returned to Requestor for correction.',
                     action: 'rejectHr',
                     needsInput: false
                 },
 
                 approvefinal: {
-                    header: 'Approve Request',
-                    message: 'This PAN form will be forwarded to the HR Approver for approval. Are you sure you want to proceed?',
+                    header: 'Final Approval',
+                    message: 'Do you want to give final approval to this PAN?',
                     action: 'approveFinal',
                     needsInput: false
                 },
 
                 rejectfinal: {
-                    header: 'Reject Request',
-                    message: 'This PAN form will be forwarded to the HR Approver for approval. Are you sure you want to proceed?',
+                    header: 'Reject Final Approval',
+                    message: 'Are you sure you want to reject this PAN? It will be returned to Requestor for further review.',
+                    action: 'rejectFinal',
+                    needsInput: false
+                },
+            },
+
+            validationAttempted: false,
+
+            // --- Row validation state ---
+            rows: {
+                section: { valid: false },
+                place: { valid: false },
+                head: { valid: false },
+                position: { valid: false },
+                joblevel: { valid: false },
+                basic: { valid: false },
+            },
+
+            // --- Allowances ---
+            allowances: [],
+            allOptions: ["Communication Allowance", "Meal Allowance", "Living Allowance", "Transportation Allowance", "Clothing Allowance", "Fuel Allowance", "Management Allowance", "Developmental Assignments", "Professional Allowance", "Interim Allowance", "Training Allowance", "Mancom Allowance"],
+
+            addAllowance() {
+                this.allowances.push({ from: "", to: "", value: "" });
+                this.syncAllowancesWithLivewire();
+            },
+
+            updateAllowance(index, value) {
+                this.allowances[index].value = value;
+                this.checkRows();
+                this.syncAllowancesWithLivewire();
+            },
+
+            // Add this method to sync allowances with Livewire
+            syncAllowancesWithLivewire() {
+                // Clean the data by removing the 'valid' property before sending to Livewire
+                const cleanAllowances = this.allowances.map(({valid, ...allowance}) => allowance);
+                this.$wire.call('updateAllowances', cleanAllowances);
+            },
+
+            getAvailableOptions(index) {
+                return this.allOptions.filter((opt) => !this.allowances.map((a) => a.value).includes(opt) || this.allowances[index].value === opt);
+            },
+
+            // --- Init ---
+            init() {
+                // Listen to static input fields
+                this.getFields().forEach((field) => {
+                    ["input", "change"].forEach((evt) => field.addEventListener(evt, () => this.checkFields()));
+                });
+                this.checkFields();
+                
+                // Get allowances from Livewire with a small delay to ensure data is ready
+                this.$nextTick(() => {
+                    const livewireAllowances = this.$wire.get('allowances');
+                    if (livewireAllowances && livewireAllowances.length > 0) {
+                        this.allowances = [...livewireAllowances]; // this sets the value
+                        this.$nextTick(() => this.checkRows()); // ensure recalculation
+                    }
+                });
+            },
+
+            // --- Field Helpers ---
+            getFields() {
+                return [
+                    this.$refs.date_hired, 
+                    this.$refs.employment_status, 
+                    this.$refs.division, 
+                    this.$refs.date_of_effectivity
+                ];
+            },
+
+            // --- Validation ---
+            checkFields() {
+                this.showAction = this.getFields().some((f) => f.value?.trim() !== "");
+            },
+
+            checkRows() {
+                // static rows
+                Object.keys(this.rows).forEach((key) => {
+                    const from = this.$refs[`${key}_from`]?.value?.trim();
+                    const to = this.$refs[`${key}_to`]?.value?.trim();
+                    this.rows[key].valid = !!(from && to);
+                });
+
+                // allowance rows (directly from x-model)
+                this.allowances.forEach((a) => {
+                    a.valid = !!(a.from?.trim() && a.to?.trim() && a.value);
+                });
+
+                // Sync with Livewire after validation
+                this.syncAllowancesWithLivewire();
+            },
+
+            validateBeforeModal(action) {
+                this.validationAttempted = true;
+
+                // highlight required static fields
+                let hasEmpty = false;
+                this.getFields().forEach((field) => {
+                    if (field.value.trim() === "") {
+                        field.classList.add("!border-red-500");
+                        hasEmpty = true;
+                    } else {
+                        field.classList.remove("!border-red-500");
+                    }
+                });
+
+                if (hasEmpty) return; // Stop here if static fields are empty
+
+                // Now check rows only if static fields are valid
+                this.checkRows();
+
+                const rowsInvalid = Object.values(this.rows).some((r) => !r.valid);
+                const allowancesInvalid = this.allowances.some((a) => !a.valid);
+
+                if (rowsInvalid || allowancesInvalid) return;
+
+                this.syncAllowancesWithLivewire();
+
+                this.modalTarget = action;
+                this.showModal = true;
+            },
+
+            // Add method to handle allowance deletion
+            removeAllowance(index) {
+                this.allowances.splice(index, 1);
+                this.syncAllowancesWithLivewire();
+            },
+
+            resetForm() {
+                // Reset all refs
+                this.getFields().forEach(field => field.value = "");
+
+                // Reset rows
+                Object.keys(this.rows).forEach(key => {
+                    this.rows[key].valid = false;
+                    if (this.$refs[`${key}_from`]) this.$refs[`${key}_from`].value = "";
+                    if (this.$refs[`${key}_to`]) this.$refs[`${key}_to`].value = "";
+                });
+
+                // Reset allowances
+                this.allowances = [];
+
+                // Reset validation
+                this.validationAttempted = false;
+
+                // Sync to Livewire (optional, if you want Livewire to clear too)
+                this.syncAllowancesWithLivewire();
+            }
+        };
+    }
+</script> -->
+
+
+<script>
+    function panForm() {
+        return {
+            // --- UI State ---
+            showModal: false,
+            showAction: false,
+
+            modalTarget: '',
+            modalConfig: {
+                submit: {
+                    header: 'Send for Division Head Confirmation',
+                    message: 'Are you sure you want to forward this prepared PAN to the Division Head for confirmation?',
+                    action: 'submitPan',
+                    needsInput: false
+                },
+
+                confirmpan: {
+                    header: 'Confirm PAN Form',
+                    message: 'This PAN form will be sent to the HR Approver for review. Are you sure you want to proceed?',
+                    action: 'confirmPan',
+                    needsInput: false
+                },
+
+                disputeHead: {
+                    header: 'Flag for Resolution',
+                    action: 'disputeHead',
+                    needsInput: true
+                },
+
+                approvehr: {
+                    header: 'Approve PAN',
+                    message: 'Do you want to approve this PAN and forward it to the Final Approver?',
+                    action: 'approveHr',
+                    needsInput: false
+                },
+
+                rejecthr: {
+                    header: 'Reject PAN',
+                    message: 'Are you sure you want to reject this PAN? It will be returned to Requestor for correction.',
+                    action: 'rejectHr',
+                    needsInput: false
+                },
+
+                approvefinal: {
+                    header: 'Final Approval',
+                    message: 'Do you want to give final approval to this PAN?',
+                    action: 'approveFinal',
+                    needsInput: false
+                },
+
+                rejectfinal: {
+                    header: 'Reject Final Approval',
+                    message: 'Are you sure you want to reject this PAN? It will be returned to Requestor for further review.',
                     action: 'rejectFinal',
                     needsInput: false
                 },
@@ -522,134 +742,3 @@
         };
     }
 </script>
-
-<!-- <script>
-    function panForm() {
-        return {
-            // --- UI State ---
-            showModal: false,
-            showAction: false,
-
-
-
-            validationAttempted: false,
-
-            // --- Row validation state ---
-            rows: {
-                section: { valid: false },
-                place: { valid: false },
-                head: { valid: false },
-                position: { valid: false },
-                joblevel: { valid: false },
-                basic: { valid: false },
-            },
-
-            // --- Allowances ---
-            allowances: [],
-            allOptions: ["Communication Allowance", "Meal Allowance", "Living Allowance", "Transportation Allowance", "Clothing Allowance", "Fuel Allowance", "Management Allowance", "Developmental Assignments", "Professional Allowance", "Interim Allowance", "Training Allowance", "Mancom Allowance"],
-
-            addAllowance() {
-                this.allowances.push({ from: "", to: "", value: "" });
-            },
-
-            updateAllowance(index, value) {
-                this.allowances[index].value = value;
-                this.checkRows();
-            },
-
-            getAvailableOptions(index) {
-                return this.allOptions.filter((opt) => !this.allowances.map((a) => a.value).includes(opt) || this.allowances[index].value === opt);
-            },
-
-            // --- Init ---
-            init() {
-                
-            },
-
-            // --- Field Helpers ---
-            getFields() {
-                return [
-                    this.$refs.date_hired, 
-                    this.$refs.employment_status, 
-                    this.$refs.division, 
-                    this.$refs.date_of_effectivity
-                ];
-            },
-
-            // --- Validation ---
-            checkFields() {
-                this.showAction = this.getFields().some((f) => f.value?.trim() !== "");
-            },
-
-            checkRows() {
-                // static rows
-                Object.keys(this.rows).forEach((key) => {
-                    const from = this.$refs[`${key}_from`]?.value?.trim();
-                    const to = this.$refs[`${key}_to`]?.value?.trim();
-                    this.rows[key].valid = !!(from && to);
-                });
-
-                // allowance rows (directly from x-model)
-                this.allowances.forEach((a) => {
-                    a.valid = !!(a.from?.trim() && a.to?.trim() && a.value);
-                });
-
-                // Sync with Livewire after validation
-            },
-
-            validateBeforeModal(action) {
-                this.validationAttempted = true;
-
-                // highlight required static fields
-                let hasEmpty = false;
-                this.getFields().forEach((field) => {
-                    if (field.value.trim() === "") {
-                        field.classList.add("!border-red-500");
-                        hasEmpty = true;
-                    } else {
-                        field.classList.remove("!border-red-500");
-                    }
-                });
-
-                if (hasEmpty) return; // Stop here if static fields are empty
-
-                // Now check rows only if static fields are valid
-                this.checkRows();
-
-                const rowsInvalid = Object.values(this.rows).some((r) => !r.valid);
-                const allowancesInvalid = this.allowances.some((a) => !a.valid);
-
-                if (rowsInvalid || allowancesInvalid) return;
-
-
-                this.modalTarget = action;
-                this.showModal = true;
-            },
-
-            // Add method to handle allowance deletion
-            removeAllowance(index) {
-                this.allowances.splice(index, 1);
-            },
-
-            resetForm() {
-                // Reset all refs
-                this.getFields().forEach(field => field.value = "");
-
-                // Reset rows
-                Object.keys(this.rows).forEach(key => {
-                    this.rows[key].valid = false;
-                    if (this.$refs[`${key}_from`]) this.$refs[`${key}_from`].value = "";
-                    if (this.$refs[`${key}_to`]) this.$refs[`${key}_to`].value = "";
-                });
-
-                // Reset allowances
-                this.allowances = [];
-
-                // Reset validation
-                this.validationAttempted = false;
-
-                // Sync to Livewire (optional, if you want Livewire to clear too)
-            }
-        };
-    }
-</script> -->

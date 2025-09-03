@@ -15,14 +15,14 @@
             modalTarget: '',
             modalConfig: {
                 submit: {
-                    header: 'Confirm Submission',
+                    header: 'Submit Request',
                     message: 'Are you sure you want to submit this request for processing?',
                     action: 'submitRequest',
                     needsInput: false
                 },
                 resubmit: {
-                    header: 'Confirm Resubmission',
-                    message: 'Are you sure you want to resubmit this request for processing?',
+                    header: 'Resubmit Request',
+                    message: 'Are you sure you want to resubmit this request after making the necessary corrections?',
                     action: 'resubmitRequest',
                     needsInput: false
                 },
@@ -30,26 +30,32 @@
 
                 savedraft: {
                     header: 'Save Draft',
-                    message: 'Do you want to save this request as a draft?',
+                    message: 'Do you want to save this request as a draft for now?',
                     action: 'saveDraft',
                     needsInput: false
                 },
                 submitdraft: {
-                    header: 'Confirm Submission',
-                    message: 'Are you sure you want to submit this request for processing?',
+                    header: 'Submit Draft',
+                    message: 'Are you sure you want to submit this draft request for processing?',
                     action: 'submitDraft',
                     needsInput: false
                 },
                 deletedraft: {
                     header: 'Delete Draft',
-                    message: 'Are you sure you want to delete this draft? This action can’t be undone.',
+                    message: 'Are you sure you want to delete this draft? This action cannot be undone.',
                     action: 'deleteDraft',
+                    needsInput: false
+                },
+                withdraw: {
+                    header: 'Withdraw Request',
+                    message: 'Are you sure you want to withdraw this request? Once withdrawn, it cannot be restored.',
+                    action: 'withdrawRequest',
                     needsInput: false
                 },
 
                 approverequest: {
                     header: 'Approve Request',
-                    message: 'Are you sure you want to approve this request? This request will be forwarded to HR for preparation.',
+                    message: 'Do you want to approve this request and forward it to HR for preparation?',
                     action: 'approveRequest',
                     needsInput: false
                 },
@@ -71,12 +77,7 @@
                     needsInput: true
                 },
 
-                withdraw: {
-                    header: 'Withdraw Request',
-                    message: 'Are you sure you want to withdraw this request? This action can’t be undone.',
-                    action: 'withdrawRequest',
-                    needsInput: false
-                },
+                
             },
 
             // helper to collect all fields
@@ -87,7 +88,6 @@
                     this.$refs.department,
                     this.$refs.type_of_action,
                     this.$refs.justification,
-                    this.$refs.supporting_file,
                 ];
             },
 
@@ -182,25 +182,127 @@
             <textarea class="resize-none {{$mode == 'view' ? 'h-[200px]' : 'h-full'}}" name="justification" id="justification" class="w-full h-full resize-none" x-ref="justification" wire:model="justification" {{$isDisabled ? 'Readonly' : ''}}></textarea>
         </div>
 
-        @if($isDisabled)
+        @if($mode == 'create')
+            <!-- Create -->
             <div class="file-group flex flex-col gap-2">
-                <label for="" class="text-[18px]">Supporting Files:</label>
-                <div class="flex w-full border border-gray-600 rounded-md overflow-hidden text-sm">
-                    <!-- Button -->
-                    <a href="{{ Storage::url($requestEntry->supporting_file_url) }}" target="_blank" type="button" class="bg-gray-600 text-white px-4 py-2.5 cursor-pointer hover:bg-gray-500" x-ref="supporting_file">
-                        View File
-                    </a>
-                    <!-- File Name -->
-                    <div class="flex-1 bg-gray-50 text-gray-500 px-4 py-2.5">
-                        {{$requestEntry->supporting_file_name}}
+                <label for="supporting_file" class="text-[18px] relative">Supporting File: 
+                    @error('supporting_file')
+                        <span class="absolute bg-white text-red-600 right-[10px] bottom-[-20px] text-xs p-1">
+                            {{ $message }}
+                        </span>
+                    @enderror
+                </label>
+                <input name="supporting_file" id="supporting_file" class="block w-full text-sm text-gray-500 border border-1 {{ $errors->has('supporting_file') ? 'border-red-600' : 'border-gray-600' }} rounded-md cursor-pointer bg-gray-50 focus:outline-none" type="file" accept="application/pdf" x-ref="supporting_file" wire:model="supporting_file">
+            </div>
+        @elseif($mode == 'view')
+            @if($module == 'requestor')
+                @if($requestEntry->request_status == 'Returned to Requestor')
+                    @if($requestEntry->supporting_file_url)
+                        <div class="grid grid-cols-2 gap-5">
+                            <div class="existing-file flex flex-col gap-3">
+                                <label for="supporting_file" class="text-[18px] relative">Existing File: <span class="text-gray-400">Currently Attached File</span></label>
+                                <div class="flex w-full border border-gray-600 rounded-md overflow-hidden text-sm mb-2">
+                                    <a href="{{ Storage::url($requestEntry->supporting_file_url) }}" target="_blank" class="bg-gray-600 text-white px-4 py-2.5 hover:bg-gray-500">
+                                        View File
+                                    </a>
+                                    <div class="flex-1 bg-gray-50 text-gray-500 px-4 py-2.5">
+                                        {{ $requestEntry->supporting_file_name }}
+                                    </div>
+                                </div>                                
+                            </div>
+
+                            <div class="reupload-file flex flex-col gap-3">
+                                <!-- Re-upload Input -->
+                                <label for="reup_supporting_file" class="text-[18px] relative">Re-upload: <span class="text-gray-400">Upload New File (optional)</span>
+                                    @error('reup_supporting_file')
+                                        <span class="absolute bg-white text-red-600 right-[10px] bottom-[-20px] text-xs p-1">
+                                            {{ $message }}
+                                        </span>
+                                    @enderror
+                                </label>
+                                <input name="reup_supporting_file" id="reup_supporting_file" type="file"
+                                    accept="application/pdf"
+                                    class="block w-full text-sm text-gray-500 border border-1 
+                                    {{ $errors->has('reup_supporting_file') ? 'border-red-600' : 'border-gray-600' }} 
+                                    rounded-md cursor-pointer bg-gray-50 focus:outline-none"
+                                    wire:model="reup_supporting_file">
+
+                                <small class="text-gray-500">Leave empty if you don't want to change the file.</small>                                
+                            </div>
+                        </div>
+                    @else
+                         <div class="file-group flex flex-col gap-2">
+                            <label for="supporting_file" class="text-[18px] relative">Supporting File: 
+                                @error('supporting_file')
+                                    <span class="absolute bg-white text-red-600 right-[10px] bottom-[-20px] text-xs p-1">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
+                            </label>
+                            <input name="supporting_file" id="supporting_file" class="block w-full text-sm text-gray-500 border border-1 {{ $errors->has('supporting_file') ? 'border-red-600' : 'border-gray-600' }} rounded-md cursor-pointer bg-gray-50 focus:outline-none" type="file" accept="application/pdf" x-ref="supporting_file" wire:model="supporting_file">
+                        </div>
+                    @endif
+                @elseif($requestEntry->request_status == 'Draft')
+                    <div class="file-group flex flex-col gap-2">
+                        <label for="supporting_file" class="text-[18px] relative">Supporting File: 
+                            @error('supporting_file')
+                                <span class="absolute bg-white text-red-600 right-[10px] bottom-[-20px] text-xs p-1">
+                                    {{ $message }}
+                                </span>
+                            @enderror
+                        </label>
+                        <input name="supporting_file" id="supporting_file" class="block w-full text-sm text-gray-500 border border-1 {{ $errors->has('supporting_file') ? 'border-red-600' : 'border-gray-600' }} rounded-md cursor-pointer bg-gray-50 focus:outline-none" type="file" accept="application/pdf" x-ref="supporting_file" wire:model="supporting_file">
+                    </div>
+                @else
+                    <div class="file-group flex flex-col gap-2">
+                        <label for="" class="text-[18px]">Supporting Files:</label>
+                        <div class="flex w-full border border-gray-600 rounded-md overflow-hidden text-sm">
+                            @if($requestEntry->supporting_file_url)
+                                <a href="{{ Storage::url($requestEntry->supporting_file_url) }}" target="_blank" type="button" class="bg-gray-600 text-white px-4 py-2.5 cursor-pointer hover:bg-gray-500" x-ref="supporting_file">
+                                    View File
+                                </a>
+                                <!-- File Name -->
+                                <div class="flex-1 bg-gray-50 text-gray-500 px-4 py-2.5">
+                                    {{$requestEntry->supporting_file_name}}
+                                </div>                        
+                            @else
+                                <div target="_blank" type="button" class="bg-gray-600 text-white px-4 py-2.5 cursor-pointer hover:bg-gray-500" x-ref="supporting_file" disabled>
+                                    View File
+                                </div>
+                                <!-- File Name -->
+                                <div class="flex-1 bg-gray-50 text-gray-500 px-4 py-2.5">
+                                    No file attached
+                                </div> 
+                            @endif
+                            <!-- Button -->
+                        </div>
+                    </div>
+                @endif
+            @else
+                <div class="file-group flex flex-col gap-2">
+                    <label for="" class="text-[18px]">Supporting Files:</label>
+                    <div class="flex w-full border border-gray-600 rounded-md overflow-hidden text-sm">
+                        @if($requestEntry->supporting_file_url)
+                            <a href="{{ Storage::url($requestEntry->supporting_file_url) }}" target="_blank" type="button" class="bg-gray-600 text-white px-4 py-2.5 cursor-pointer hover:bg-gray-500" x-ref="supporting_file">
+                                View File
+                            </a>
+                            <!-- File Name -->
+                            <div class="flex-1 bg-gray-50 text-gray-500 px-4 py-2.5">
+                                {{$requestEntry->supporting_file_name}}
+                            </div>                        
+                        @else
+                            <div target="_blank" type="button" class="bg-gray-600 text-white px-4 py-2.5 cursor-pointer hover:bg-gray-500" x-ref="supporting_file" disabled>
+                                View File
+                            </div>
+                            <!-- File Name -->
+                            <div class="flex-1 bg-gray-50 text-gray-500 px-4 py-2.5">
+                                No file attached
+                            </div> 
+                        @endif
+                        <!-- Button -->
                     </div>
                 </div>
-            </div>
-        @else
-            <div class="file-group flex flex-col gap-2">
-                <label for="supporting_file" class="text-[18px]">Supporting File:</label>
-                <input name="supporting_file" id="supporting_file" class="block w-full text-sm text-gray-500 border border-1 border-gray-600 rounded-md cursor-pointer bg-gray-50 focus:outline-none" type="file" accept="application/pdf" x-ref="supporting_file" wire:model="supporting_file">
-            </div>
+            @endif
         @endif
 
         <div class="input-group">
@@ -262,7 +364,7 @@
         </div>
 
         <!-- Overlay (instant) -->
-        <div x-show="showModal" class="fixed inset-0 bg-black/50"></div>
+        <div x-show="showModal" class="fixed inset-0 bg-black/50 z-40"></div>
         
         <div
             x-show="showModal"
@@ -272,7 +374,7 @@
             x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-90"
-            class="fixed inset-0 flex items-center justify-center z-40"
+            class="fixed inset-0 flex items-center justify-center z-50"
         >
             <div class="bg-white p-6 rounded-lg shadow-lg w-md z-10">
                 <h2 class="text-xl font-semibold mb-4" x-text="modalConfig[modalTarget]?.header"></h2>
@@ -292,6 +394,13 @@
                                 <option value="Other">Other (Please Specify)</option>
                             </select>
                         </div>
+
+                        <!-- Show this input if "Other" is selected -->
+                        <div class="input-group" x-show="$wire.header === 'Other'">
+                            <label>Custom Reason :</label>
+                            <input type="text" class="w-full" placeholder="Type your reason" wire:model="customHeader">
+                        </div>
+
                         <div class="input-group">
                             <label>Details :</label>
                             <textarea class="w-full h-24 resize-none" placeholder="(Optional)" wire:model="body"></textarea>

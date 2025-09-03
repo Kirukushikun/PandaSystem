@@ -5,16 +5,39 @@
     </div>
     
     <div x-data="{ open: false }" class="profile flex items-center gap-3">
-        <div class="details text-right text-lg">
-            <div class="name">{{Auth::user()->name}}</div>
-            <!-- <div class="email">iversonguno@bgcgroup.ph</div> -->
+        <div class="details text-right text-sm">
+            <div class="name" id="user-name">{{ Auth::user()->name }}</div>
+            <div class="email" id="user-email"></div>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                fetch(`https://bfcgroup.ph/api/v1/users/get-details/{{ Auth::user()->id }}`, {
+                    method: 'POST',
+                    headers: {
+                        'x-api-key': '123456789bgc',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Example: If email is also provided
+                    if (data.email) {
+                        document.getElementById('user-email').textContent = data.email;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        </script>
+
         <!-- Icon with toggle dropdown -->
         <div @mouseenter="open = true" @mouseleave="open = false" class="relative">
             <i class="fa-solid fa-circle-user text-[30px] cursor-pointer hover:scale-110"></i>
 
             <!-- Dropdown Menu -->
-            <div x-show="open" x-transition class="absolute left-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg">
+            <div x-show="open" x-transition class="absolute left-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-40">
                 <ul class="py-2">
                     <!-- <li>
                         <a href="#" class="block px-4 py-2 hover:bg-gray-100">Settings</a>

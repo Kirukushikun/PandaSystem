@@ -26,7 +26,7 @@ class PreparerPan extends Component
     public $allowances = []; 
 
     // dispute request fields
-    public $header, $body;
+    public $header, $customHeader , $body;
 
     public function mount($module = null, $requestID = null){
         $this->module = $module;
@@ -70,9 +70,7 @@ class PreparerPan extends Component
         }
     }
 
-
-    private function prepopulateDisputeFields()
-    {
+    private function prepopulateDisputeFields(){
         if (!empty($this->referenceTableData)) {
             // Define static fields
             $staticFields = ['section', 'place', 'head', 'position', 'joblevel', 'basic'];
@@ -108,8 +106,7 @@ class PreparerPan extends Component
     ];
 
     // Add this method to receive allowances from Alpine.js
-    public function updateAllowances($allowances)
-    {
+    public function updateAllowances($allowances){
         $this->allowances = $allowances;
     }
 
@@ -173,8 +170,12 @@ class PreparerPan extends Component
             'prepared_by' => Auth::user()->name,
         ]);
 
-        $this->dispatch('requestSaved'); // Notify table
         $this->redirect("/hrpreparer");
+        $this->reloadNotif('success', 'PAN Sent for Confirmation', 'The prepared PAN form has been sent to the Division Head for confirmation.');
+    }
+
+    public function resubmitPan(){
+        // Resubmit Pan
     }
 
     public function approveRequest(){
@@ -209,10 +210,12 @@ class PreparerPan extends Component
             'body' => 'nullable|string'
         ]);
 
+        $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
+
         LogModel::create([
             'request_id' => $this->requestID,
             'origin' => 'Dispute Raised by Division Head',
-            'header' => 'Subject: ' . $this->header,
+            'header' => 'Subject: ' . $reason,
             'body' => 'Details: ' . $this->body
         ]);
 
@@ -229,13 +232,15 @@ class PreparerPan extends Component
         $this->requestEntry->save();
 
         $this->redirect('/hrapprover');
+        $this->reloadNotif('success', 'PAN Approved', 'The PAN form has been approved and forwarded to the Final Approver.');
     }
 
     public function rejectHr(){
-        $this->requestEntry->request_status = 'Rejected by HR';
+        $this->requestEntry->request_status = 'Returned to Requestor';
         $this->requestEntry->save();
 
         $this->redirect('/hrapprover');
+        $this->reloadNotif('success', 'PAN Rejected', 'The PAN form has been rejected and returned to Requestor for revision.');
     }
 
     public function approveFinal(){
@@ -243,29 +248,28 @@ class PreparerPan extends Component
         $this->requestEntry->save();
 
         $this->redirect('/hrapprover');
+        $this->reloadNotif('success', 'PAN Approved', 'The PAN has been fully approved and marked as complete.');
     }
 
     public function rejectFinal(){
-        $this->requestEntry->request_status = 'Rejected by Approver';
+        $this->requestEntry->request_status = 'Returned to Requestor';
         $this->requestEntry->save();
 
         $this->redirect('/hrapprover');
+        $this->reloadNotif('success', 'PAN Rejected', 'The PAN form has been rejected and returned to Requestor for revision.');
     }
 
-    public function render()
-    {
+    public function render(){
         return view('livewire.preparer-pan');
     }
 
     // HELPER FUNCTIONS
 
-    private function noreloadNotif($type, $header, $message)
-    {
+    private function noreloadNotif($type, $header, $message){
         $this->dispatch('notif', type: $type, header: $header, message: $message);
     }
 
-    private function reloadNotif($type, $header, $message)
-    {
+    private function reloadNotif($type, $header, $message){
         session()->flash('notif', [
             'type' => $type,
             'header' => $header,

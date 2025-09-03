@@ -84,8 +84,12 @@ Route::middleware('auth')->group(function() {
 		return view('panda.hrapprover-view', compact('requestID'));
 	})->middleware('module.access:HRA');
 
-	Route::get('/print-view', function(){
-		return view('panda.print-view');
+	Route::get('/print-view', function(Request $request){
+		$requestID = decrypt($request->requestID);
+		$requestForm = RequestorModel::findOrFail($requestID);
+		$panForm = PreparerModel::where('request_id', $requestID)->first();
+		
+		return view('panda.print-view', compact('requestID', 'requestForm', 'panForm'));
 	})->middleware('module.access:HRA');
 
 	// FINAL APPROVER
