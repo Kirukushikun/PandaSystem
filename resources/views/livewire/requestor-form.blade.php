@@ -76,8 +76,6 @@
                     action: 'returnedHr',
                     needsInput: true
                 },
-
-                
             },
 
             // helper to collect all fields

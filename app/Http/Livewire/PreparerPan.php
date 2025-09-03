@@ -64,36 +64,8 @@ class PreparerPan extends Component
             // determine mode
             if ($this->requestEntry->request_status == 'For Resolution' && $this->module == 'hr_preparer') {
                 $this->mode = 'create';
-                $this->prepopulateDisputeFields();
             } 
 
-        }
-    }
-
-    private function prepopulateDisputeFields(){
-        if (!empty($this->referenceTableData)) {
-            // Define static fields
-            $staticFields = ['section', 'place', 'head', 'position', 'joblevel', 'basic'];
-            
-            foreach ($this->referenceTableData as $item) {
-                $field = $item['field'];
-                
-                if (in_array($field, $staticFields)) {
-                    // Populate static fields
-                    $this->{"{$field}_from"} = $item['from'] ?? '';
-                    $this->{"{$field}_to"} = $item['to'] ?? '';
-                } else {
-                    // Populate dynamic allowances
-                    $this->allowances[] = [
-                        'from' => $item['from'] ?? '',
-                        'to' => $item['to'] ?? '',
-                        'value' => $field // The allowance name (e.g., "Transportation Allowance")
-                    ];
-                }
-            }
-            
-            Log::info('Populated static fields and allowances');
-            Log::info('Allowances:', $this->allowances);
         }
     }
 
@@ -110,51 +82,8 @@ class PreparerPan extends Component
         $this->allowances = $allowances;
     }
 
-    public function submitPan(){
+    public function submitPan($formData){
         $this->validate();
-
-        $actionReferenceData = [
-            // Static section data (with type identifier)
-            [
-                'field' => 'section',
-                'from' => $this->section_from,
-                'to' => $this->section_to
-            ],
-            [
-                'field' => 'place',
-                'from' => $this->place_from,
-                'to' => $this->place_to
-            ],
-            [
-                'field' => 'head',
-                'from' => $this->head_from,
-                'to' => $this->head_to
-            ],
-            [
-                'field' => 'position',
-                'from' => $this->position_from,
-                'to' => $this->position_to
-            ],
-            [
-                'field' => 'joblevel',
-                'from' => $this->joblevel_from,
-                'to' => $this->joblevel_to
-            ],
-            [
-                'field' => 'basic',
-                'from' => $this->basic_from,
-                'to' => $this->basic_to
-            ]
-        ];
-
-        // Add allowances to the same array
-        foreach ($this->allowances as $allowance) {
-            $actionReferenceData[] = [
-                'field' => $allowance['value'],
-                'from' => $allowance['from'],
-                'to' => $allowance['to'],
-            ];
-        };
 
         $this->requestEntry->request_status = 'For Confirmation';
         $this->requestEntry->save();
@@ -165,17 +94,44 @@ class PreparerPan extends Component
             'employment_status' => $this->employment_status,
             'division' => $this->division,
             'date_of_effectivity' => $this->date_of_effectivity,
-            'action_reference_data' => $actionReferenceData,
+            'action_reference_data' => $formData,
             'remarks' => $this->remarks ?? null,
             'prepared_by' => Auth::user()->name,
         ]);
 
         $this->redirect("/hrpreparer");
-        $this->reloadNotif('success', 'PAN Sent for Confirmation', 'The prepared PAN form has been sent to the Division Head for confirmation.');
+        $this->reloadNotif(
+            'success',
+            'PAN Sent for Confirmation',
+            'The prepared PAN form has been sent to the Division Head for confirmation.'
+        );
     }
 
-    public function resubmitPan(){
-        // Resubmit Pan
+    public function resubmitPan($formData){
+        $this->validate();
+
+        // Update request status
+        $this->requestEntry->request_status = 'For Confirmation';
+        $this->requestEntry->save();
+
+        // Fetch existing Preparer entry
+        $panEntry = PreparerModel::where('request_id', $this->requestID)->first();
+
+        // Update existing record
+        $panEntry->date_hired = $this->date_hired;
+        $panEntry->employment_status = $this->employment_status;
+        $panEntry->division = $this->division;
+        $panEntry->date_of_effectivity = $this->date_of_effectivity;
+        $panEntry->action_reference_data = $formData;
+        $panEntry->remarks = $this->remarks;
+        $panEntry->save();
+
+        $this->redirect("/hrpreparer");
+        $this->reloadNotif(
+            'success',
+            'PAN Sent for Confirmation',
+            'The prepared PAN form has been sent to the Division Head for confirmation.'
+        );
     }
 
     public function approveRequest(){
