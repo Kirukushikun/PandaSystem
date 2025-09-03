@@ -74,7 +74,7 @@ class PreparerPan extends Component
         'employment_status' => 'required|string',
         'division' => 'required|string',
         'date_of_effectivity' => 'required|date',
-        'remarks' => 'nullable',
+        'remarks' => 'nullable|string',
     ];
 
     // Add this method to receive allowances from Alpine.js

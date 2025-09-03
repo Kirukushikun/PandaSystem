@@ -180,7 +180,7 @@
         <!-- Remarks -->
         <div class="input-group">
             <label>Remarks and Other Consideration:</label>
-            <textarea id="remarks" class="w-full h-30 resize-none border rounded p-2" wire:model="remarks" {{$isDisabled ? 'Readonly' : '' }}></textarea>
+            <textarea class="w-full h-30 resize-none" wire:model="remarks" {{$isDisabled ? 'Disabled' : ''}}></textarea>
         </div>
 
         <div class="flex gap-20">
