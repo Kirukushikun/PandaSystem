@@ -95,7 +95,7 @@ class PreparerPan extends Component
             'division' => $this->division,
             'date_of_effectivity' => $this->date_of_effectivity,
             'action_reference_data' => $formData,
-            'remarks' => $this->remarks ?? null,
+            'remarks' => $this->remarks,
             'prepared_by' => Auth::user()->name,
         ]);
 
