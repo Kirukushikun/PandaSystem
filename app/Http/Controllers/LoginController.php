@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\AccessLog;
 
 class LoginController extends Controller
 {
@@ -63,27 +64,41 @@ class LoginController extends Controller
 
                 // 5. Log in the user if found in your system
                 if ($user) {
+                    $this->logAccess($email, true, $request);
                     Auth::loginUsingId($user->id);
                     return redirect()->route('home'); // Use route instead of direct view
                 }
 
                 // 6. If user not found in your database, show "Not authorized"
+                $this->logAccess($email, false, $request);
                 return back()->withErrors([
                     'login' => 'You are not authorized to access this system.'
                 ])->withInput();
             }
 
             // 7. Handle external API authentication failure (wrong email/password)
+            $this->logAccess($request->input('email'), false, $request);
             return back()->withErrors([
                 'login' => $authResponse->json()['message'] ?? 'Incorrect username or password.'
             ])->withInput();
 
         } catch (\Exception $e) {
             // 8. Handle unexpected errors (API down, network issues, etc.)
+            $this->logAccess($request->input('email'), false, $request);
             return back()->withErrors([
                 'login' => 'Authentication failed: ' . $e->getMessage()
             ])->withInput();
         }
+    }
+
+    private function logAccess($email, $success, Request $request)
+    {
+        AccessLog::create([
+            'email' => $email,
+            'success' => $success,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
     }
 
 

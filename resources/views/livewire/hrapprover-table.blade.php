@@ -1,7 +1,7 @@
-<section class="content-block" id="content-block-1">
+<div class="flex flex-col gap-5 h-full">
     <div class="table-header flex w-full gap-3 items-center">
         <h1 class="text-[22px] flex-none">PAN Approval Requests</h1>
-        <x-search-sort-filter/>
+        <x-search-sort-filter role="hrapprover"/>
     </div>
     <div class="table-container">
         <table>
@@ -42,4 +42,4 @@
         </table>
     </div>
     <x-pagination :paginator="$requests" />
-</section>
+</dev>

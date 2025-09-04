@@ -17,7 +17,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('role')->nullable();
-            $table->json('access')->nullable(); // No default here
+            $table->json('access')->nullable(); 
+            $table->text('esign')->nullable();
             $table->timestamps();
         });
     }

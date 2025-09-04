@@ -3,11 +3,21 @@
 namespace App\Http\Livewire;
 
 use Livewire\Component;
+use App\Models\AccessLog;
+use Livewire\WithPagination;
 
 class AccesslogsTable extends Component
-{
-    public function render()
+{   
+    use WithPagination;
+
+    public function goToPage($page)
     {
-        return view('livewire.accesslogs-table');
+        $this->setPage($page);
+    }
+
+    public function render()
+    {   
+        $logs = AccessLog::paginate(8);
+        return view('livewire.accesslogs-table', compact('logs'));
     }
 }

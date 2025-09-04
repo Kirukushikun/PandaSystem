@@ -19,9 +19,9 @@
 
           <!-- Content Area -->
           <main class="content">
-
-               <livewire:hrpreparer-table />
-
+               <section class="content-block" id="content-block-1">
+                    <livewire:hrpreparer-table />
+               </section>
           </main>
      </div>
 

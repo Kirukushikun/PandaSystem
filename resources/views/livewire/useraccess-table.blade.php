@@ -4,7 +4,6 @@
 <div class="flex flex-col gap-5 h-full">
     <div class="table-header flex w-full gap-3 items-center">
         <h1 class="text-[22px] flex-none">User Access</h1>
-        <!-- <x-search-sort-filter/> -->
     </div>
 
     <div class="table-container" 
@@ -96,7 +95,43 @@
                             @endif
                         </td>
                         <td class="table-actions">
-                            <button class="border-solid border-3 border-blue-600 bg-blue-600 text-blue-600 text-white">Upload</button>
+                            <div x-data>
+                                @php
+                                    $dbUser = $dbUsers[$user['id']] ?? null;
+                                @endphp
+
+                                @if($dbUser) {{-- User exists in local system --}}
+                                    @if($dbUser->esign) {{-- Has existing e-sign --}}
+                                        <input type="file" x-ref="fileInput" accept="image/*" class="hidden"
+                                            wire:model="esignUpload"
+                                            @change="$wire.currentUserId = '{{ $user['id'] }}'; $wire.uploadEsign('{{ $user['id'] }}')">
+
+                                        <button type="button"
+                                                @click="$refs.fileInput.click()"
+                                                class="border-3 border-blue-600 bg-blue-600 text-white px-3 py-1 rounded">
+                                            Re-upload
+                                        </button>
+
+                                        <i class="fa-solid fa-eye text-gray-500"
+                                            onclick="window.open('{{ asset('storage/' . $dbUser->esign) }}', '_blank')">
+                                        </i>
+                                    @else {{-- User exists but no e-sign yet --}}
+                                        <input type="file" x-ref="fileInput" accept="image/*" class="hidden"
+                                            wire:model="esignUpload"
+                                            @change="$wire.currentUserId = '{{ $user['id'] }}'; $wire.uploadEsign('{{ $user['id'] }}')">
+
+                                        <button type="button"
+                                                @click="$refs.fileInput.click()"
+                                                class="border-3 border-blue-600 bg-blue-600 text-white px-3 py-1 rounded">
+                                            Upload
+                                        </button>
+                                    @endif
+                                @else {{-- User does not exist locally --}}
+                                    <button type="button" class="border-3 border-gray-500 bg-gray-500 text-white px-3 py-1 rounded" disabled>
+                                        Upload
+                                    </button>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @endforeach
@@ -126,14 +161,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="pagination-container flex justify-end gap-3">
-        <a class="px-4 py-2 bg-blue-600 text-white rounded-md hover:scale-110" href="">1</a>
-        <a class="px-4 py-2 bg-blue-100 text-blue-600 rounded-md hover:scale-110" href="">2</a>
-        <a class="px-4 py-2 bg-blue-100 text-blue-600 rounded-md hover:scale-110" href="">3</a>
-        <a class="px-4 py-2 bg-blue-100 text-blue-600 rounded-md hover:scale-110" href="">4</a>
-        <a class="px-4 py-2 bg-blue-100 text-blue-600 rounded-md hover:scale-110" href="">5</a>
     </div>
 
 </div>

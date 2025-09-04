@@ -110,8 +110,8 @@ Route::middleware('auth')->group(function() {
 // ADMIN
 Route::get('/admin', function(){
 	// {"DH_Module": true, "FA_Module": true, "RQ_Module": true, "HRA_Module": true, "HRP_Module": true}
-	$user = User::find(1); 
-	Auth::login($user);
+	// $user = User::find(61); 
+	// Auth::login($user);
 	return view('admin.admin');
 });
 

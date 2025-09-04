@@ -51,7 +51,12 @@ class PreparerPan extends Component
                     'remarks'
                 ]));
 
-                $this->mode = 'view';
+                if($this->requestEntry->request_status == "For HR Prep"){
+                    $this->mode = 'create';
+                }else{
+                    $this->mode = 'view';
+                }
+                
             }
 
             // disable fields if not Draft or Returned to HR
@@ -88,16 +93,29 @@ class PreparerPan extends Component
         $this->requestEntry->request_status = 'For Confirmation';
         $this->requestEntry->save();
 
-        PreparerModel::create([
-            'request_id' => $this->requestID,
-            'date_hired' => $this->date_hired,
-            'employment_status' => $this->employment_status,
-            'division' => $this->division,
-            'date_of_effectivity' => $this->date_of_effectivity,
-            'action_reference_data' => $formData,
-            'remarks' => $this->remarks,
-            'prepared_by' => Auth::user()->name,
-        ]);
+        if($this->panEntry){
+            // Update existing record
+            $this->panEntry->date_hired = $this->date_hired;
+            $this->panEntry->employment_status = $this->employment_status;
+            $this->panEntry->division = $this->division;
+            $this->panEntry->date_of_effectivity = $this->date_of_effectivity;
+            $this->panEntry->action_reference_data = $formData;
+            $this->panEntry->remarks = $this->remarks;
+            $this->panEntry->prepared_by = Auth::user()->name;
+            $this->panEntry->save();
+        }else{
+            PreparerModel::create([
+                'request_id' => $this->requestID,
+                'date_hired' => $this->date_hired,
+                'employment_status' => $this->employment_status,
+                'division' => $this->division,
+                'date_of_effectivity' => $this->date_of_effectivity,
+                'action_reference_data' => $formData,
+                'remarks' => $this->remarks,
+                'prepared_by' => Auth::user()->name,
+            ]);            
+        }
+
 
         $this->redirect("/hrpreparer");
         $this->reloadNotif(
@@ -202,8 +220,10 @@ class PreparerPan extends Component
     public function approveFinal(){
         $this->requestEntry->request_status = 'Approved';
         $this->requestEntry->save();
+        $this->panEntry->approved_by = Auth::user()->name;
+        $this->panEntry->save();
 
-        $this->redirect('/hrapprover');
+        $this->redirect('/approver');
         $this->reloadNotif('success', 'PAN Approved', 'The PAN has been fully approved and marked as complete.');
     }
 
@@ -211,7 +231,7 @@ class PreparerPan extends Component
         $this->requestEntry->request_status = 'Returned to Requestor';
         $this->requestEntry->save();
 
-        $this->redirect('/hrapprover');
+        $this->redirect('/approver');
         $this->reloadNotif('success', 'PAN Rejected', 'The PAN form has been rejected and returned to Requestor for revision.');
     }
 

@@ -10,7 +10,7 @@
     --table-bg: var(--color-gray-50);
     --table-header-bg: var(--color-gray-100);
     --table-cell-bg: #ffffff;
-    --table-hover-bg: var(--color-blue-50);
+    --table-hover-bg: var(--color-gray-50);
     --table-border-color: var(--color-gray-200);
     --table-text-color: var(--color-gray-900);
     --table-header-text-color: var(--color-gray-600);

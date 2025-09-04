@@ -1,7 +1,7 @@
-<section class="content-block" id="content-block-1">
+<div class="flex flex-col gap-5 h-full">
     <div class="table-header flex w-full gap-3 items-center">
         <h1 class="text-[22px] flex-none">Approval Requests</h1>
-        <x-search-sort-filter/>
+        <x-search-sort-filter role="finalapprover"/>
     </div>
     <div class="table-container">
         <table>
@@ -31,7 +31,7 @@
                         <td>{{$request->updated_at->format('m/d/Y')}}</td>
                         <td class="table-actions">
                             <button class="bg-blue-600 text-white" onclick="window.location.href='/approver-view?requestID={{ encrypt($request->id) }}'">View</button>
-                            <i class="fa-solid fa-box-archive"></i>
+                            <!-- <i class="fa-solid fa-box-archive"></i> -->
                         </td>
                     </tr>
                 @endforeach
@@ -41,4 +41,4 @@
     </div>
     
     <x-pagination :paginator="$approvalRequests" />
-</section>
+</div>

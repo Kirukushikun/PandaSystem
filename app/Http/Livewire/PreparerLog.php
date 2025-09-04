@@ -11,7 +11,7 @@ class PreparerLog extends Component
     public $logs;
 
     public function mount($requestID = null){
-        $this->logs = LogModel::where('request_id', $requestID)->get();
+        $this->logs = LogModel::where('request_id', $requestID)->latest()->get();
     }
 
     public function render()

@@ -119,7 +119,7 @@
     <i class="fa-solid fa-gear userpriv-btn" onclick="window.location.href='/admin'"></i>
     <!-- <i class="fa-solid fa-pen-to-square" ></i> -->
 
-    <!-- <img src="{{asset('/images/BGC-logo.png')}}" id="logo" alt=""> -->
+    <img src="{{asset('/images/BGC.png')}}" id="logo" alt="">
     <div class="row">
         @if(Auth()->user()->access['RQ_Module'] == true)
             <div class="card">

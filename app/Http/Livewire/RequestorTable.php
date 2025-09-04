@@ -14,8 +14,7 @@ class RequestorTable extends Component
     protected $listeners = ['requestSaved' => '$refresh'];
 
     public $search = '';
-    public $sortBy = '';
-
+    public $filterBy = '';
 
     protected $paginationTheme = 'tailwind'; // or 'bootstrap' or omit
 
@@ -52,7 +51,10 @@ class RequestorTable extends Component
                         ->orWhere('justification', 'like', '%' . $this->search . '%');
                 });
             })
-            ->latest()
+            ->when($this->filterBy, function ($query) {
+                $query->where('request_status', $this->filterBy);
+            })
+            ->latest('updated_at')
             ->paginate(8);
 
         return view('livewire.requestor-table', compact('myRequests'));

@@ -4,16 +4,15 @@
 <div class="flex flex-col gap-5 h-full">
     <div class="table-header flex w-full gap-3 items-center">
         <h1 class="text-[22px] flex-none">Access Logs</h1>
-        <!-- <x-search-sort-filter/> -->
     </div>
 
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th>User ID</th>
-                    <th>User Name</th>
+                    <th>User Email</th>
                     <th>Status</th>
+                    <th>IP Address</th>
                     <th>Date</th>
                     <th>Time</th>
                 </tr>
@@ -25,31 +24,25 @@
                         'failure' => 'bg-red-100 text-red-500',
                     ];
                 @endphp
-                @for($i = 0; $i < 9; $i++)
+                @foreach($logs as $log)
                     @php
-                        $statusText = array_rand($statuses);
+                        $statusText = $log->success == '0' ? 'success': 'failure';
                         $statusColor = $statuses[$statusText];
                     @endphp
                     <tr>
-                        <td>61</td>
-                        <td>Iverson Guno</td>
+                        <td>{{$log->email}}</td>
                         <td>
-                                    <div class="status-tag {{ $statusColor }}">{{ $statusText }}</div>
+                            <div class="status-tag {{ $statusColor }} capitalize">{{ $statusText }}</div>
                         </td>
-                        <td>09/12/2025</td>
-                        <td>17:20</td>
+                        <td>{{$log->ip_address}}</td>
+                        <td>{{$log->created_at->format('m/d/Y')}}</td>
+                        <td>{{$log->created_at->format('m:h A')}}</td>
                     </tr>
-                @endfor
+                @endforeach
             </tbody>
         </table>
     </div>
 
-    <div class="pagination-container flex justify-end gap-3">
-        <a class="px-4 py-2 bg-blue-600 text-white rounded-md hover:scale-110" href="">1</a>
-        <a class="px-4 py-2 bg-blue-100 text-blue-600 rounded-md hover:scale-110" href="">2</a>
-        <a class="px-4 py-2 bg-blue-100 text-blue-600 rounded-md hover:scale-110" href="">3</a>
-        <a class="px-4 py-2 bg-blue-100 text-blue-600 rounded-md hover:scale-110" href="">4</a>
-        <a class="px-4 py-2 bg-blue-100 text-blue-600 rounded-md hover:scale-110" href="">5</a>
-    </div>
+    <x-pagination :paginator="$logs" />
 
 </div>

@@ -19,9 +19,9 @@
 
           <!-- Content Area -->
           <main class="content">
-
-               <livewire:hrapprover-table />
-
+               <section class="content-block" id="content-block-1">
+                    <livewire:hrapprover-table />
+               </section>
           </main>
      </div>
 

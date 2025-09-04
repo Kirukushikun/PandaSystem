@@ -86,6 +86,14 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            position: relative;
+        }
+
+        .signatories img{
+            position: absolute;
+            top: -30px;
+            left: 10px;
+            width: 120px;
         }
 
         .home-btn{
@@ -100,6 +108,7 @@
             body{
                 padding: 0 !important;
                 margin-top: -20px !important;
+                background-color: white !important;
             }
 
             .outer-border{
@@ -148,6 +157,11 @@
             span{
                 font-size: 8px;
             }
+
+            .signatories img{
+                top: -10px;
+                width: 90px;
+            }
         }
     </style>
 @endpush
@@ -173,7 +187,7 @@
         <div class="inner-border px-3 py-5 flex flex-col items-center">
             
             <div class="print-header">
-                <img src="{{asset('images/BDL.png')}}" alt="">
+                <img src="{{asset('images/BGC.png')}}" alt="">
                 <h3 class="font-courier">
                     BROOKDALE FARMS CORPORATION <br>
                     Anupul, Bamban, Tarlac 
@@ -253,6 +267,7 @@
                 <div class="signatories">
                     <label>Prepared By:</label>
                     <div>
+                        <img src="{{asset('images/DummySignature.png')}}" alt="">
                         <p>{{$panForm->prepared_by}}</p>
                         <p>Head, Human Resources</p>
                     </div>
@@ -260,6 +275,7 @@
                 <div class="signatories">
                     <label>Recommended By:</label>
                     <div>
+                        <img src="{{asset('images/DummySignature.png')}}" alt="">
                         <p>{{$requestForm->requested_by}}</p>
                         <p>Poultry Division Head</p>
                     </div>
@@ -267,6 +283,7 @@
                 <div class="signatories">
                     <label>Approved By:</label>
                     <div>
+                        <img src="{{asset('images/DummySignature.png')}}" alt="">
                         <p>Atty. {{$panForm->approved_by}}</p>
                         <p>Vice President</p>
                     </div>

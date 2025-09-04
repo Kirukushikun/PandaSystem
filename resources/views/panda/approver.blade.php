@@ -19,9 +19,9 @@
 
           <!-- Content Area -->
           <main class="content">
-
-               <livewire:approver-table />
-
+               <section class="content-block" id="content-block-1">
+                    <livewire:approver-table />
+               </section>
           </main>
      </div>
 

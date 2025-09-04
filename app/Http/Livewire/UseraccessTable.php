@@ -7,11 +7,16 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use Illuminate\Support\Facades\Crypt;
+use Livewire\WithFileUploads;
 
 class UseraccessTable extends Component
 {   
+    use WithFileUploads;
+
     public $users = [];
     public $dbUsers = [];
+    public $esignUpload; // holds the selected file
+    public $currentUserId; // track which user is being updated
 
     protected $listeners = ['accessUpdated' => '$refresh'];
 
@@ -54,6 +59,13 @@ class UseraccessTable extends Component
             $this->users = [];
             session()->flash('error', 'Failed to fetch users. Status: ' . $response->status());
             Log::info('API Error: ' . $response->status());
+        }
+    }
+
+    public function updatedEsignUpload()
+    {
+        if ($this->currentUserId) {
+            $this->uploadEsign($this->currentUserId);
         }
     }
 
@@ -120,6 +132,11 @@ class UseraccessTable extends Component
         if (!in_array(true, $access, true)) {
             // Delete user if no active modules remain
             $user->delete();
+
+            // Delete old e-sign if it exists
+            if ($user->esign && \Storage::disk('public')->exists($user->esign)) {
+                \Storage::disk('public')->delete($user->esign);
+            }
             
             // CRUCIAL: Remove from dbUsers collection
             $this->dbUsers->forget($userId);
@@ -134,6 +151,9 @@ class UseraccessTable extends Component
         
         // CRUCIAL: Update the dbUsers collection with the updated user
         $this->dbUsers->put($userId, $user);
+
+        // Refresh the table (this line does it!)
+        $this->dispatch('$refresh');
         
         $this->noreloadNotif('success', ucfirst($action) . ' Successful', "The user's access for {$role} Module has been successfully {$action}ed.");
     }
@@ -147,4 +167,38 @@ class UseraccessTable extends Component
     {
         $this->dispatch('notif', type: $type, header: $header, message: $message);
     }
+
+    public function uploadEsign($userId)
+    {
+        $this->validate([
+            'esignUpload' => 'required|image|max:2048', // 2MB max
+        ]);
+
+        $user = User::find($userId);
+        if (!$user) {
+            session()->flash('error', 'User not found.');
+            return;
+        }
+
+        // Delete old e-sign if it exists
+        if ($user->esign && \Storage::disk('public')->exists($user->esign)) {
+            \Storage::disk('public')->delete($user->esign);
+        }
+
+        // Store new e-sign
+        $path = $this->esignUpload->store('esignatures', 'public');
+
+        // Update DB
+        $user->esign = $path;
+        $user->save();
+
+        // Update cache
+        $this->dbUsers->put($userId, $user);
+
+        // Reset upload state
+        $this->reset('esignUpload', 'currentUserId');
+
+        $this->dispatch('notif', type: 'success', header: 'E-sign Updated', message: 'The signature was replaced successfully.');
+    }
+
 }

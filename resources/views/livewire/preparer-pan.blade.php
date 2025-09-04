@@ -347,7 +347,7 @@
 </section>
 
 
-@if($mode != "view")
+@if($mode == "create")
 <script>
     class PANForm {
         constructor() {
