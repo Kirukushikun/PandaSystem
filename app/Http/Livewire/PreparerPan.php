@@ -8,6 +8,7 @@ use App\Models\PreparerModel;
 use App\Models\LogModel;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class PreparerPan extends Component
 {   
@@ -34,10 +35,19 @@ class PreparerPan extends Component
         if($requestID){
             // Request existing entry
             $this->requestID = $requestID;
-            $this->requestEntry = RequestorModel::findOrFail($requestID); 
 
-            // Pan existing entry
-            $this->panEntry = PreparerModel::where('request_id', $requestID)->first();
+            // Requestor cache
+            $requestorCacheKey = "requestor_{$requestID}";
+            $this->requestEntry = Cache::remember($requestorCacheKey, 3600, function () use ($requestID) {
+                return RequestorModel::findOrFail($requestID);
+            });
+
+            // Preparer cache
+            $preparerCacheKey = "preparer_{$requestID}";
+            $this->panEntry = Cache::remember($preparerCacheKey, 3600, function () use ($requestID) {
+                return PreparerModel::where('request_id', $requestID)->first();
+            });
+
             if($this->panEntry){
                 $this->referenceTableData = $this->panEntry->action_reference_data;    
 
@@ -88,151 +98,231 @@ class PreparerPan extends Component
     }
 
     public function submitPan($formData){
-        $this->validate();
+        try{
+            $this->validate();
 
-        $this->requestEntry->request_status = 'For Confirmation';
-        $this->requestEntry->save();
+            $this->requestEntry->request_status = 'For Confirmation';
+            $this->requestEntry->save();
 
-        if($this->panEntry){
-            // Update existing record
-            $this->panEntry->date_hired = $this->date_hired;
-            $this->panEntry->employment_status = $this->employment_status;
-            $this->panEntry->division = $this->division;
-            $this->panEntry->date_of_effectivity = $this->date_of_effectivity;
-            $this->panEntry->action_reference_data = $formData;
-            $this->panEntry->remarks = $this->remarks;
-            $this->panEntry->prepared_by = Auth::user()->name;
-            $this->panEntry->save();
-        }else{
-            PreparerModel::create([
-                'request_id' => $this->requestID,
-                'date_hired' => $this->date_hired,
-                'employment_status' => $this->employment_status,
-                'division' => $this->division,
-                'date_of_effectivity' => $this->date_of_effectivity,
-                'action_reference_data' => $formData,
-                'remarks' => $this->remarks,
-                'prepared_by' => Auth::user()->name,
-            ]);            
+            if($this->panEntry){
+                // Update existing record
+                $this->panEntry->date_hired = $this->date_hired;
+                $this->panEntry->employment_status = $this->employment_status;
+                $this->panEntry->division = $this->division;
+                $this->panEntry->date_of_effectivity = $this->date_of_effectivity;
+                $this->panEntry->action_reference_data = $formData;
+                $this->panEntry->remarks = $this->remarks;
+                $this->panEntry->prepared_by = Auth::user()->name;
+                $this->panEntry->save();
+
+                Cache::forget("requestor_{$this->requestID}");
+                Cache::forget("preparer_{$this->requestID}");
+            }else{
+                PreparerModel::create([
+                    'request_id' => $this->requestID,
+                    'date_hired' => $this->date_hired,
+                    'employment_status' => $this->employment_status,
+                    'division' => $this->division,
+                    'date_of_effectivity' => $this->date_of_effectivity,
+                    'action_reference_data' => $formData,
+                    'remarks' => $this->remarks,
+                    'prepared_by' => Auth::user()->name,
+                ]);       
+                
+                Cache::forget("requestor_{$this->requestID}");
+            }
+
+
+            $this->redirect("/hrpreparer");
+            $this->reloadNotif(
+                'success',
+                'PAN Sent for Confirmation',
+                'The prepared PAN form has been sent to the Division Head for confirmation.'
+            );
+        }catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/hrpreparer');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
         }
-
-
-        $this->redirect("/hrpreparer");
-        $this->reloadNotif(
-            'success',
-            'PAN Sent for Confirmation',
-            'The prepared PAN form has been sent to the Division Head for confirmation.'
-        );
     }
 
     public function resubmitPan($formData){
-        $this->validate();
+        try{
+            $this->validate();
 
-        // Update request status
-        $this->requestEntry->request_status = 'For Confirmation';
-        $this->requestEntry->save();
+            // Update request status
+            $this->requestEntry->request_status = 'For Confirmation';
+            $this->requestEntry->save();
 
-        // Fetch existing Preparer entry
-        $panEntry = PreparerModel::where('request_id', $this->requestID)->first();
+            // Fetch existing Preparer entry
+            $panEntry = PreparerModel::where('request_id', $this->requestID)->first();
 
-        // Update existing record
-        $panEntry->date_hired = $this->date_hired;
-        $panEntry->employment_status = $this->employment_status;
-        $panEntry->division = $this->division;
-        $panEntry->date_of_effectivity = $this->date_of_effectivity;
-        $panEntry->action_reference_data = $formData;
-        $panEntry->remarks = $this->remarks;
-        $panEntry->save();
+            // Update existing record
+            $panEntry->date_hired = $this->date_hired;
+            $panEntry->employment_status = $this->employment_status;
+            $panEntry->division = $this->division;
+            $panEntry->date_of_effectivity = $this->date_of_effectivity;
+            $panEntry->action_reference_data = $formData;
+            $panEntry->remarks = $this->remarks;
+            $panEntry->save();
 
-        $this->redirect("/hrpreparer");
-        $this->reloadNotif(
-            'success',
-            'PAN Sent for Confirmation',
-            'The prepared PAN form has been sent to the Division Head for confirmation.'
-        );
-    }
+            Cache::forget("requestor_{$this->requestID}");
+            Cache::forget("preparer_{$this->requestID}");
 
-    public function approveRequest(){
-        $this->requestEntry->request_status = 'Approved';
-        $this->requestEntry->prepared_by = Auth::user()->name;
-        $this->requestEntry->save();
+            $this->redirect("/hrpreparer");
+            $this->reloadNotif(
+                'success',
+                'PAN Sent for Confirmation',
+                'The prepared PAN form has been sent to the Division Head for confirmation.'
+            );            
+        }catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
 
-        $this->dispatch('requestSaved');
-        Log::info('Approve reqest');
-        $this->redirect('/approver');
-    }
-
-    public function rejectRequest(){
-        $this->requestEntry->request_status = 'Rejected';
-        $this->requestEntry->save();
-
-        $this->dispatch('requestSaved');
-        Log::info('Reject reqest');
-        $this->redirect('/approver');
+            $this->redirect('/hrpreparer');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
+        
     }
 
     public function confirmPan(){
-        $this->requestEntry->request_status = 'For HR Approval';
-        $this->requestEntry->save();
+        try{
+            $this->requestEntry->request_status = 'For HR Approval';
+            $this->requestEntry->save();
 
-        $this->redirect('/divisionhead');
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/divisionhead');            
+        }catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/divisionhead');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
+
     }
 
     public function disputeHead(){
-        $this->validate([
-            'header' => 'required|string',
-            'body' => 'nullable|string'
-        ]);
+        try{
+            $this->validate([
+                'header' => 'required|string',
+                'body' => 'nullable|string'
+            ]);
 
-        $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
+            $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
 
-        LogModel::create([
-            'request_id' => $this->requestID,
-            'origin' => 'Dispute Raised by Division Head',
-            'header' => 'Subject: ' . $reason,
-            'body' => 'Details: ' . $this->body
-        ]);
+            LogModel::create([
+                'request_id' => $this->requestID,
+                'origin' => 'Dispute Raised by Division Head',
+                'header' => 'Subject: ' . $reason,
+                'body' => 'Details: ' . $this->body
+            ]);
 
-        $requestEntry = RequestorModel::find($this->requestID);
-        $requestEntry->request_status = 'For Resolution';
-        $requestEntry->save();
+            $requestEntry = RequestorModel::find($this->requestID);
+            $requestEntry->request_status = 'For Resolution';
+            $requestEntry->save();
 
-        $this->redirect('/divisionhead');
-        $this->reloadNotif('success', 'Returned to Requestor', 'The request has been returned for correction. Please review the remarks provided.');
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/divisionhead');
+            $this->reloadNotif('success', 'Returned to Requestor', 'The request has been returned for correction. Please review the remarks provided.');            
+        }catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/divisionhead');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
+
     }
 
     public function approveHr(){
-        $this->requestEntry->request_status = 'For Final Approval';
-        $this->requestEntry->save();
+        try{
+            $this->requestEntry->request_status = 'For Final Approval';
+            $this->requestEntry->save();
 
-        $this->redirect('/hrapprover');
-        $this->reloadNotif('success', 'PAN Approved', 'The PAN form has been approved and forwarded to the Final Approver.');
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/hrapprover');
+            $this->reloadNotif('success', 'PAN Approved', 'The PAN form has been approved and forwarded to the Final Approver.');            
+        }catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/hrapprover');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
+
     }
 
     public function rejectHr(){
-        $this->requestEntry->request_status = 'Returned to Requestor';
-        $this->requestEntry->save();
+        try{
+            $this->requestEntry->request_status = 'Returned to Requestor';
+            $this->requestEntry->save();
 
-        $this->redirect('/hrapprover');
-        $this->reloadNotif('success', 'PAN Rejected', 'The PAN form has been rejected and returned to Requestor for revision.');
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/hrapprover');
+            $this->reloadNotif('success', 'PAN Rejected', 'The PAN form has been rejected and returned to Requestor for revision.');   
+        }catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/hrapprover');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
+        
     }
 
     public function approveFinal(){
-        $this->requestEntry->request_status = 'Approved';
-        $this->requestEntry->save();
-        $this->panEntry->approved_by = Auth::user()->name;
-        $this->panEntry->save();
+        try{
+            $this->requestEntry->request_status = 'Approved';
+            $this->requestEntry->save();
+            $this->panEntry->approved_by = Auth::user()->name;
+            $this->panEntry->save();
 
-        $this->redirect('/approver');
-        $this->reloadNotif('success', 'PAN Approved', 'The PAN has been fully approved and marked as complete.');
+            Cache::forget("requestor_{$this->requestID}");
+            Cache::forget("preparer_{$this->requestID}");
+
+            $this->redirect('/approver');
+            $this->reloadNotif('success', 'PAN Approved', 'The PAN has been fully approved and marked as complete.');            
+        }catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/approver');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
     }
 
     public function rejectFinal(){
-        $this->requestEntry->request_status = 'Returned to Requestor';
-        $this->requestEntry->save();
+        try{
+            $this->requestEntry->request_status = 'Returned to Requestor';
+            $this->requestEntry->save();
 
-        $this->redirect('/approver');
-        $this->reloadNotif('success', 'PAN Rejected', 'The PAN form has been rejected and returned to Requestor for revision.');
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/approver');
+            $this->reloadNotif('success', 'PAN Rejected', 'The PAN form has been rejected and returned to Requestor for revision.');            
+        }catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/approver');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
+
     }
 
     public function render(){

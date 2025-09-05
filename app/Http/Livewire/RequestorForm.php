@@ -3,15 +3,18 @@
 namespace App\Http\Livewire;
 
 use Livewire\Component;
-use Illuminate\Support\Facades\Log;
+use Livewire\WithFileUploads;
+
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
+
 
 use App\Models\RequestorModel;
 use App\Models\LogModel;
 
-use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class RequestorForm extends Component
 {      
@@ -36,7 +39,13 @@ class RequestorForm extends Component
         $this->isDisabled = $isDisabled;
 
         if ($requestID) {
-            $this->requestEntry = RequestorModel::findOrFail($requestID);
+            // Define cache key
+            $cacheKey = "requestor_{$requestID}";
+
+            // Try cache first, fallback to DB
+            $this->requestEntry = Cache::remember($cacheKey, 3600, function () use ($requestID) {
+                return RequestorModel::findOrFail($requestID);
+            });
 
             // disable fields if request status is Draft or Returned and active module is Requestor
             if (in_array($this->requestEntry->request_status, ['Draft', 'Returned to Requestor']) && $this->module == 'requestor') {
@@ -91,199 +100,301 @@ class RequestorForm extends Component
 
     // REQUESTOR
 
-    public function saveDraft(){
+    public function saveDraft()
+    {
+        try {
+            $this->validate($this->draftRules);
 
-        $this->validate($this->draftRules);
+            RequestorModel::create([
+                'request_no'    => $this->generateRequestNo(),
+                'request_status'=> 'Draft',
+                'employee_id'   => $this->employee_id ?? null,
+                'employee_name' => $this->employee_name ?? null,
+                'department'    => $this->department ?? null,
+                'type_of_action'=> $this->type_of_action ?? null,
+                'justification' => $this->justification ?? null,
+                'requested_by'  => Auth::user()->name,
+            ]);
 
-        RequestorModel::create([
-            'request_no'         => $this->generateRequestNo(),
-            'request_status'      => 'Draft',
-            'employee_id'         => $this->employee_id ?? null,
-            'employee_name'       => $this->employee_name ?? null,
-            'department'          => $this->department ?? null,
-            'type_of_action'      => $this->type_of_action ?? null,
-            'justification'       => $this->justification ?? null,
-            'requested_by'        => Auth::user()->name,
-        ]);
+            $this->dispatch('requestSaved');
+            $this->noreloadNotif('success', 'Draft Saved', 'Your request has been saved as a draft.');
+        } catch (\Exception $e) {
+            \Log::error('Proccessing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
 
-        $this->dispatch('requestSaved'); // Notify table
-        $this->noreloadNotif('success', 'Draft Saved', 'Your request has been saved as a draft.');
+            $this->redirect('/requestor');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
     }
 
     public function deleteDraft(){
-        $requestEntry = RequestorModel::find($this->requestID);
-        $requestEntry->delete();
+        try {
+            $requestEntry = RequestorModel::find($this->requestID);
+            $requestEntry->delete();
 
-        $this->redirect('/requestor');
-        $this->reloadNotif('success', 'Draft Deleted', 'The draft request has been deleted permanently.');
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/requestor');
+            $this->reloadNotif('success', 'Draft Deleted', 'The draft request has been deleted permanently.');
+        } catch (\Exception $e) {
+            \Log::error('Proccessing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/requestor');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
     }
 
     public function submitDraft(){
+        try {
+            $this->validate();
 
-        $this->validate();
+            if($this->supporting_file){
+                // store on the "public" disk in storage/app/public/pdfs
+                $path = $this->supporting_file->store('supporting_files', 'public');
+                $originalName = $this->supporting_file->getClientOriginalName();            
+            }
 
-        if($this->supporting_file){
-            // store on the "public" disk in storage/app/public/pdfs
-            $path = $this->supporting_file->store('supporting_files', 'public');
-            $originalName = $this->supporting_file->getClientOriginalName();            
+            $requestEntry = RequestorModel::find($this->requestID);
+            $requestEntry->request_status = 'For Head Approval';
+            $requestEntry->current_handler = 'division head';
+            $requestEntry->employee_name = $this->employee_name;
+            $requestEntry->employee_id = $this->employee_id;
+            $requestEntry->department = $this->department;
+            $requestEntry->type_of_action = $this->type_of_action;
+            $requestEntry->justification = $this->justification;
+            $requestEntry->supporting_file_url = $path ?? null;
+            $requestEntry->supporting_file_name = $originalName ?? null;
+            $requestEntry->requested_by = Auth::user()->name;
+            $requestEntry->submitted_at = Carbon::now();
+            $requestEntry->save();
+
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/requestor');
+            $this->reloadNotif('success', 'Request Submitted', 'Your request has been submitted for Division Head approval.');
+        } catch (\Exception $e) {
+            \Log::error('Proccessing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/requestor');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
         }
-
-        $requestEntry = RequestorModel::find($this->requestID);
-        $requestEntry->request_status = 'For Head Approval';
-        $requestEntry->current_handler = 'division head';
-        $requestEntry->employee_name = $this->employee_name;
-        $requestEntry->employee_id = $this->employee_id;
-        $requestEntry->department = $this->department;
-        $requestEntry->type_of_action = $this->type_of_action;
-        $requestEntry->justification = $this->justification;
-        $requestEntry->supporting_file_url = $path ?? null;
-        $requestEntry->supporting_file_name = $originalName ?? null;
-        $requestEntry->requested_by = Auth::user()->name;
-        $requestEntry->submitted_at = Carbon::now();
-        $requestEntry->save();
-
-        $this->redirect('/requestor');
-        $this->reloadNotif('success', 'Request Submitted', 'Your request has been submitted for Division Head approval.');
     }
 
     public function submitRequest(){
+        try {
+            $this->validate();
 
-        $this->validate();
+            if($this->supporting_file){
+                // store on the "public" disk in storage/app/public/pdfs
+                $path = $this->supporting_file->store('supporting_files', 'public');
+                $originalName = $this->supporting_file->getClientOriginalName();            
+            }
 
-        if($this->supporting_file){
-            // store on the "public" disk in storage/app/public/pdfs
-            $path = $this->supporting_file->store('supporting_files', 'public');
-            $originalName = $this->supporting_file->getClientOriginalName();            
+            RequestorModel::create([
+                'request_no'         => $this->generateRequestNo(),
+                'request_status'      => 'For Head Approval',
+                'current_handler'     => 'division head',
+                'employee_id'         => $this->employee_id,
+                'employee_name'       => $this->employee_name,
+                'department'          => $this->department,
+                'type_of_action'      => $this->type_of_action,
+                'justification'       => $this->justification ?? null,
+                'supporting_file_url' => $path ?? null,
+                'supporting_file_name' => $originalName ?? null,
+                'requested_by'        => Auth::user()->name,
+                'submitted_at'        => Carbon::now()
+            ]);
+
+            $this->dispatch('requestSaved'); // Notify table
+            $this->noreloadNotif('success', 'Request Submitted', 'Your request has been submitted for Division Head approval.');
+        } catch (\Exception $e) {
+            \Log::error('Proccessing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+            $this->redirect('/requestor');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
         }
-
-        RequestorModel::create([
-            'request_no'         => $this->generateRequestNo(),
-            'request_status'      => 'For Head Approval',
-            'current_handler'     => 'division head',
-            'employee_id'         => $this->employee_id,
-            'employee_name'       => $this->employee_name,
-            'department'          => $this->department,
-            'type_of_action'      => $this->type_of_action,
-            'justification'       => $this->justification ?? null,
-            'supporting_file_url' => $path ?? null,
-            'supporting_file_name' => $originalName ?? null,
-            'requested_by'        => Auth::user()->name,
-            'submitted_at'        => Carbon::now()
-        ]);
-
-        $this->dispatch('requestSaved'); // Notify table
-        $this->noreloadNotif('success', 'Request Submitted', 'Your request has been submitted for Division Head approval.');
-        return session()->flash('success', 'Request submitted successfully');
     }
 
     public function resubmitRequest(){   
-        $this->validate($this->resubmitRules);
+        try {
+            $this->validate($this->resubmitRules);
 
-        // Update common fields
-        $requestEntry = RequestorModel::find($this->requestID);
-        $requestEntry->request_status = 'For Head Approval';
-        $requestEntry->employee_name = $this->employee_name;
-        $requestEntry->employee_id = $this->employee_id;
-        $requestEntry->department = $this->department;
-        $requestEntry->type_of_action = $this->type_of_action;
-        $requestEntry->justification = $this->justification;
+            // Update common fields
+            $requestEntry = RequestorModel::find($this->requestID);
+            $requestEntry->request_status = 'For Head Approval';
+            $requestEntry->employee_name = $this->employee_name;
+            $requestEntry->employee_id = $this->employee_id;
+            $requestEntry->department = $this->department;
+            $requestEntry->type_of_action = $this->type_of_action;
+            $requestEntry->justification = $this->justification;
 
-        // Handle re-uploaded supporting file (if any)
-        if ($this->reup_supporting_file) {
-            // Delete old file if it exists
-            if ($this->requestEntry->supporting_file_url) {
-                Storage::disk('public')->delete($this->requestEntry->supporting_file_url);
+            // Handle re-uploaded supporting file (if any)
+            if ($this->reup_supporting_file) {
+                // Delete old file if it exists
+                if ($this->requestEntry->supporting_file_url) {
+                    Storage::disk('public')->delete($this->requestEntry->supporting_file_url);
+                }
+
+                // Store new file
+                $path = $this->reup_supporting_file->store('supporting_files', 'public');
+                $originalName = $this->reup_supporting_file->getClientOriginalName();
+
+                // Update file info
+                $requestEntry->supporting_file_url = $path;
+                $requestEntry->supporting_file_name = $originalName;
             }
 
-            // Store new file
-            $path = $this->reup_supporting_file->store('supporting_files', 'public');
-            $originalName = $this->reup_supporting_file->getClientOriginalName();
+            if ($this->supporting_file){
+                $path = $this->supporting_file->store('supporting_files', 'public');
+                $originalName = $this->supporting_file->getClientOriginalName();  
 
-            // Update file info
-            $requestEntry->supporting_file_url = $path;
-            $requestEntry->supporting_file_name = $originalName;
+                $requestEntry->supporting_file_url = $path;
+                $requestEntry->supporting_file_name = $originalName;
+            }
+
+            // Save everything
+            $requestEntry->save();
+
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/requestor');
+            $this->reloadNotif('success', 'Request Resubmitted', 'Your request has been successfully resubmitted for processing.');
+        } catch (\Exception $e) {
+            \Log::error('Proccessing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/requestor');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
         }
-
-        if ($this->supporting_file){
-            $path = $this->supporting_file->store('supporting_files', 'public');
-            $originalName = $this->supporting_file->getClientOriginalName();  
-
-            $requestEntry->supporting_file_url = $path;
-            $requestEntry->supporting_file_name = $originalName;
-        }
-
-        // Save everything
-        $requestEntry->save();
-
-        $this->redirect('/requestor');
-        $this->reloadNotif('success', 'Request Resubmitted', 'Your request has been successfully resubmitted for processing.');
+        
     }
 
     public function withdrawRequest(){   
-        $requestEntry = RequestorModel::find($this->requestID);
-        $requestEntry->request_status = 'Withdrew';
-        $requestEntry->save();
+        try {
+            $requestEntry = RequestorModel::find($this->requestID);
+            $requestEntry->request_status = 'Withdrew';
+            $requestEntry->save();
 
-        $this->redirect('/requestor');
-        $this->reloadNotif('success', 'Request Withdrawn', 'The request has been withdrawn and will no longer be processed.');
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/requestor');
+            $this->reloadNotif('success', 'Request Withdrawn', 'The request has been withdrawn and will no longer be processed.');
+        } catch (\Exception $e) {
+            \Log::error('Proccessing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/requestor');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
     }
 
     // DIVISION HEAD
 
     public function approveRequest(){   
-        $requestEntry = RequestorModel::find($this->requestID);
-        $requestEntry->request_status = 'For HR Prep';
-        $requestEntry->save();
+        try {
+            $requestEntry = RequestorModel::find($this->requestID);
+            $requestEntry->request_status = 'For HR Prep';
+            $requestEntry->save();
 
-        $this->redirect('/divisionhead');
-        $this->reloadNotif('success', 'Request Approved', 'The request has been approved and forwarded to HR for preparation.');
-        Log::info("Withdrawing {$this->requestID}");
+            $this->redirect('/divisionhead');
+            $this->reloadNotif('success', 'Request Approved', 'The request has been approved and forwarded to HR for preparation.');
+            Log::info("Withdrawing {$this->requestID}");
+        } catch (\Exception $e) {
+            \Log::error('Proccessing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/divisionhead');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
     }
 
     public function rejectRequest(){   
-        $requestEntry = RequestorModel::find($this->requestID);
-        $requestEntry->request_status = 'Rejected by Head';
-        $requestEntry->save();
+        try {
+            $requestEntry = RequestorModel::find($this->requestID);
+            $requestEntry->request_status = 'Rejected by Head';
+            $requestEntry->save();
 
-        $this->redirect('/divisionhead');
-        $this->reloadNotif('success', 'Request Rejected', 'The request has been rejected and recorded in the system.');
-        Log::info("Withdrawing {$this->requestID}");
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/divisionhead');
+            $this->reloadNotif('success', 'Request Rejected', 'The request has been rejected and recorded in the system.');
+            Log::info("Withdrawing {$this->requestID}");
+        } catch (\Exception $e) {
+            \Log::error('Proccessing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/divisionhead');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
+
     }
 
     public function returnedHead(){
-        $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
+        try {
+            $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
 
-        LogModel::create([
-            'request_id' => $this->requestID,
-            'origin' => 'Returned by Division Head',
-            'header' => 'Reason: ' . $reason,
-            'body' => 'Details: ' . $this->body
-        ]);
+            LogModel::create([
+                'request_id' => $this->requestID,
+                'origin' => 'Returned by Division Head',
+                'header' => 'Reason: ' . $reason,
+                'body' => 'Details: ' . $this->body
+            ]);
 
-        $requestEntry = RequestorModel::find($this->requestID);
-        $requestEntry->request_status = 'Returned to Requestor';
-        $requestEntry->save();
+            $requestEntry = RequestorModel::find($this->requestID);
+            $requestEntry->request_status = 'Returned to Requestor';
+            $requestEntry->save();
 
-        $this->redirect('/divisionhead');
-        $this->reloadNotif('success', 'Request Returned', 'The request has been returned to the requestor for correction.');
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/divisionhead');
+            $this->reloadNotif('success', 'Request Returned', 'The request has been returned to the requestor for correction.');
+        } catch (\Exception $e) {
+            \Log::error('Proccessing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/divisionhead');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
     }
 
     public function returnedHr(){
-        $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
+        try {
+            $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
 
-        LogModel::create([
-            'request_id' => $this->requestID,
-            'origin' => 'Returned by HR (Preparer)',
-            'header' => 'Reason: ' . $reason,
-            'body' => 'Details: ' . $this->body
-        ]);
+            LogModel::create([
+                'request_id' => $this->requestID,
+                'origin' => 'Returned by HR (Preparer)',
+                'header' => 'Reason: ' . $reason,
+                'body' => 'Details: ' . $this->body
+            ]);
 
-        $requestEntry = RequestorModel::find($this->requestID);
-        $requestEntry->request_status = 'Returned to Requestor';
-        $requestEntry->save();
+            $requestEntry = RequestorModel::find($this->requestID);
+            $requestEntry->request_status = 'Returned to Requestor';
+            $requestEntry->save();
 
-        $this->redirect('/hrpreparer');
-        $this->reloadNotif('success', 'Request Returned', 'The request has been returned to the requestor for correction.');
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/hrpreparer');
+            $this->reloadNotif('success', 'Request Returned', 'The request has been returned to the requestor for correction.');
+        } catch (\Exception $e) {
+            \Log::error('Proccessing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/hrpreparer');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
     }
     
     //RENDER
