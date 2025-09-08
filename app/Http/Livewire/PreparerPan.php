@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\RequestorModel;
 use App\Models\PreparerModel;
 use App\Models\LogModel;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -221,8 +222,11 @@ class PreparerPan extends Component
                 'request_id' => $this->requestID,
                 'origin' => 'Dispute Raised by Division Head',
                 'header' => 'Subject: ' . $reason,
-                'body' => 'Details: ' . $this->body
+                'body' => 'Details: ' . $this->body,
+                'created_at' => Carbon::now(),
             ]);
+
+            Cache::forget("log_{$this->requestID}");
 
             $requestEntry = RequestorModel::find($this->requestID);
             $requestEntry->request_status = 'For Resolution';

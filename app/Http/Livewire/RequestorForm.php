@@ -304,6 +304,8 @@ class RequestorForm extends Component
             $requestEntry->request_status = 'For HR Prep';
             $requestEntry->save();
 
+            Cache::forget("requestor_{$this->requestID}");
+
             $this->redirect('/divisionhead');
             $this->reloadNotif('success', 'Request Approved', 'The request has been approved and forwarded to HR for preparation.');
             Log::info("Withdrawing {$this->requestID}");
@@ -339,7 +341,7 @@ class RequestorForm extends Component
 
     }
 
-    public function returnedHead(){
+    public function returnedHead(){ // Returned by Division Head
         try {
             $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
 
@@ -347,8 +349,11 @@ class RequestorForm extends Component
                 'request_id' => $this->requestID,
                 'origin' => 'Returned by Division Head',
                 'header' => 'Reason: ' . $reason,
-                'body' => 'Details: ' . $this->body
+                'body' => 'Details: ' . $this->body,
+                'created_at' => Carbon::now(),
             ]);
+
+            Cache::forget("log_{$this->requestID}");
 
             $requestEntry = RequestorModel::find($this->requestID);
             $requestEntry->request_status = 'Returned to Requestor';
@@ -368,7 +373,7 @@ class RequestorForm extends Component
         }
     }
 
-    public function returnedHr(){
+    public function returnedHr(){ // Returned by HR Preparer
         try {
             $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
 
@@ -378,6 +383,8 @@ class RequestorForm extends Component
                 'header' => 'Reason: ' . $reason,
                 'body' => 'Details: ' . $this->body
             ]);
+
+            Cache::forget("log_{$this->requestID}");
 
             $requestEntry = RequestorModel::find($this->requestID);
             $requestEntry->request_status = 'Returned to Requestor';
