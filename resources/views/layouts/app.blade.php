@@ -27,39 +27,41 @@
      <x-loader/>
 
      @if(Auth::check() && !request()->is('print-view*'))
-          <div class="navigator absolute left-[20px] top-[40px] flex flex-col gap-2 bg-white p-5 rounded-md">
-               <div class="navigations flex flex-col gap-2">
-                    <a href="/requestor"
-                         class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('requestor*') ? 'bg-blue-700' : 'bg-blue-400' }}">
-                         Requestor
-                    </a>
+          @if(Auth::user()->role == 'admin')
+               <div class="navigator absolute left-[20px] top-[40px] flex flex-col gap-2 bg-white p-5 rounded-md">
+                    <div class="navigations flex flex-col gap-2">
+                         <a href="/requestor"
+                              class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('requestor*') ? 'bg-blue-700' : 'bg-blue-400' }}">
+                              Requestor
+                         </a>
 
-                    <a href="/divisionhead"
-                         class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('divisionhead*') ? 'bg-blue-700' : 'bg-blue-400' }}">
-                         Division Head
-                    </a>
+                         <a href="/divisionhead"
+                              class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('divisionhead*') ? 'bg-blue-700' : 'bg-blue-400' }}">
+                              Division Head
+                         </a>
 
-                    <a href="/hrpreparer"
-                         class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('hrpreparer*') ? 'bg-blue-700' : 'bg-blue-400' }}">
-                         HR Preparer
-                    </a>
+                         <a href="/hrpreparer"
+                              class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('hrpreparer*') ? 'bg-blue-700' : 'bg-blue-400' }}">
+                              HR Preparer
+                         </a>
 
-                    <a href="/hrapprover"
-                         class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('hrapprover*') ? 'bg-blue-700' : 'bg-blue-400' }}">
-                         HR Approver
-                    </a>
+                         <a href="/hrapprover"
+                              class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('hrapprover*') ? 'bg-blue-700' : 'bg-blue-400' }}">
+                              HR Approver
+                         </a>
 
-                    <a href="/approver"
-                         class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('approver*') ? 'bg-blue-700' : 'bg-blue-400' }}">
-                         Approver
-                    </a>
+                         <a href="/approver"
+                              class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('approver*') ? 'bg-blue-700' : 'bg-blue-400' }}">
+                              Approver
+                         </a>
 
-                    <a href="/admin"
-                         class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('admin*') ? 'bg-blue-700' : 'bg-blue-400' }}">
-                         Admin
-                    </a>
+                         <a href="/admin"
+                              class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('admin*') ? 'bg-blue-700' : 'bg-blue-400' }}">
+                              Admin
+                         </a>
+                    </div>
                </div>
-          </div>
+          @endif
      @endif
      
      <div x-data="{ show: false, type: '', header: '', message: '' }" 
