@@ -64,7 +64,7 @@ return [
             
             // Add this block for Spatie Backup
             'dump' => [
-                'dump_binary_path' => 'C:\laragon\bin\mysql\mysql-8.0.30-winx64\bin', // adjust this
+                'dump_binary_path' => env('DB_DUMP_BINARY_PATH'), // adjust this
                 'use_single_transaction',
                 'timeout' => 60, // optional
             ],

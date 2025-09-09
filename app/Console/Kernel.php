@@ -14,8 +14,21 @@ class Kernel extends ConsoleKernel
      * @return void
      */
     protected function schedule(Schedule $schedule)
-    {
-        // $schedule->command('inspire')->hourly();
+    {   
+        // Run backup daily at 6:00 PM
+        $schedule->command('backup:run')
+            ->dailyAt('18:00')
+            ->emailOutputOnFailure('iversoncraigguno.bfcgroup@gmail.com');
+
+        // Clean up old backups daily at 2:00 AM (after the backup)
+        $schedule->command('backup:clean')
+            ->dailyAt('02:00')  // Daily cleanup
+            ->emailOutputOnFailure('iversoncraigguno.bfcgroup@gmail.com');
+
+        // Monitor backup health daily at 8:00 AM
+        // $schedule->command('backup:monitor')
+        //     ->dailyAt('08:00')
+        //     ->emailOutputOnFailure('iversoncraigguno.bfcgroup@gmail.com');
     }
 
     /**
