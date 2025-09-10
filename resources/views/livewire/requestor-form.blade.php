@@ -139,7 +139,7 @@
             </div>
             <div class="input-group">
                 <label for="employee_id">Employee ID:</label>
-                <input type="text" name="employee_id" id="employee_id" x-ref="employee_id" wire:model="employee_id" {{$isDisabled ? 'Readonly' : ''}}>
+                <input type="text" name="employee_id" id="employee_id" x-ref="employee_id" wire:model="employee_id" {{$isDisabled ? 'Readonly' : ''}} @input="$event.target.value = $event.target.value.replace(/[^0-9]/g, '')">
             </div>
             <div class="input-group">
                 <label for="department">Department:</label>
@@ -342,7 +342,7 @@
                 @if($requestEntry->request_status == 'For Head Approval')
                     <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                         <button type="button" @click="modalTarget = 'approverequest'; showModal = true" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-800 px-4 py-2">Approve Request</button>
-                        <button type="button" @click="modalTarget = 'rejectrequest'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject Request</button>
+                        <!-- <button type="button" @click="modalTarget = 'rejectrequest'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject Request</button> -->
                         <button type="button" @click="modalTarget = 'returnedhead'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to Requestor</button>
                     </div>
                 @endif

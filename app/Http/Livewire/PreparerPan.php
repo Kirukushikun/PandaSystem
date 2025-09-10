@@ -98,6 +98,8 @@ class PreparerPan extends Component
         $this->allowances = $allowances;
     }
 
+    // HR PREPARER
+
     public function submitPan($formData){
         try{
             $this->validate();
@@ -190,6 +192,8 @@ class PreparerPan extends Component
         
     }
 
+    // DIVISION HEAD
+
     public function confirmPan(){
         try{
             $this->requestEntry->request_status = 'For HR Approval';
@@ -247,6 +251,8 @@ class PreparerPan extends Component
 
     }
 
+    // HR APPROVER
+
     public function approveHr(){
         try{
             $this->requestEntry->request_status = 'For Final Approval';
@@ -286,6 +292,8 @@ class PreparerPan extends Component
         }
         
     }
+
+    // FINAL APPROVER
 
     public function approveFinal(){
         try{
@@ -328,6 +336,8 @@ class PreparerPan extends Component
         }
 
     }
+
+    // RENDER
 
     public function render(){
         return view('livewire.preparer-pan');

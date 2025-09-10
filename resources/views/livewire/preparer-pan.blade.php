@@ -107,27 +107,48 @@
                 this.modalTarget = action;
                 this.showModal = true;
                 return true; // allow $wire call
-            }
+            },
+
+            date_hired: @entangle('date_hired'),
+            date_of_effectivity: @entangle('date_of_effectivity')
         }"
     >
 
         <!-- Input Fields -->
-        <div class="input-fields grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="input-fields grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" >
             <div class="input-group">
                 <label for="date_hired">Date Hired:</label>
-                <input id="date_hired" type="date" class="form-input" wire:model="date_hired" x-ref="date_hired" {{$isDisabled ? 'Readonly' : '' }}/>
+                <input id="date_hired" type="date" class="form-input" wire:model="date_hired" x-ref="date_hired" x-model="date_hired" {{$isDisabled ? 'Readonly' : '' }}/>
             </div>
             <div class="input-group">
                 <label for="employment_status">Employment Status:</label>
-                <input id="employment_status" type="text" class="form-input" wire:model="employment_status" x-ref="employment_status" {{$isDisabled ? 'Readonly' : '' }}/>
+                <select id="employment_status" type="text" class="form-input" wire:model="employment_status" x-ref="employment_status" x-model="date_of_effectivity" {{$isDisabled ? 'Readonly' : '' }}>
+                    <option value=""></option>
+                    <option value="Probationary">Probationary</option>
+                    <option value="Regular">Regular</option>
+                    <option value="Project-Based">Project-Based</option>
+                    <option value="Fixed-Term">Fixed-Term</option>
+                    <option value="Casual">Casual</option> 
+                    <option value="Part-Time">Part-Time</option> 
+                    <option value="Seasonal">Seasonal</option> 
+                </select>
             </div>
             <div class="input-group">
                 <label for="division">Division:</label>
-                <input id="division" type="text" class="form-input" wire:model="division" x-ref="division" {{$isDisabled ? 'Readonly' : '' }}/>
+                <select id="division" type="text" class="form-input" wire:model="division" x-ref="division" {{$isDisabled ? 'Readonly' : '' }}>
+                    <option value=""></option>
+                    <option value="BFC">BFC</option>
+                    <option value="BBGC">BBGC</option>
+                    <option value="BROOKDALE">BROOKDALE</option>
+                    <option value="Hatchery Farm">Hatchery Farm</option>
+                    <option value="PFC">PFC</option>
+                    <option value="RH">RH</option>
+                </select>
+                
             </div>
             <div class="input-group">
                 <label for="date_of_effectivity">Date of Effectivity:</label>
-                <input id="date_of_effectivity" type="date" class="form-input" wire:model="date_of_effectivity" x-ref="date_of_effectivity" {{$isDisabled ? 'Readonly' : '' }} />
+                <input id="date_of_effectivity" type="date" class="form-input" wire:model="date_of_effectivity" x-ref="date_of_effectivity" :min="date_hired || null"  @change="if(date_hired && new Date(date_of_effectivity) < new Date(date_hired)) date_of_effectivity = date_hired" {{$isDisabled ? 'Readonly' : '' }} />
             </div>
         </div>
 

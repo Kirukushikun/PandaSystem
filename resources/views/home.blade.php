@@ -115,9 +115,10 @@
     </style>
 </head>
 <body>
-    
-    <i class="fa-solid fa-gear userpriv-btn" onclick="window.location.href='/admin'"></i>
-    <!-- <i class="fa-solid fa-pen-to-square" ></i> -->
+    @if(Auth::user()->role == 'admin')
+        <i class="fa-solid fa-gear userpriv-btn" onclick="window.location.href='/admin'"></i>
+    @endif
+
 
     <img src="{{asset('/images/BGC.png')}}" id="logo" alt="">
     <div class="row">
