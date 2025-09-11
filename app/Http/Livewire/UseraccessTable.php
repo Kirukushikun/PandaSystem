@@ -201,4 +201,33 @@ class UseraccessTable extends Component
         $this->dispatch('notif', type: 'success', header: 'E-sign Updated', message: 'The signature was replaced successfully.');
     }
 
+    public function updateUser($data)
+    {
+        try {
+            $user = User::find($data['id']);
+
+            if (!$user) {
+                $this->noreloadNotif('failed', 'User Not Found', 'This user does not exist in the system.');
+                return;
+            }
+
+            if($user && $user->hasPending == true){
+                $this->noreloadNotif('failed', 'Action Blocked', "Changes to {$user->name} cannot be saved because this user has an ongoing PAN process.");
+                return;
+            }
+
+            $user->farm = $data['farm'] ?? null;
+            $user->position = $data['position'] ?? null;
+            $user->save();
+
+            // Update cached collection (so table refreshes without reload)
+            $this->dbUsers->put($user->id, $user);
+
+            $this->noreloadNotif('success', 'User Updated', 'Farm and position updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('Failed to update user: ' . $e->getMessage());
+            $this->noreloadNotif('failed', 'Update Failed', 'Something went wrong while updating the user.');
+        }
+    }
+
 }

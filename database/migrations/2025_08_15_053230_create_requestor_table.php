@@ -35,15 +35,15 @@ return new class extends Migration
                 'For Final Approval',
 
                 'Returned to Requestor', 
-                'Returned to Head',
                 'Returned to HR',
 
                 'Rejected by Head',
                 'Rejected by HR',
-                'Rejected by Approver',
 
                 // General Status
                 'Approved',
+                'Served',
+                'Filed',
                 'Withdrew'
             ])->nullable();
             $table->unsignedBigInteger('employee_id')->nullable();

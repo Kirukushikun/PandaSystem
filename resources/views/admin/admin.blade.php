@@ -13,16 +13,20 @@
           
           <!-- Sidebar -->
           <aside class="sidebar">
-               <a href="#content-block-1"><div></div><i class="fa-solid fa-clipboard-user"></i></a>
-               <a href="#content-block-2"><div></div><i class="fa-solid fa-users"></i></a>
+               <a href="#content-block-1"><div></div><i class="fa-solid fa-users"></i></a>
+               <a href="#content-block-2"><div></div><i class="fa-solid fa-clipboard-user"></i></a>
+               <a href="#content-block-3"><div></div><i class="fa-solid fa-users-gear"></i></a>
           </aside>
 
           <!-- Content Area -->
           <main class="content">
                <section class="content-block" id="content-block-1">
-                    <livewire:accesslogs-table />
+                    <livewire:employees-table />
                </section>
                <section class="content-block" id="content-block-2">
+                    <livewire:accesslogs-table />
+               </section>
+               <section class="content-block" id="content-block-3">
                     <livewire:useraccess-table />
                </section>
           </main>

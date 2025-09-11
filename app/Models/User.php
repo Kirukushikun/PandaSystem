@@ -22,6 +22,9 @@ class User extends Authenticatable
     protected $fillable = [
         'id',
         'name',
+        'hasPending',
+        'farm',
+        'position',
         'role',
         'access',
         'esign'
@@ -29,6 +32,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'access' => 'array',
+        'hasPending' => 'boolean'
     ];
 
     protected $attributes = [

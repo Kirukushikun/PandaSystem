@@ -42,7 +42,9 @@ class HrapproverTable extends Component
         $statuses = [
             'For HR Approval',
             'Approved',
-            'Rejected'
+            'Rejected',
+            'Served',
+            'Filed'
         ];
 
         $requests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.preparer') != true")

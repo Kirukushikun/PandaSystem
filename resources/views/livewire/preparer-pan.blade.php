@@ -46,6 +46,22 @@
                     needsFormData: false
                 },
 
+                servehr: {
+                    header: 'Mark as Served',
+                    message: 'Are you sure you want to mark this request as Served? This means the PAN has been handed over or acknowledged by the employee.',
+                    action: 'serveHr',
+                    needsInput: false,
+                    needsFormData: false
+                },
+
+                filehr: {
+                    header: 'Mark as Served',
+                    message: 'Are you sure you want to mark this request as Filed? This will indicate the PAN has been archived into the employee’s 201 file.',
+                    action: 'fileHr',
+                    needsInput: false,
+                    needsFormData: false
+                },
+
                 rejecthr: {
                     header: 'Reject PAN',
                     message: 'Are you sure you want to reject this PAN? It will be returned to Requestor for correction.',
@@ -78,6 +94,18 @@
                     this.$refs.division, 
                     this.$refs.date_of_effectivity
                 ];
+            },
+
+            // Initialize their event listeners to a function
+            init() {
+                this.getFields().forEach(field => {
+                    field.addEventListener('input', () => this.checkFields());
+                    field.addEventListener('change', () => this.checkFields()); // for file input
+                });
+            },
+
+            checkFields() {
+                this.showAction = this.getFields().some(f => f.value?.trim() !== '');
             },
 
             checkEmptyFields() {
@@ -122,7 +150,7 @@
             </div>
             <div class="input-group">
                 <label for="employment_status">Employment Status:</label>
-                <select id="employment_status" type="text" class="form-input" wire:model="employment_status" x-ref="employment_status" x-model="date_of_effectivity" {{$isDisabled ? 'Readonly' : '' }}>
+                <select id="employment_status" type="text" class="form-input" wire:model="employment_status" x-ref="employment_status" {{$isDisabled ? 'Disabled' : '' }}>
                     <option value=""></option>
                     <option value="Probationary">Probationary</option>
                     <option value="Regular">Regular</option>
@@ -135,7 +163,7 @@
             </div>
             <div class="input-group">
                 <label for="division">Division:</label>
-                <select id="division" type="text" class="form-input" wire:model="division" x-ref="division" {{$isDisabled ? 'Readonly' : '' }}>
+                <select id="division" type="text" class="form-input" wire:model="division" x-ref="division" {{$isDisabled ? 'Disabled' : '' }}>
                     <option value=""></option>
                     <option value="BFC">BFC</option>
                     <option value="BBGC">BBGC</option>
@@ -148,7 +176,7 @@
             </div>
             <div class="input-group">
                 <label for="date_of_effectivity">Date of Effectivity:</label>
-                <input id="date_of_effectivity" type="date" class="form-input" wire:model="date_of_effectivity" x-ref="date_of_effectivity" :min="date_hired || null"  @change="if(date_hired && new Date(date_of_effectivity) < new Date(date_hired)) date_of_effectivity = date_hired" {{$isDisabled ? 'Readonly' : '' }} />
+                <input id="date_of_effectivity" type="date" class="form-input" wire:model="date_of_effectivity" x-ref="date_of_effectivity" x-model="date_of_effectivity" :min="date_hired || null"  @change="if(date_hired && new Date(date_of_effectivity) < new Date(date_hired)) date_of_effectivity = date_hired" {{$isDisabled ? 'Readonly' : '' }} />
             </div>
         </div>
 
@@ -224,16 +252,16 @@
 
             <!-- HR Preparer Actions: -->
             @if($requestEntry->request_status == 'For HR Prep')
-            <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit for Confirmation</button>
-                <button type="button" @click="resetForm()" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
+            <div x-show="showAction" class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Submit for Confirmation</button>
+                <button type="button" @click="resetForm()" class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
             </div>
             @endif
             
             @if($requestEntry->request_status == 'For Resolution')
             <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                <button type="button" @click="validateBeforeModal('resubmit')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Resubmit for Confirmation</button>
-                <button type="button" @click="resetForm()" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
+                <button type="button" @click="validateBeforeModal('resubmit')" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Resubmit for Confirmation</button>
+                <button type="button" @click="resetForm()" class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
             </div>
             @endif
         
@@ -244,8 +272,8 @@
             <!-- Division Head Actions: -->
             @if($requestEntry->request_status == 'For Confirmation')
             <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                <button type="button" @click="modalTarget = 'confirmpan'; showModal = true " class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Confirm PAN Form</button>
-                <button type="button" @click="modalTarget = 'disputeHead'; showModal = true " class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Flag for Resolution</button>
+                <button type="button" @click="modalTarget = 'confirmpan'; showModal = true " class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Confirm PAN Form</button>
+                <button type="button" @click="modalTarget = 'disputeHead'; showModal = true " class="border border-3 border-amber-600 bg-amber-600 text-white hover:bg-amber-700 px-4 py-2">Flag for Resolution</button>
             </div>
             @endif
 
@@ -256,12 +284,22 @@
             <!-- HR Approver Actions: -->
             @if($requestEntry->request_status == 'For HR Approval')
             <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                <button type="button" @click="modalTarget = 'approvehr'; showModal = true" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-800 px-4 py-2">Approve Request</button>
-                <button type="button" @click="modalTarget = 'rejecthr'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject Request</button>
+                <button type="button" @click="modalTarget = 'approvehr'; showModal = true" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Approve Request</button>
+                <button type="button" @click="modalTarget = 'rejecthr'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-700 px-4 py-2">Reject Request</button>
             </div>
             @elseif($requestEntry->request_status == 'Approved')
             <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                <button type="button" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-800 px-4 py-2" onclick="window.location.href='/print-view?requestID={{ encrypt($requestID) }}'"><i class="fa-solid fa-print"></i> Print Request</button>
+                <button type="button" @click="modalTarget = 'servehr'; showModal = true" class="border border-3 border-lime-600 bg-lime-600 text-white hover:bg-lime-700 px-4 py-2">Mark as Served</button>
+                <button type="button" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2" onclick="window.location.href='/print-view?requestID={{ encrypt($requestID) }}'"><i class="fa-solid fa-print"></i> Print</button>
+            </div>
+            @elseif($requestEntry->request_status == 'Served')
+            <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                <button type="button" @click="modalTarget = 'filehr'; showModal = true" class="border border-3 border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700 px-4 py-2">Mark as Filed</button>
+                <button type="button" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2" onclick="window.location.href='/print-view?requestID={{ encrypt($requestID) }}'"><i class="fa-solid fa-print"></i> Print</button>
+            </div>
+            @elseif($requestEntry->request_status == 'Filed')
+            <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                <button type="button" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2" onclick="window.location.href='/print-view?requestID={{ encrypt($requestID) }}'"><i class="fa-solid fa-print"></i> Print</button>
             </div>
             @endif
 
@@ -272,8 +310,8 @@
             <!-- Final Approver Actions: -->
             @if($requestEntry->request_status == 'For Final Approval')
             <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                <button type="button" @click="modalTarget = 'approvefinal'; showModal = true" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-800 px-4 py-2">Approve Request</button>
-                <button type="button" @click="modalTarget = 'rejectfinal'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject Request</button>
+                <button type="button" @click="modalTarget = 'approvefinal'; showModal = true" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-700 px-4 py-2">Approve Request</button>
+                <button type="button" @click="modalTarget = 'rejectfinal'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-700 px-4 py-2">Reject Request</button>
             </div>
             @endif
         

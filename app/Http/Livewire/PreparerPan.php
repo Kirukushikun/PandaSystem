@@ -98,6 +98,65 @@ class PreparerPan extends Component
         $this->allowances = $allowances;
     }
 
+    // DIVISION HEAD
+
+    public function confirmPan(){
+        try{
+            $this->requestEntry->request_status = 'For HR Approval';
+            $this->requestEntry->save();
+
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/divisionhead');            
+        }catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/divisionhead');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
+
+    }
+
+    public function disputeHead(){
+        try{
+            $this->validate([
+                'header' => 'required|string',
+                'body' => 'nullable|string'
+            ]);
+
+            $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
+
+            LogModel::create([
+                'request_id' => $this->requestID,
+                'origin' => 'Dispute Raised by Division Head',
+                'header' => 'Subject: ' . $reason,
+                'body' => 'Details: ' . $this->body,
+                'created_at' => Carbon::now(),
+            ]);
+
+            Cache::forget("log_{$this->requestID}");
+
+            $requestEntry = RequestorModel::find($this->requestID);
+            $requestEntry->request_status = 'For Resolution';
+            $requestEntry->save();
+
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/divisionhead');
+            $this->reloadNotif('success', 'Returned to Requestor', 'The request has been returned for correction. Please review the remarks provided.');            
+        }catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/divisionhead');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
+
+    }
+
     // HR PREPARER
 
     public function submitPan($formData){
@@ -192,65 +251,6 @@ class PreparerPan extends Component
         
     }
 
-    // DIVISION HEAD
-
-    public function confirmPan(){
-        try{
-            $this->requestEntry->request_status = 'For HR Approval';
-            $this->requestEntry->save();
-
-            Cache::forget("requestor_{$this->requestID}");
-
-            $this->redirect('/divisionhead');            
-        }catch (\Exception $e) {
-            \Log::error('Processing failed: ' . $e->getMessage(), [
-                'user_id' => Auth::id(),
-            ]);
-
-            $this->redirect('/divisionhead');
-            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
-        }
-
-    }
-
-    public function disputeHead(){
-        try{
-            $this->validate([
-                'header' => 'required|string',
-                'body' => 'nullable|string'
-            ]);
-
-            $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
-
-            LogModel::create([
-                'request_id' => $this->requestID,
-                'origin' => 'Dispute Raised by Division Head',
-                'header' => 'Subject: ' . $reason,
-                'body' => 'Details: ' . $this->body,
-                'created_at' => Carbon::now(),
-            ]);
-
-            Cache::forget("log_{$this->requestID}");
-
-            $requestEntry = RequestorModel::find($this->requestID);
-            $requestEntry->request_status = 'For Resolution';
-            $requestEntry->save();
-
-            Cache::forget("requestor_{$this->requestID}");
-
-            $this->redirect('/divisionhead');
-            $this->reloadNotif('success', 'Returned to Requestor', 'The request has been returned for correction. Please review the remarks provided.');            
-        }catch (\Exception $e) {
-            \Log::error('Processing failed: ' . $e->getMessage(), [
-                'user_id' => Auth::id(),
-            ]);
-
-            $this->redirect('/divisionhead');
-            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
-        }
-
-    }
-
     // HR APPROVER
 
     public function approveHr(){
@@ -262,6 +262,46 @@ class PreparerPan extends Component
 
             $this->redirect('/hrapprover');
             $this->reloadNotif('success', 'PAN Approved', 'The PAN form has been approved and forwarded to the Final Approver.');            
+        }catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/hrapprover');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
+
+    }
+
+    public function serveHr(){
+        try{
+            $this->requestEntry->request_status = 'Served';
+            $this->requestEntry->save();
+
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/hrapprover');
+            $this->reloadNotif('success', 'Marked as Served', 'Request successfully marked as Served.');            
+        }catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/hrapprover');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
+
+    }
+
+    public function fileHr(){
+        try{
+            $this->requestEntry->request_status = 'Filed';
+            $this->requestEntry->save();
+
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->redirect('/hrapprover');
+            $this->reloadNotif('success', 'Marked as Filed', 'Request successfully marked as Filed.');            
         }catch (\Exception $e) {
             \Log::error('Processing failed: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),

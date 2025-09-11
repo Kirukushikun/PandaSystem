@@ -198,7 +198,7 @@
                     @if($requestEntry->supporting_file_url)
                         <div class="grid grid-cols-2 gap-5">
                             <div class="existing-file flex flex-col gap-3">
-                                <label for="supporting_file" class="text-[18px] relative">Existing File: <span class="text-gray-400">Currently Attached File</span></label>
+                                <label for="supporting_file" class="text-[18px] relative">Existing File:</label>
                                 <div class="flex w-full border border-gray-600 rounded-md overflow-hidden text-sm mb-2">
                                     <a href="{{ Storage::url($requestEntry->supporting_file_url) }}" target="_blank" class="bg-gray-600 text-white px-4 py-2.5 hover:bg-gray-500">
                                         View File
@@ -211,7 +211,7 @@
 
                             <div class="reupload-file flex flex-col gap-3">
                                 <!-- Re-upload Input -->
-                                <label for="reup_supporting_file" class="text-[18px] relative">Re-upload: <span class="text-gray-400">Upload New File (optional)</span>
+                                <label for="reup_supporting_file" class="text-[18px] relative">Re-upload:
                                     @error('reup_supporting_file')
                                         <span class="absolute bg-white text-red-600 right-[10px] bottom-[-20px] text-xs p-1">
                                             {{ $message }}
@@ -313,24 +313,24 @@
             <div class="flex flex-col">
                 @if($mode == 'create')
                     <div x-show="showAction" class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                        <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit to Head</button>
-                        <button type="button" @click="modalTarget = 'savedraft'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Save as Draft</button>
-                        <button type="button" @click="resetForm(); showModal = false" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
+                        <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Submit to Head</button>
+                        <button type="button" @click="modalTarget = 'savedraft'; showModal = true" class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Save as Draft</button>
+                        <button type="button" @click="resetForm(); showModal = false" class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
                     </div>
                 @endif
 
                 @if($mode == 'view')
                     @if($requestEntry->request_status == 'Draft')
                         <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                            <button type="button" @click="validateBeforeModal('submitdraft')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Submit to Head</button>
-                            <button type="button" @click="modalTarget = 'deletedraft'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Delete Draft</button>
+                            <button type="button" @click="validateBeforeModal('submitdraft')" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Submit to Head</button>
+                            <button type="button" @click="modalTarget = 'deletedraft'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-700 px-4 py-2">Delete Draft</button>
                         </div>
                     @endif
 
                     @if($requestEntry->request_status == 'Returned to Requestor')
                         <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                            <button x-show="showAction" type="button" @click="validateBeforeModal('resubmit')" class="border border-3 border-gray-600 bg-gray-600 text-white hover:bg-gray-800 px-4 py-2">Resubmit to Head</button>
-                            <button type="button" @click="modalTarget = 'withdraw'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Withdraw Request</button>
+                            <button x-show="showAction" type="button" @click="validateBeforeModal('resubmit')" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Resubmit to Head</button>
+                            <button type="button" @click="modalTarget = 'withdraw'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-700 px-4 py-2">Withdraw Request</button>
                         </div>
                     @endif                        
                 @endif
@@ -341,9 +341,8 @@
             <div class="flex flex-col">
                 @if($requestEntry->request_status == 'For Head Approval')
                     <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                        <button type="button" @click="modalTarget = 'approverequest'; showModal = true" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-800 px-4 py-2">Approve Request</button>
-                        <!-- <button type="button" @click="modalTarget = 'rejectrequest'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-800 px-4 py-2">Reject Request</button> -->
-                        <button type="button" @click="modalTarget = 'returnedhead'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to Requestor</button>
+                        <button type="button" @click="modalTarget = 'approverequest'; showModal = true" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Approve Request</button>
+                        <button type="button" @click="modalTarget = 'returnedhead'; showModal = true" class="border border-3 border-amber-600 bg-amber-600 text-white hover:bg-amber-700 px-4 py-2">Return to Requestor</button>
                     </div>
                 @endif
             </div>                
@@ -353,7 +352,7 @@
             <div class="flex flex-col">
                 @if($requestEntry->request_status == 'For HR Prep')
                     <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                        <button type="button" @click="modalTarget = 'returnedhr'; showModal = true" class="border-3 border-gray-600 text-gray-600 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Return to Requestor</button>
+                        <button type="button" @click="modalTarget = 'returnedhr'; showModal = true" class="border border-3 border-amber-600 bg-amber-600 text-white hover:bg-amber-700 px-4 py-2">Return to Requestor</button>
                     </div>                   
                 @endif
             </div>  
