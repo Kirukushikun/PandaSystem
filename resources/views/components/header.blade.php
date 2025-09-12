@@ -1,3 +1,4 @@
+@if(Auth::check())
 <div class="header">
     <div class="logo flex items-center text-sm">
         <img src="{{asset('BGC-logo.png')}}" alt="">
@@ -67,3 +68,4 @@
         </div>
     </div>
 </div>
+@endif
