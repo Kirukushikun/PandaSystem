@@ -83,6 +83,24 @@
                 needsInput: false,
                 needsFormData: false
             },
+
+            conmanila: {
+                header: 'Set Confidentiality Tag',
+                message: 'Are you sure you want to mark this PAN request as confidential under Manila?',
+                action: 'conManila',
+                needsInput: false,
+                needsFormData: false
+            },
+
+            contarlac: {
+                header: 'Set Confidentiality Tag',
+                message: 'Are you sure you want to mark this PAN request as confidential under Tarlac?',
+                action: 'conTarlac',
+                needsInput: false,
+                needsFormData: false
+            },
+
+
         },
 
         getFields() {
@@ -141,16 +159,18 @@
 >
 
     @if($module == 'hr_preparer')
-        <div class="absolute inset-0 bg-black/30 z-40 flex gap-3 items-end justify-end p-10">
-            <i class="fa-solid fa-lock absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-6xl"></i>
-            <button class="border border-3 border-red-500 bg-red-500 rounded-md cursor-pointer text-white hover:bg-red-600 px-4 py-2">
-                Confidentiality – Manila
-            </button>
+        @if(is_null($requestEntry->confidentiality))
+            <div class="absolute inset-0 bg-black/30 z-40 flex gap-3 items-end justify-end p-10">
+                <i class="fa-solid fa-lock absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-6xl"></i>
+                <button class="border border-3 border-red-500 bg-red-500 rounded-md cursor-pointer text-white hover:bg-red-600 px-4 py-2" @click="modalTarget = 'conmanila'; showModal = true">
+                    Confidentiality – Manila
+                </button>
 
-            <button class="border border-3 border-purple-500 bg-purple-500 rounded-md cursor-pointer text-white hover:bg-purple-600 px-4 py-2">
-                Confidentiality – Tarlac
-            </button>
-        </div>
+                <button class="border border-3 border-purple-500 bg-purple-500 rounded-md cursor-pointer text-white hover:bg-purple-600 px-4 py-2" @click="modalTarget = 'contarlac'; showModal = true">
+                    Confidentiality – Tarlac
+                </button>
+            </div>
+        @endif
     @endif
 
 
@@ -270,6 +290,15 @@
             @if($requestEntry->request_status == 'For HR Prep')
             <div x-show="showAction" class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                 <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Submit for Confirmation</button>
+                @if(Auth::user()->role == 'hrhead')
+                    <button class="border border-3 border-purple-500 bg-purple-500 rounded-md cursor-pointer text-white hover:bg-purple-600 px-4 py-2" @click="modalTarget = 'contarlac'; showModal = true">
+                        Confidentiality – Tarlac
+                    </button>
+                @else 
+                    <button class="border border-3 border-red-500 bg-red-500 rounded-md cursor-pointer text-white hover:bg-red-600 px-4 py-2" @click="modalTarget = 'conmanila'; showModal = true">
+                        Confidentiality – Manila
+                    </button>
+                @endif
                 <button type="button" @click="resetForm()" class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
             </div>
             @endif

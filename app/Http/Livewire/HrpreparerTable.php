@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use App\Models\RequestorModel;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Auth;
 
 class HrpreparerTable extends Component
 {   
@@ -60,6 +61,11 @@ class HrpreparerTable extends Component
             })
             ->when($this->filterBy, function ($query) {
                 $query->where('request_status', $this->filterBy);
+            })
+            ->when(Auth::user()->role === 'hrhead', function ($query) {
+                $query->where('confidentiality', 'manila');
+            }, function ($query) {
+                $query->where('confidentiality', 'tarlac');
             })
             ->latest('updated_at')
             ->paginate(8);

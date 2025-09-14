@@ -333,6 +333,53 @@ class PreparerPan extends Component
         
     }
 
+    public function conManila(){
+        try{
+            $this->requestEntry->confidentiality = 'manila';
+            $this->requestEntry->save();
+
+            Cache::forget("requestor_{$this->requestID}");
+            
+            $this->reloadNotif('success', 'Confidentiality Updated', 'PAN request has been successfully tagged as confidential Manila'); 
+            if(Auth::user()->role == 'hrhead'){
+                return redirect(request()->header('Referer'));
+            } else {
+                $this->redirect('/hrpreparer');
+            }
+        }catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/hrpreparer');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
+    }
+
+    public function conTarlac(){
+        try{
+            $this->requestEntry->confidentiality = 'tarlac';
+            $this->requestEntry->save();
+
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->reloadNotif('success', 'Confidentiality Updated', 'PAN request has been successfully tagged as confidential Tarlac');   
+            if(Auth::user()->role == 'hrhead'){
+                $this->redirect('/hrpreparer');
+            } else {
+                return redirect(request()->header('Referer'));
+            }
+            
+        }catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/hrpreparer');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
+        }
+    }
+
     // FINAL APPROVER
 
     public function approveFinal(){

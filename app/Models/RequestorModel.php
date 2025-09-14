@@ -13,6 +13,7 @@ class RequestorModel extends Model
         'is_deleted_by',
         'current_handler',
         'request_status',
+        'confidentiality',
         'employee_id',
         'employee_name',
         'department',

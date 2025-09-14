@@ -31,6 +31,7 @@
                     id: user.id,
                     farm: user.farm ?? '',
                     position: user.position ?? ''
+                    role: user.role ?? ''
                 };
                 this.modalOpen = true;
             }
@@ -130,7 +131,7 @@
                                             onclick="window.open('{{ asset('storage/' . $dbUser->esign) }}', '_blank')">
                                         </i>
 
-                                        <i @click="openEdit({ id: {{ $user['id'] }}, farm: '{{ $dbUser->farm ?? '' }}', position: '{{ $dbUser->position ?? '' }}' })" class="fa-solid fa-pen-to-square text-gray-500"></i>
+                                        <i @click="openEdit({ id: {{ $user['id'] }}, farm: '{{ $dbUser->farm ?? '' }}', position: '{{ $dbUser->position ?? '' }}, role: '{{ $dbUser->role ?? '' }}' })" class="fa-solid fa-pen-to-square text-gray-500"></i>
                                     @else {{-- User exists but no e-sign yet --}}
                                         <input type="file" x-ref="fileInput" accept="image/*" class="hidden"
                                             wire:model="esignUpload"
@@ -142,7 +143,7 @@
                                             Upload
                                         </button>
 
-                                        <i @click="openEdit({ id: {{ $user['id'] }}, farm: '{{ $dbUser->farm ?? '' }}', position: '{{ $dbUser->position ?? '' }}' })" class="fa-solid fa-pen-to-square text-gray-500"></i>
+                                        <i @click="openEdit({ id: {{ $user['id'] }}, farm: '{{ $dbUser->farm ?? '' }}', position: '{{ $dbUser->position ?? '' }}, role: '{{ $dbUser->role ?? '' }}' })" class="fa-solid fa-pen-to-square text-gray-500"></i>
                                         
                                     @endif
                                 @else {{-- User does not exist locally --}}
@@ -215,6 +216,16 @@
                             <label class="block mb-1 font-medium">Position</label>
                             <input type="text" class="border w-full rounded-md px-2 py-1"
                                 x-model="modalData.position">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block mb-1 font-medium">Role</label>
+                            <select class="border w-full rounded-md px-2 py-1"
+                                    x-model="modalData.role">
+                                <option value="">Unset</option>
+                                <option value="hrhead">HR Head</option>
+                                <option value="admin">ADMIN</option>
+                            </select>
                         </div>
 
                         <div class="flex justify-end gap-3">

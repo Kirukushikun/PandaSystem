@@ -218,6 +218,7 @@ class UseraccessTable extends Component
 
             $user->farm = $data['farm'] ?? null;
             $user->position = $data['position'] ?? null;
+            $user->role = $data['role'] ?? null;
             $user->save();
 
             // Update cached collection (so table refreshes without reload)
