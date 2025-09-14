@@ -10,6 +10,7 @@ use Carbon\Carbon;
 
 use App\Models\RequestorModel;
 use App\Models\LogModel;
+use App\Models\Employee;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -24,9 +25,13 @@ class RequestorForm extends Component
     public $module, $requestID, $requestEntry, $isDisabled = false;
 
     // form fields
-    public $employee_name, $employee_id, $department, $type_of_action, $justification;
+    public $employees;
 
-    public $supporting_file, $reup_supporting_file;
+    public $selected_employee_id; // holds only DB id temporarily
+
+    public $employee_name, $employee_id, $department, $type_of_action, $justification; // Form inputs
+
+    public $supporting_file, $reup_supporting_file; // Form file
 
     // return request fields
     public $header, $customHeader , $body;
@@ -37,6 +42,8 @@ class RequestorForm extends Component
         $this->module = $module;
         $this->requestID = $requestID;
         $this->isDisabled = $isDisabled;
+
+        $this->employees = Employee::where('farm', Auth::user()->farm)->get();
 
         if ($requestID) {
             // Define cache key
@@ -62,6 +69,20 @@ class RequestorForm extends Component
                 'type_of_action',
                 'justification'
             ]));
+        }
+    }
+
+    public function updatedSelectedEmployeeId($value)
+    {
+        if ($value) {
+            $employee = Employee::find($value);
+
+            if ($employee) {
+                $this->employee_id = $employee->company_id;
+            }
+        } else {
+            // Reset when no employee is selected
+            $this->employee_id = null;
         }
     }
 
@@ -95,7 +116,22 @@ class RequestorForm extends Component
 
     private function generateRequestNo()
     {
-        return 'PAN-' . Carbon::now()->year . '-' . rand(100, 999);
+        $farmName = Auth::user()->farm;
+
+        // map full farm names to 3-letter codes
+        $farmCodes = [
+            'BFC'          => 'BFC',
+            'BBGC'         => 'BBG',
+            'BROOKDALE'    => 'BRK',
+            'Hatchery Farm'=> 'HCF',
+            'PFC'          => 'PFC',
+            'RH'           => 'RHH',
+        ];
+
+        // use code if it exists, otherwise first 3 letters of the farm name
+        $farmCode = $farmCodes[$farmName] ?? strtoupper(substr($farmName, 0, 3));
+
+        return 'PAN-' . $farmCode . '-' . now()->year . '-' . rand(100, 999);
     }
 
     // REQUESTOR

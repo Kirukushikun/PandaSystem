@@ -135,11 +135,35 @@
         <div class="input-fields grid grid-cols md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="input-group">
                 <label for="employee_name">Employee Name:</label>
-                <input type="text" name="employee_name" id="employee_name" x-ref="employee_name" wire:model="employee_name" {{$isDisabled ? 'Readonly' : ''}}>
+                @if($mode === 'create')
+                    <select name="employee_name" id="employee_name"  x-ref="employee_name"
+                        wire:model.live="employee_name"
+                        @change="$wire.set('selected_employee_id', $event.target.selectedOptions[0].dataset.employeeId)">
+                            <option value="" data-employee-id=""></option>
+                        @foreach($employees as $employee)
+                            <option value="{{ $employee->full_name }}" data-employee-id="{{ $employee->id }}">
+                                {{ $employee->full_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                @elseif($requestEntry->request_status == 'Draft')
+                    <select name="employee_name" id="employee_name" x-ref="employee_name"
+                        wire:model.live="employee_name"
+                            @change="$wire.set('selected_employee_id', $event.target.selectedOptions[0].dataset.employeeId)">
+                        <option value="" data-employee-id=""></option>
+                        @foreach($employees as $employee)
+                            <option value="{{ $employee->full_name }}" data-employee-id="{{ $employee->id }}" {{$employee->full_name == $employee_name ? 'Selected' : ''}}>
+                                {{ $employee->full_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                @else
+                    <input type="text" name="employee_name" id="employee_name" x-ref="employee_name" wire:model="employee_name" Readonly>
+                @endif
             </div>
             <div class="input-group">
                 <label for="employee_id">Employee ID:</label>
-                <input type="text" name="employee_id" id="employee_id" x-ref="employee_id" wire:model="employee_id" {{$isDisabled ? 'Readonly' : ''}} @input="$event.target.value = $event.target.value.replace(/[^0-9]/g, '')">
+                <input type="text" name="employee_id" id="employee_id" x-ref="employee_id" wire:model="employee_id" Readonly>
             </div>
             <div class="input-group">
                 <label for="department">Department:</label>

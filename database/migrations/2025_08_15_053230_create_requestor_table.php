@@ -46,6 +46,10 @@ return new class extends Migration
                 'Filed',
                 'Withdrew'
             ])->nullable();
+            $table->enum('confidentiality', [
+                'manila',
+                'tarlac'
+            ])->nullable();
             $table->unsignedBigInteger('employee_id')->nullable();
             $table->string('employee_name')->nullable();
             $table->string('department')->nullable();

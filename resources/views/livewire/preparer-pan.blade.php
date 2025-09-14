@@ -1,146 +1,162 @@
 
-<section class="content-block" id="content-block-2">
+<section class="content-block relative overflow-hidden" id="content-block-2"
+    x-data = "{
+        showModal: false,
+        showAction: false,
+
+        modalTarget: '',
+        modalConfig: {
+            submit: {
+                header: 'Send for Division Head Confirmation',
+                message: 'Are you sure you want to forward this prepared PAN to the Division Head for confirmation?',
+                action: 'submitPan',
+                needsInput: false,
+                needsFormData: true
+            },
+
+            resubmit: {
+                header: 'Send for Division Head Confirmation',
+                message: 'Are you sure you want to resubmit this prepared PAN to the Division Head for confirmation?',
+                action: 'resubmitPan',
+                needsInput: false,
+                needsFormData: true
+            },
+
+            confirmpan: {
+                header: 'Confirm PAN Form',
+                message: 'This PAN form will be sent to the HR Approver for review. Are you sure you want to proceed?',
+                action: 'confirmPan',
+                needsInput: false,
+                needsFormData: false
+            },
+
+            disputeHead: {
+                header: 'Flag for Resolution',
+                action: 'disputeHead',
+                needsInput: true
+            },
+
+            approvehr: {
+                header: 'Approve PAN',
+                message: 'Do you want to approve this PAN and forward it to the Final Approver?',
+                action: 'approveHr',
+                needsInput: false,
+                needsFormData: false
+            },
+
+            servehr: {
+                header: 'Mark as Served',
+                message: 'Are you sure you want to mark this request as Served? This means the PAN has been handed over or acknowledged by the employee.',
+                action: 'serveHr',
+                needsInput: false,
+                needsFormData: false
+            },
+
+            filehr: {
+                header: 'Mark as Served',
+                message: 'Are you sure you want to mark this request as Filed? This will indicate the PAN has been archived into the employee’s 201 file.',
+                action: 'fileHr',
+                needsInput: false,
+                needsFormData: false
+            },
+
+            rejecthr: {
+                header: 'Reject PAN',
+                message: 'Are you sure you want to reject this PAN? It will be returned to Requestor for correction.',
+                action: 'rejectHr',
+                needsInput: false,
+                needsFormData: false
+            },
+
+            approvefinal: {
+                header: 'Final Approval',
+                message: 'Do you want to give final approval to this PAN?',
+                action: 'approveFinal',
+                needsInput: false,
+                needsFormData: false
+            },
+
+            rejectfinal: {
+                header: 'Reject Final Approval',
+                message: 'Are you sure you want to reject this PAN? It will be returned to Requestor for further review.',
+                action: 'rejectFinal',
+                needsInput: false,
+                needsFormData: false
+            },
+        },
+
+        getFields() {
+            return [
+                this.$refs.date_hired, 
+                this.$refs.employment_status, 
+                this.$refs.division, 
+                this.$refs.date_of_effectivity
+            ];
+        },
+
+        // Initialize their event listeners to a function
+        init() {
+            this.getFields().forEach(field => {
+                field.addEventListener('input', () => this.checkFields());
+                field.addEventListener('change', () => this.checkFields()); // for file input
+            });
+        },
+
+        checkFields() {
+            this.showAction = this.getFields().some(f => f.value?.trim() !== '');
+        },
+
+        checkEmptyFields() {
+            return window.panForm.hasEmptyFromOrTo();
+        },
+
+        validateBeforeModal(action) {
+            // Highlight required static fields
+            let hasEmptyStatic = false;
+
+            this.getFields().forEach((field) => {
+                if (field.value.trim() === '') {
+                    field.classList.add('!border-red-500');
+                    hasEmptyStatic = true;
+                } else {
+                    field.classList.remove('!border-red-500');
+                }
+            });
+
+            if (hasEmptyStatic) return false; // Stop if initial fields are empty
+
+            // Now check dynamic fields
+            let hasEmptyDynamic = this.checkEmptyFields();
+            if (hasEmptyDynamic) return false; // Stop if dynamic fields are empty
+        
+            // All good, open modal
+            this.modalTarget = action;
+            this.showModal = true;
+            return true; // allow $wire call
+        },
+
+        date_hired: @entangle('date_hired'),
+        date_of_effectivity: @entangle('date_of_effectivity')
+    }"
+>
+
+    @if($module == 'hr_preparer')
+        <div class="absolute inset-0 bg-black/30 z-40 flex gap-3 items-end justify-end p-10">
+            <i class="fa-solid fa-lock absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-6xl"></i>
+            <button class="border border-3 border-red-500 bg-red-500 rounded-md cursor-pointer text-white hover:bg-red-600 px-4 py-2">
+                Confidentiality – Manila
+            </button>
+
+            <button class="border border-3 border-purple-500 bg-purple-500 rounded-md cursor-pointer text-white hover:bg-purple-600 px-4 py-2">
+                Confidentiality – Tarlac
+            </button>
+        </div>
+    @endif
+
+
     <h1 class="text-[22px]">PAN Preparation Form</h1>
-    <div class="form-container relative flex flex-col gap-5 h-full" id="pan-form-container"
-        x-data = "{
-            showModal: false,
-            showAction: false,
+    <div class="form-container relative flex flex-col gap-5 h-full" id="pan-form-container">
 
-            modalTarget: '',
-            modalConfig: {
-                submit: {
-                    header: 'Send for Division Head Confirmation',
-                    message: 'Are you sure you want to forward this prepared PAN to the Division Head for confirmation?',
-                    action: 'submitPan',
-                    needsInput: false,
-                    needsFormData: true
-                },
-
-                resubmit: {
-                    header: 'Send for Division Head Confirmation',
-                    message: 'Are you sure you want to resubmit this prepared PAN to the Division Head for confirmation?',
-                    action: 'resubmitPan',
-                    needsInput: false,
-                    needsFormData: true
-                },
-
-                confirmpan: {
-                    header: 'Confirm PAN Form',
-                    message: 'This PAN form will be sent to the HR Approver for review. Are you sure you want to proceed?',
-                    action: 'confirmPan',
-                    needsInput: false,
-                    needsFormData: false
-                },
-
-                disputeHead: {
-                    header: 'Flag for Resolution',
-                    action: 'disputeHead',
-                    needsInput: true
-                },
-
-                approvehr: {
-                    header: 'Approve PAN',
-                    message: 'Do you want to approve this PAN and forward it to the Final Approver?',
-                    action: 'approveHr',
-                    needsInput: false,
-                    needsFormData: false
-                },
-
-                servehr: {
-                    header: 'Mark as Served',
-                    message: 'Are you sure you want to mark this request as Served? This means the PAN has been handed over or acknowledged by the employee.',
-                    action: 'serveHr',
-                    needsInput: false,
-                    needsFormData: false
-                },
-
-                filehr: {
-                    header: 'Mark as Served',
-                    message: 'Are you sure you want to mark this request as Filed? This will indicate the PAN has been archived into the employee’s 201 file.',
-                    action: 'fileHr',
-                    needsInput: false,
-                    needsFormData: false
-                },
-
-                rejecthr: {
-                    header: 'Reject PAN',
-                    message: 'Are you sure you want to reject this PAN? It will be returned to Requestor for correction.',
-                    action: 'rejectHr',
-                    needsInput: false,
-                    needsFormData: false
-                },
-
-                approvefinal: {
-                    header: 'Final Approval',
-                    message: 'Do you want to give final approval to this PAN?',
-                    action: 'approveFinal',
-                    needsInput: false,
-                    needsFormData: false
-                },
-
-                rejectfinal: {
-                    header: 'Reject Final Approval',
-                    message: 'Are you sure you want to reject this PAN? It will be returned to Requestor for further review.',
-                    action: 'rejectFinal',
-                    needsInput: false,
-                    needsFormData: false
-                },
-            },
-
-            getFields() {
-                return [
-                    this.$refs.date_hired, 
-                    this.$refs.employment_status, 
-                    this.$refs.division, 
-                    this.$refs.date_of_effectivity
-                ];
-            },
-
-            // Initialize their event listeners to a function
-            init() {
-                this.getFields().forEach(field => {
-                    field.addEventListener('input', () => this.checkFields());
-                    field.addEventListener('change', () => this.checkFields()); // for file input
-                });
-            },
-
-            checkFields() {
-                this.showAction = this.getFields().some(f => f.value?.trim() !== '');
-            },
-
-            checkEmptyFields() {
-                return window.panForm.hasEmptyFromOrTo();
-            },
-
-            validateBeforeModal(action) {
-                // Highlight required static fields
-                let hasEmptyStatic = false;
-
-                this.getFields().forEach((field) => {
-                    if (field.value.trim() === '') {
-                        field.classList.add('!border-red-500');
-                        hasEmptyStatic = true;
-                    } else {
-                        field.classList.remove('!border-red-500');
-                    }
-                });
-
-                if (hasEmptyStatic) return false; // Stop if initial fields are empty
-
-                // Now check dynamic fields
-                let hasEmptyDynamic = this.checkEmptyFields();
-                if (hasEmptyDynamic) return false; // Stop if dynamic fields are empty
-            
-                // All good, open modal
-                this.modalTarget = action;
-                this.showModal = true;
-                return true; // allow $wire call
-            },
-
-            date_hired: @entangle('date_hired'),
-            date_of_effectivity: @entangle('date_of_effectivity')
-        }"
-    >
 
         <!-- Input Fields -->
         <div class="input-fields grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" >
