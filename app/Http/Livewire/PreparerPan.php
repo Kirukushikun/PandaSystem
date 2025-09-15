@@ -30,6 +30,8 @@ class PreparerPan extends Component
     // dispute request fields
     public $header, $customHeader , $body;
 
+    public $recentReqRecord, $recentPanRecord, $recentPanRecordData;
+
     public function mount($module = null, $requestID = null){
         $this->module = $module;
         
@@ -67,7 +69,6 @@ class PreparerPan extends Component
                 }else{
                     $this->mode = 'view';
                 }
-                
             }
 
             // disable fields if not Draft or Returned to HR
@@ -81,6 +82,28 @@ class PreparerPan extends Component
             if ($this->requestEntry->request_status == 'For Resolution' && $this->module == 'hr_preparer') {
                 $this->mode = 'create';
             } 
+
+            // FIXED: Retrieve previous Request and PAN record base on the employee id
+            if($this->requestEntry){    
+                $employee_id = $this->requestEntry->employee_id;
+                
+                // Get the most recent COMPLETED request for this employee (excluding current request)
+                $this->recentReqRecord = RequestorModel::where('employee_id', $employee_id)
+                    ->where('id', '!=', $requestID) // Exclude current request
+                    ->whereIn('request_status', ['Approved', 'Served', 'Filed']) // Include completed statuses
+                    ->orderBy('created_at', 'desc') // Get the most recent
+                    ->first();
+                
+                // Only try to get PAN record if we found a recent request
+                if($this->recentReqRecord){
+                    $this->recentPanRecord = PreparerModel::where('request_id', $this->recentReqRecord->id)->first();
+                    
+                    // Only set the data if PAN record exists
+                    if($this->recentPanRecord){
+                        $this->recentPanRecordData = $this->recentPanRecord->action_reference_data;
+                    }
+                }
+            }
 
         }
     }

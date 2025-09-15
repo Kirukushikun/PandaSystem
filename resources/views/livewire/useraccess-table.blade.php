@@ -30,7 +30,7 @@
                 this.modalData = {
                     id: user.id,
                     farm: user.farm ?? '',
-                    position: user.position ?? ''
+                    position: user.position ?? '',
                     role: user.role ?? ''
                 };
                 this.modalOpen = true;
@@ -131,7 +131,7 @@
                                             onclick="window.open('{{ asset('storage/' . $dbUser->esign) }}', '_blank')">
                                         </i>
 
-                                        <i @click="openEdit({ id: {{ $user['id'] }}, farm: '{{ $dbUser->farm ?? '' }}', position: '{{ $dbUser->position ?? '' }}, role: '{{ $dbUser->role ?? '' }}' })" class="fa-solid fa-pen-to-square text-gray-500"></i>
+                                        <i @click="openEdit({ id: {{ $user['id'] }}, farm: '{{ $dbUser->farm ?? '' }}', position: '{{ $dbUser->position ?? '' }}', role: '{{ $dbUser->role ?? '' }}' })" class="fa-solid fa-pen-to-square text-gray-500"></i>
                                     @else {{-- User exists but no e-sign yet --}}
                                         <input type="file" x-ref="fileInput" accept="image/*" class="hidden"
                                             wire:model="esignUpload"
@@ -143,7 +143,7 @@
                                             Upload
                                         </button>
 
-                                        <i @click="openEdit({ id: {{ $user['id'] }}, farm: '{{ $dbUser->farm ?? '' }}', position: '{{ $dbUser->position ?? '' }}, role: '{{ $dbUser->role ?? '' }}' })" class="fa-solid fa-pen-to-square text-gray-500"></i>
+                                        <i @click="openEdit({ id: {{ $user['id'] }}, farm: '{{ $dbUser->farm ?? '' }}', position: '{{ $dbUser->position ?? '' }}', role: '{{ $dbUser->role ?? '' }}' })" class="fa-solid fa-pen-to-square text-gray-500"></i>
                                         
                                     @endif
                                 @else {{-- User does not exist locally --}}

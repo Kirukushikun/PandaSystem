@@ -3,12 +3,12 @@
 namespace App\Http\Livewire;
 
 use Livewire\Component;
-use App\Models\RequestorModel;
+use App\Models\Employee;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 
-class RequestorTable extends Component
-{   
+class PanrecordsTable extends Component
+{
     use WithPagination;
 
     protected $listeners = ['requestSaved' => '$refresh'];
@@ -39,9 +39,7 @@ class RequestorTable extends Component
 
     public function render()
     {   
-        $myRequests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.requestor') != true")
-            ->where('farm', Auth::user()->farm)
-            ->when($this->search, function ($query) {
+        $panRecords = Employee::when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('request_no', 'like', '%' . $this->search . '%')
                         ->orWhere('request_status', 'like', '%' . $this->search . '%')
@@ -58,6 +56,6 @@ class RequestorTable extends Component
             ->latest('updated_at')
             ->paginate(8);
 
-        return view('livewire.requestor-table', compact('myRequests'));
+        return view('livewire.panrecords-table', compact('panRecords'));
     }
 }

@@ -175,8 +175,11 @@
 
 
     <h1 class="text-[22px]">PAN Preparation Form</h1>
-    <div class="form-container relative flex flex-col gap-5 h-full" id="pan-form-container">
+    <div class="absolute top-10 right-10 font-mono font-semibold text-gray-600 bg-gray-100 px-4 py-1 rounded-md">
+        {{$requestEntry->request_no}}
+    </div>
 
+    <div class="form-container relative flex flex-col gap-5 h-full" id="pan-form-container">
 
         <!-- Input Fields -->
         <div class="input-fields grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" >
@@ -261,6 +264,20 @@
                 </table>
             </div>
         </div>
+
+        @if($module == 'hr_preparer' && $mode === 'create')
+            @if($recentReqRecord && !is_null($requestEntry->confidentiality))
+                <div class="flex items-center mb-2 text-sm text-gray-600 ml-2">
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-turn-up fa-rotate-90 text-blue-500"></i>
+                        Pre-generated from: 
+                        <a href="/hrpreparer-view?requestID={{ encrypt($recentReqRecord->id) }}" class="font-mono font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md cursor-pointer hover:underline">
+                            {{$recentReqRecord->request_no}}
+                        </a>
+                    </span>
+                </div>
+            @endif
+        @endif
 
         <!-- Remarks -->
         <div class="input-group">
@@ -450,9 +467,403 @@
     </style>
 </section>
 
+@if($mode == 'create')
+    <script>
+        class PANForm {
+            constructor() {
+                this.staticFields = [
+                    { field: 'section', label: 'Section', from: '', to: '' },
+                    { field: 'place', label: 'Place of Assignment', from: '', to: '' },
+                    { field: 'head', label: 'Immediate Head', from: '', to: '' },
+                    { field: 'position', label: 'Position', from: '', to: '' },
+                    { field: 'joblevel', label: 'Job Level', from: '', to: '' },
+                    { field: 'basic', label: 'Basic', from: '', to: '' }
+                ];
 
-@if($mode == "create")
-<script>
+                this.allowances = [];
+
+                this.allOptions = [
+                    'Communication Allowance',
+                    'Meal Allowance',
+                    'Living Allowance',
+                    'Transportation Allowance',
+                    'Clothing Allowance',
+                    'Fuel Allowance',
+                    'Management Allowance',
+                    'Developmental Assignments',
+                    'Professional Allowance',
+                    'Interim Allowance',
+                    'Training Allowance',
+                    'Mancom Allowance'
+                ];
+
+                this.init();
+            }
+
+            init() {
+                // Render the table
+                this.renderTable();
+                
+                // Setup event listeners
+                this.setupEventListeners();
+            }
+
+            renderTable() {
+                const tbody = document.getElementById('pan-tbody');
+                tbody.innerHTML = '';
+
+                // Render static rows
+                this.staticFields.forEach(field => {
+                    const row = this.createStaticRow(field);
+                    tbody.appendChild(row);
+                });
+
+                // Render allowance rows
+                this.allowances.forEach((allowance, index) => {
+                    const row = this.createAllowanceRow(allowance, index);
+                    tbody.appendChild(row);
+                });
+
+                // Add "Add Allowance" row
+                const addRow = this.createAddAllowanceRow();
+                tbody.appendChild(addRow);
+            }
+
+            createStaticRow(field) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="border-t-2 border-gray-300">
+                        <input 
+                            type="text" 
+                            class="w-full border-none focus:ring-0 text-center outline-none" 
+                            value="${field.from}"
+                            data-field="${field.field}"
+                            data-type="from"
+                        />
+                    </td>
+                    <td class="border-t-2 border-gray-300 text-center font-medium relative">
+                        ${field.label}
+                        <i class="fa-solid fa-circle-exclamation text-red-400 absolute right-10 top-[14px] hidden" data-static-warning="${field.field}"></i>
+                    </td>
+                    <td class="border-t-2 border-gray-300">
+                        <input 
+                            type="text" 
+                            class="w-full border-none focus:ring-0 text-center outline-none" 
+                            value="${field.to}"
+                            data-field="${field.field}"
+                            data-type="to"
+                        />
+                    </td>
+                `;
+
+                // Add event listeners for static fields
+                const inputs = row.querySelectorAll('input');
+                inputs.forEach(input => {
+                    input.addEventListener('input', (e) => {
+                        const fieldName = e.target.dataset.field;
+                        const type = e.target.dataset.type;
+                        const fieldIndex = this.staticFields.findIndex(f => f.field === fieldName);
+                        if (fieldIndex !== -1) {
+                            this.staticFields[fieldIndex][type] = e.target.value;
+                        }
+                    });
+                });
+
+                return row;
+            }
+
+            createAllowanceRow(allowance, index) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="border-t-2 border-gray-300">
+                        <input 
+                            type="text" 
+                            class="w-full border-none focus:ring-0 text-center outline-none" 
+                            value="${allowance.from}"
+                            data-allowance-index="${index}"
+                            data-type="from"
+                        />
+                    </td>
+                    <td class="border-t-2 relative border-gray-300 text-center font-medium">
+                        <i class="fa-regular fa-trash-can absolute left-[10px] top-[15px] cursor-pointer text-red-600 hover:scale-110" data-remove-index="${index}"></i>
+                        <select 
+                            class="w-full border-none focus:ring-0 text-center outline-none p-0"
+                            data-allowance-index="${index}"
+                            data-type="value"
+                        >
+                            <option value="">Select Allowance</option>
+                            ${this.getAvailableOptions(index).map(opt => 
+                                `<option value="${opt}" ${allowance.value === opt ? 'selected' : ''}>${opt}</option>`
+                            ).join('')}
+                        </select>
+                        <i class="fa-solid fa-circle-exclamation text-red-400 absolute right-10 top-[14px] hidden" data-allowance-warning="${index}"></i>
+                    </td>
+                    <td class="border-t-2 border-gray-300">
+                        <input 
+                            type="text" 
+                            class="w-full border-none focus:ring-0 text-center outline-none" 
+                            value="${allowance.to}"
+                            data-allowance-index="${index}"
+                            data-type="to"
+                        />
+                    </td>
+                `;
+
+                // Add event listeners for allowance fields
+                const inputs = row.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    const eventType = input.tagName === 'SELECT' ? 'change' : 'input';
+                    input.addEventListener(eventType, (e) => {
+                        const allowanceIndex = parseInt(e.target.dataset.allowanceIndex);
+                        const type = e.target.dataset.type;
+                        
+                        if (this.allowances[allowanceIndex]) {
+                            this.allowances[allowanceIndex][type] = e.target.value;
+                            
+                            // If it's a select change, re-render to update available options
+                            if (type === 'value') {
+                                this.renderTable();
+                            }
+                        }
+                    });
+                });
+
+                // Add remove button listener
+                const removeBtn = row.querySelector('[data-remove-index]');
+                removeBtn.addEventListener('click', () => {
+                    this.removeAllowance(index);
+                });
+
+                return row;
+            }
+
+            hasEmptyFromOrTo() {
+                let hasEmpty = false;
+
+                // Validate static fields
+                this.staticFields.forEach((field) => {
+                    const rowIcon = document.querySelector(`[data-static-warning="${field.field}"]`);
+                    const isInvalid = !field.from || !field.to;
+                    if (rowIcon) rowIcon.classList.toggle('hidden', !isInvalid);
+                    if (isInvalid) hasEmpty = true;
+                });
+
+                // Validate allowances (including missing "value")
+                this.allowances.forEach((allowance, index) => {
+                    const rowIcon = document.querySelector(`[data-allowance-warning="${index}"]`);
+                    const isInvalid = !allowance.value || !allowance.from || !allowance.to;
+                    if (rowIcon) rowIcon.classList.toggle('hidden', !isInvalid);
+                    if (isInvalid) hasEmpty = true;
+                });
+
+                return hasEmpty;
+            }
+
+            createAddAllowanceRow() {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="border-t-2 border-gray-300">
+                        <input type="text" class="w-full border-none focus:ring-0 text-center outline-none py-3" disabled/>
+                    </td>
+                    <td class="border-t-2 border-gray-300 text-center font-medium py-3">
+                        <div class="text-blue-500 cursor-pointer hover:scale-105" id="add-allowance-table-btn">+ Add Allowance</div>
+                    </td>
+                    <td class="border-t-2 border-gray-300">
+                        <input type="text" class="w-full border-none focus:ring-0 text-center outline-none py-3" disabled/>
+                    </td>
+                `;
+
+                // Add click listener for add button
+                const addBtn = row.querySelector('#add-allowance-table-btn');
+                addBtn.addEventListener('click', () => {
+                    this.addAllowance();
+                });
+
+                return row;
+            }
+
+            getAvailableOptions(index) {
+                const usedValues = this.allowances
+                    .map(a => a.value)
+                    .filter((val, i) => val && val.trim() !== '' && i !== index);
+                
+                return this.allOptions.filter(opt => !usedValues.includes(opt));
+            }
+
+            addAllowance() {
+                this.allowances.push({
+                    id: Date.now() + Math.random(),
+                    value: '',
+                    from: '',
+                    to: ''
+                });
+                this.renderTable();
+            }
+
+            removeAllowance(index) {
+                this.allowances.splice(index, 1);
+                this.renderTable();
+            }
+
+            setupEventListeners() {
+                // Setup any additional event listeners here
+            }
+
+            showDebugData() {
+                const debugOutput = document.getElementById('debug-output');
+                const data = {
+                    staticFields: this.staticFields,
+                    allowances: this.allowances,
+                    formFields: {
+                        date_hired: document.getElementById('date_hired')?.value || '',
+                        employment_status: document.getElementById('employment_status')?.value || '',
+                        division: document.getElementById('division')?.value || '',
+                        date_of_effectivity: document.getElementById('date_of_effectivity')?.value || '',
+                        remarks: document.getElementById('remarks')?.value || ''
+                    }
+                };
+                
+                debugOutput.textContent = JSON.stringify(data, null, 2);
+                debugOutput.classList.toggle('hidden');
+            }
+
+            resetForm() {
+                // Reset form fields
+                const formFields = ['date_hired', 'employment_status', 'division', 'date_of_effectivity', 'remarks'];
+                formFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (field) field.value = '';
+                });
+
+                // Reset data
+                this.staticFields = this.staticFields.map(field => ({
+                    ...field,
+                    from: '',
+                    to: ''
+                }));
+                
+                this.allowances = [];
+                
+                // Re-render
+                this.renderTable();
+            }
+
+            // Method to get form data in Livewire format
+            getFormData() {
+                const formData = [];
+                
+                // Add static fields
+                this.staticFields.forEach(field => {
+                    if (field.from || field.to) {
+                        formData.push({
+                            field: field.field,
+                            from: field.from,
+                            to: field.to
+                        });
+                    }
+                });
+
+                // Add allowances
+                this.allowances.forEach(allowance => {
+                    if (allowance.value && (allowance.from || allowance.to)) {
+                        formData.push({
+                            field: allowance.value,
+                            from: allowance.from,
+                            to: allowance.to
+                        });
+                    }
+                });
+
+                return formData;
+            }
+
+            // Method to load data from Livewire format
+            loadFromLivewireData(data) {
+                // Reset current data
+                this.staticFields.forEach(field => {
+                    field.from = '';
+                    field.to = '';
+                });
+                this.allowances = [];
+
+                data.forEach(item => {
+                    // Check if it's a static field
+                    const staticField = this.staticFields.find(sf => sf.field === item.field);
+                    if (staticField) {
+                        staticField.from = item.from;
+                        staticField.to = item.to;
+                    } else {
+                        // It's an allowance field
+                        this.allowances.push({
+                            id: Date.now() + Math.random(),
+                            value: item.field,
+                            from: item.from,
+                            to: item.to
+                        });
+                    }
+                });
+
+                // Re-render the table
+                this.renderTable();
+            }
+
+            // NEW METHOD: Load data from recent PAN (to values become from values)
+            loadFromRecentPANData(data) {
+                // Reset current data
+                this.staticFields.forEach(field => {
+                    field.from = '';
+                    field.to = '';
+                });
+                this.allowances = [];
+
+                data.forEach(item => {
+                    // Check if it's a static field
+                    const staticField = this.staticFields.find(sf => sf.field === item.field);
+                    if (staticField) {
+                        // The "to" value from previous PAN becomes the "from" value in new PAN
+                        staticField.from = item.to;
+                        staticField.to = ''; // Leave "to" empty for new input
+                    } else {
+                        // It's an allowance field
+                        this.allowances.push({
+                            id: Date.now() + Math.random(),
+                            value: item.field,
+                            from: item.to, // Previous "to" becomes current "from"
+                            to: '' // Leave "to" empty for new input
+                        });
+                    }
+                });
+
+                // Re-render the table
+                this.renderTable();
+            }
+        }
+
+        // Initialize the form when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the data from Livewire - these variables come from your Blade template
+            const confidentiality = @json($requestEntry->confidentiality ?? null);
+            const status = @json($requestEntry->request_status);
+            const recentPanRecordData = @json($recentPanRecordData ?? null);
+            const referenceTableData = @json($referenceTableData ?? null);
+            
+            // Initialize the form
+            window.panForm = new PANForm();
+
+            if(confidentiality){
+                if(status == 'For HR Prep' && recentPanRecordData){
+                    // Create mode with recent PAN data - "to" values become "from" values
+                    window.panForm.loadFromRecentPANData(recentPanRecordData);            
+                } else if (referenceTableData) {
+                    // Edit mode or create mode with reference data - use data as-is
+                    window.panForm.loadFromLivewireData(referenceTableData);
+                }                
+            }
+        });
+    </script>
+@endif
+
+<!-- <script>
     class PANForm {
         constructor() {
             this.staticFields = [
@@ -852,5 +1263,4 @@
         }
         
     });
-</script>
-@endif
+</script> -->

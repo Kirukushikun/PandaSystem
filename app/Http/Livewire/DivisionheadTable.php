@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use App\Models\RequestorModel;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Auth;
 
 class DivisionheadTable extends Component
 {   
@@ -53,6 +54,7 @@ class DivisionheadTable extends Component
         ];
 
         $requests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.requestor') != true")
+            ->where('farm', Auth::user()->farm)
             ->whereIn('request_status', $statuses)
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {

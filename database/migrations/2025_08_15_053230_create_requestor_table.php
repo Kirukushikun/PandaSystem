@@ -53,6 +53,7 @@ return new class extends Migration
             $table->unsignedBigInteger('employee_id')->nullable();
             $table->string('employee_name')->nullable();
             $table->string('department')->nullable();
+            $table->string('farm')->nullable();
             $table->string('type_of_action')->nullable(); // or enum if fixed set
             $table->text('justification')->nullable();
             $table->string('supporting_file_url')->nullable();

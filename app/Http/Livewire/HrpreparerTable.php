@@ -47,6 +47,12 @@ class HrpreparerTable extends Component
         ];
 
         $panRequests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.preparer') != true")
+            ->when(Auth::user()->role === 'hrhead', function ($query) {
+                $query->where('confidentiality', 'manila');
+            }, function ($query) {
+                $query->where('confidentiality', 'tarlac')
+                    ->orWhere('confidentiality', null);
+            })
             ->whereIn('request_status', $statuses)
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
@@ -61,11 +67,6 @@ class HrpreparerTable extends Component
             })
             ->when($this->filterBy, function ($query) {
                 $query->where('request_status', $this->filterBy);
-            })
-            ->when(Auth::user()->role === 'hrhead', function ($query) {
-                $query->where('confidentiality', 'manila');
-            }, function ($query) {
-                $query->where('confidentiality', 'tarlac');
             })
             ->latest('updated_at')
             ->paginate(8);

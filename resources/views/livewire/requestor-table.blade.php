@@ -25,7 +25,7 @@
                         <td>{{$request->type_of_action ?? '--'}}</td>
                         <td>{{$request->submitted_at ? $request->submitted_at->format('m/d/Y') : '--'}}</td>
                         <td>
-                                <x-statustag :status-text="$request->request_status" status-location="Table"/>
+                            <x-statustag :status-text="$request->request_status" status-location="Table"/>
                         </td>
                         <!-- <td>{{$request->updated_at->format('m/d/Y - h:i A')}}</td> -->
                          <td>{{$request->updated_at->format('m/d/Y')}}</td>

@@ -85,6 +85,7 @@
                     this.$refs.employee_id,
                     this.$refs.department,
                     this.$refs.type_of_action,
+                    this.$refs.supporting_file,
                     this.$refs.justification,
                 ];
             },

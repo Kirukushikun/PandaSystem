@@ -92,7 +92,7 @@ class RequestorForm extends Component
         'department' => 'required|string',
         'type_of_action' => 'required|string',
         'justification' => 'nullable',
-        'supporting_file' => 'nullable|file|mimes:pdf|max:5120'
+        'supporting_file' => 'required|file|mimes:pdf|max:5120'
     ];
 
     protected $draftRules = [
@@ -147,6 +147,7 @@ class RequestorForm extends Component
                 'employee_id'   => $this->employee_id ?? null,
                 'employee_name' => $this->employee_name ?? null,
                 'department'    => $this->department ?? null,
+                'farm' => Auth::user()->farm,
                 'type_of_action'=> $this->type_of_action ?? null,
                 'justification' => $this->justification ?? null,
                 'requested_by'  => Auth::user()->name,
@@ -238,6 +239,7 @@ class RequestorForm extends Component
                 'employee_id'         => $this->employee_id,
                 'employee_name'       => $this->employee_name,
                 'department'          => $this->department,
+                'farm' => Auth::user()->farm,
                 'type_of_action'      => $this->type_of_action,
                 'justification'       => $this->justification ?? null,
                 'supporting_file_url' => $path ?? null,

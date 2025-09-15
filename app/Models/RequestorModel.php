@@ -17,6 +17,7 @@ class RequestorModel extends Model
         'employee_id',
         'employee_name',
         'department',
+        'farm',
         'type_of_action',
         'justification',
         'supporting_file_url',
