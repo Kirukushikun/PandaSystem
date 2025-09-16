@@ -12,7 +12,7 @@
     <div class="layout">
         <!-- Sidebar -->
         <aside class="sidebar">
-               <a href="/hrpreparer"><div></div><i class="fa-solid fa-arrow-right-from-bracket rotate-180"></i></a>
+               <a href="#" onclick="window.history.back()"><div></div><i class="fa-solid fa-arrow-right-from-bracket rotate-180"></i></a>
                <a href="#content-block-1" class="active"><div></div><p>RF</p></a>
                <a href="#content-block-2"><div></div><p>PF</p></a>
                <a href="#content-block-3"><div></div><i class="fa-solid fa-file-pen"></i></a>

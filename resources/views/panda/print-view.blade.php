@@ -171,7 +171,7 @@
         <div class="print-action absolute right-[-190px] top-[-35px] w-32 bg-white text-black shadow-lg">
             <ul class="py-2">
                 <li>
-                    <div class="home-btn text-left px-4 py-2 userselect-none cursor-pointer text-gray-500 text-[17px] hover:text-gray-800 hover:scale-105  hover:bg-gray-100 transition-transform duration-200" onclick="window.location.href='/hrapprover'" >
+                    <div class="home-btn text-left px-4 py-2 userselect-none cursor-pointer text-gray-500 text-[17px] hover:text-gray-800 hover:scale-105  hover:bg-gray-100 transition-transform duration-200" onclick="window.history.back()" >
                         <i class="fa-solid fa-arrow-right-to-bracket rotate-180 ml-1"></i>
                         Back
                     </div>

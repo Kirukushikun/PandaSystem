@@ -12,6 +12,7 @@ use App\Services\GenericServices as GS;
 
 use App\Models\RequestorModel;
 use App\Models\PreparerModel;
+use App\Models\Employee;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -73,6 +74,12 @@ Route::middleware('auth')->group(function() {
 		return view('panda.hrpreparer-view', compact('requestID'));
 	})->middleware('module.access:HRP');
 
+	Route::get('/hrpreparer/employeerecord-view', function(Request $request){
+		$requestID = decrypt($request->requestID);
+		$employee = Employee::where('company_id', $requestID)->first();
+		$requestRecords = RequestorModel::where('employee_id', $requestID)->whereIn('request_status', ['Approved', 'Served', 'Filed'])->latest()->get();
+		return view('panda.employeerecord-view', compact('employee', 'requestRecords'));
+	})->middleware('module.access:HRP');
 
 	// HR APPROVER
 	Route::get('/hrapprover', function(){

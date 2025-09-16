@@ -23,7 +23,7 @@
                         <td>{{$record->position}}</td>
                         <td>{{$record->farm}}</td>
                         <td class="table-actions">
-                            <button class="bg-blue-600 text-white" onclick="window.location.href='/hrpreparer-view?requestID={{ encrypt($record->id) }}'">View</button>
+                            <button class="bg-blue-600 text-white" onclick="window.location.href='/hrpreparer/employeerecord-view?requestID={{ encrypt($record->company_id) }}'">View Records</button>
                         </td>
                     </tr>
                 @endforeach

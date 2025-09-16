@@ -31,7 +31,9 @@
                         <td>{{$request->updated_at->format('m/d/Y')}}</td>
                         <td class="table-actions">
                             <button class="bg-blue-600 text-white" onclick="window.location.href='/hrpreparer-view?requestID={{ encrypt($request->id) }}'">View</button>
-                            <!-- <i class="fa-solid fa-box-archive"></i> -->
+                            @if(in_array($request->request_status, ['Approved', 'Served', 'Filed']))
+                                <i class="fa-solid fa-print" onclick="window.location.href='/print-view?requestID={{ encrypt($request->id) }}'"></i>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

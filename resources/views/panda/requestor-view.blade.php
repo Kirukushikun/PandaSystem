@@ -12,7 +12,7 @@
     <div class="layout">
         <!-- Sidebar -->
         <aside class="sidebar">
-               <a href="/requestor"><div></div><i class="fa-solid fa-arrow-right-from-bracket rotate-180"></i></a>
+               <a href="#" onclick="window.history.back()"><div></div><i class="fa-solid fa-arrow-right-from-bracket rotate-180"></i></a>
         </aside>
 
           <!-- Content Area -->
