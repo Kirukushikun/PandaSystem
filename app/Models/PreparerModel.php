@@ -14,6 +14,7 @@ class PreparerModel extends Model
         'employment_status',
         'division',
         'date_of_effectivity',
+        'wage_no',
         'action_reference_data',
         'remarks',
         'prepared_by',

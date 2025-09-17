@@ -16,7 +16,7 @@ class PreparerPan extends Component
     public $mode = 'create';
     public $module;
     public $isDisabled, $requestID, $requestEntry, $panEntry, $referenceTableData;
-    public $date_hired, $employment_status, $division, $date_of_effectivity, $remarks;
+    public $date_hired, $employment_status, $division, $date_of_effectivity, $wage_no, $remarks;
     public 
         $section_from, $section_to,
         $place_from, $place_to,
@@ -61,7 +61,8 @@ class PreparerPan extends Component
                 $this->fill($this->panEntry->only([
                     'employment_status',
                     'division',
-                    'remarks'
+                    'remarks',
+                    'wage_no'
                 ]));
 
                 if($this->requestEntry->request_status == "For HR Prep"){
@@ -196,6 +197,7 @@ class PreparerPan extends Component
                 $this->panEntry->division = $this->division;
                 $this->panEntry->date_of_effectivity = $this->date_of_effectivity;
                 $this->panEntry->action_reference_data = $formData;
+                $this->panEntry->wage_no = $this->wage_no ?? null;
                 $this->panEntry->remarks = $this->remarks;
                 $this->panEntry->prepared_by = Auth::user()->name;
                 $this->panEntry->save();
@@ -209,6 +211,7 @@ class PreparerPan extends Component
                     'employment_status' => $this->employment_status,
                     'division' => $this->division,
                     'date_of_effectivity' => $this->date_of_effectivity,
+                    'wage_no' => $this->wage_no ?? null,
                     'action_reference_data' => $formData,
                     'remarks' => $this->remarks,
                     'prepared_by' => Auth::user()->name,
@@ -250,6 +253,7 @@ class PreparerPan extends Component
             $panEntry->employment_status = $this->employment_status;
             $panEntry->division = $this->division;
             $panEntry->date_of_effectivity = $this->date_of_effectivity;
+            $panEntry->wage_no = $this->wage_no ?? null;
             $panEntry->action_reference_data = $formData;
             $panEntry->remarks = $this->remarks;
             $panEntry->save();

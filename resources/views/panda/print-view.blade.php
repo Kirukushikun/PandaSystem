@@ -192,8 +192,12 @@
                     BROOKDALE FARMS CORPORATION <br>
                     Anupul, Bamban, Tarlac 
                 </h3>
-                <h1 class="font-courier">NOTICE OF PERSONNEL ACTION</h1>
-                <h2 class="font-courier text-[#70ad47]">WAGE ORDER NO. RBIII-24</h2>                
+                <h1 class="font-courier">NOTICE OF PERSONNEL ACTION</h1> 
+                @if($requestForm->type_of_action == 'Wage Order')
+                    <h2 class="font-courier text-[#70ad47]">WAGE ORDER NO. {{$panForm->wage_no}}</h2>      
+                @else 
+                    <h2 class="font-courier text-[#70ad47]">{{$requestForm->type_of_action}}</h2>      
+                @endif           
             </div>
 
 

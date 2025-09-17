@@ -104,12 +104,18 @@
         },
 
         getFields() {
-            return [
+            const fields = [
                 this.$refs.date_hired, 
                 this.$refs.employment_status, 
                 this.$refs.division, 
                 this.$refs.date_of_effectivity
             ];
+
+            if (this.$refs.wage_no) {
+                fields.push(this.$refs.wage_no);
+            }
+
+            return fields;
         },
 
         // Initialize their event listeners to a function
@@ -182,7 +188,7 @@
     <div class="form-container relative flex flex-col gap-5 h-full" id="pan-form-container">
 
         <!-- Input Fields -->
-        <div class="input-fields grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" >
+        <div class="input-fields grid gap-4 sm:grid-cols-1 md:grid-cols-{{$requestEntry->type_of_action == 'Wage Order' ? '5' : '4'}}" >
             <div class="input-group">
                 <label for="date_hired">Date Hired:</label>
                 <input id="date_hired" type="date" class="form-input" wire:model="date_hired" x-ref="date_hired" x-model="date_hired" {{$isDisabled ? 'Readonly' : '' }}/>
@@ -217,6 +223,12 @@
                 <label for="date_of_effectivity">Date of Effectivity:</label>
                 <input id="date_of_effectivity" type="date" class="form-input" wire:model="date_of_effectivity" x-ref="date_of_effectivity" x-model="date_of_effectivity" :min="date_hired || null"  @change="if(date_hired && new Date(date_of_effectivity) < new Date(date_hired)) date_of_effectivity = date_hired" {{$isDisabled ? 'Readonly' : '' }} />
             </div>
+            @if($requestEntry->type_of_action == 'Wage Order')
+                <div class="input-group">
+                    <label for="wage_no">Wage Order No:</label>
+                    <input type="text" id="wage_no" wire:model="wage_no" x-ref="wage_no" {{$isDisabled ? 'Readonly' : '' }} required>
+                </div>
+            @endif
         </div>
 
         <!-- Action Reference Table -->
