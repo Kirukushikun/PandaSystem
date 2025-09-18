@@ -20,6 +20,8 @@
                 <label for="date_of_effectivity">Date of Effectivity:</label>
                 <input id="date_of_effectivity" type="date" x-ref="date_of_effectivity" wire:model="date_of_effectivity" {{$isDisabled ? 'Readonly' : '' }}/>
             </div>
+
+            
         </div>
 
         <!-- Action Reference Table -->

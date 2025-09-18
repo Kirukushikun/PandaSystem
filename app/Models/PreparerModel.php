@@ -13,7 +13,8 @@ class PreparerModel extends Model
         'date_hired',
         'employment_status',
         'division',
-        'date_of_effectivity',
+        'doe_from',
+        'doe_to',
         'wage_no',
         'action_reference_data',
         'remarks',
@@ -23,7 +24,8 @@ class PreparerModel extends Model
 
     protected $casts = [
         'date_hired' => 'datetime',
-        'date_of_effectivity' => 'datetime',
+        'doe_from' => 'datetime',
+        'doe_to' => 'datetime',
         'action_reference_data' => 'array'
     ];
 }

@@ -17,6 +17,10 @@ class PreparerPan extends Component
     public $module;
     public $isDisabled, $requestID, $requestEntry, $panEntry, $referenceTableData;
     public $date_hired, $employment_status, $division, $date_of_effectivity, $wage_no, $remarks;
+
+    public $date_of_effectivity_from;
+    public $date_of_effectivity_to;
+
     public 
         $section_from, $section_to,
         $place_from, $place_to,
@@ -55,7 +59,8 @@ class PreparerPan extends Component
                 $this->referenceTableData = $this->panEntry->action_reference_data;    
 
                 $this->date_hired = optional($this->panEntry->date_hired)->format('Y-m-d');
-                $this->date_of_effectivity = optional($this->panEntry->date_of_effectivity)->format('Y-m-d');
+                $this->date_of_effectivity_from = optional($this->panEntry->doe_from)->format('Y-m-d');
+                $this->date_of_effectivity_to = optional($this->panEntry->doe_to)->format('Y-m-d');
 
                 // auto-fill fields (mass assign)
                 $this->fill($this->panEntry->only([
@@ -113,7 +118,6 @@ class PreparerPan extends Component
         'date_hired' => 'required|date',
         'employment_status' => 'required|string',
         'division' => 'required|string',
-        'date_of_effectivity' => 'required|date',
         'remarks' => 'nullable|string',
     ];
 
@@ -195,7 +199,8 @@ class PreparerPan extends Component
                 $this->panEntry->date_hired = $this->date_hired;
                 $this->panEntry->employment_status = $this->employment_status;
                 $this->panEntry->division = $this->division;
-                $this->panEntry->date_of_effectivity = $this->date_of_effectivity;
+                $this->panEntry->doe_from = $this->date_of_effectivity_from;
+                $this->panEntry->doe_to = $this->date_of_effectivity_to;
                 $this->panEntry->action_reference_data = $formData;
                 $this->panEntry->wage_no = $this->wage_no ?? null;
                 $this->panEntry->remarks = $this->remarks;
@@ -210,7 +215,8 @@ class PreparerPan extends Component
                     'date_hired' => $this->date_hired,
                     'employment_status' => $this->employment_status,
                     'division' => $this->division,
-                    'date_of_effectivity' => $this->date_of_effectivity,
+                    'doe_from' => $this->date_of_effectivity_from,
+                    'doe_to' => $this->date_of_effectivity_to,
                     'wage_no' => $this->wage_no ?? null,
                     'action_reference_data' => $formData,
                     'remarks' => $this->remarks,
@@ -252,8 +258,10 @@ class PreparerPan extends Component
             $panEntry->date_hired = $this->date_hired;
             $panEntry->employment_status = $this->employment_status;
             $panEntry->division = $this->division;
-            $panEntry->date_of_effectivity = $this->date_of_effectivity;
             $panEntry->wage_no = $this->wage_no ?? null;
+            $panEntry->doe_from = $this->date_of_effectivity_from;
+            $panEntry->doe_to = $this->date_of_effectivity_to;
+            $panEntry->division = $this->division;
             $panEntry->action_reference_data = $formData;
             $panEntry->remarks = $this->remarks;
             $panEntry->save();

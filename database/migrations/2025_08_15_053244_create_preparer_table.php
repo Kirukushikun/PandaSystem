@@ -18,7 +18,8 @@ return new class extends Migration
             $table->date('date_hired');
             $table->string('employment_status');
             $table->string('division');
-            $table->date('date_of_effectivity'); // renamed for clarity
+            $table->date('doe_from');
+            $table->date('doe_to'); // renamed for clarity
             $table->string('wage_no')->nullable();
             $table->json('action_reference_data')->nullable();
             $table->text('remarks')->nullable();

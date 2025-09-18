@@ -33,6 +33,10 @@
             });
         </script>
 
+        <div x-data="{open: false}" class="relative">
+            <livewire:notifications />
+        </div>
+
         <!-- Icon with toggle dropdown -->
         <div @mouseenter="open = true" @mouseleave="open = false" class="relative">
             <i class="fa-solid fa-circle-user text-[30px] cursor-pointer hover:scale-110"></i>
@@ -66,6 +70,7 @@
                 </ul>
             </div>
         </div>
+
     </div>
 </div>
 @endif

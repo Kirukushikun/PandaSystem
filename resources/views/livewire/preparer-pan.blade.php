@@ -130,12 +130,12 @@
             this.showAction = this.getFields().some(f => f.value?.trim() !== '');
         },
 
+
         checkEmptyFields() {
             return window.panForm.hasEmptyFromOrTo();
         },
 
         validateBeforeModal(action) {
-            // Highlight required static fields
             let hasEmptyStatic = false;
 
             this.getFields().forEach((field) => {
@@ -147,20 +147,20 @@
                 }
             });
 
-            if (hasEmptyStatic) return false; // Stop if initial fields are empty
+            if (hasEmptyStatic) return false;
 
             // Now check dynamic fields
             let hasEmptyDynamic = this.checkEmptyFields();
-            if (hasEmptyDynamic) return false; // Stop if dynamic fields are empty
-        
-            // All good, open modal
+            if (hasEmptyDynamic) return false;
+
             this.modalTarget = action;
             this.showModal = true;
-            return true; // allow $wire call
+            return true;
         },
 
         date_hired: @entangle('date_hired'),
-        date_of_effectivity: @entangle('date_of_effectivity')
+        date_of_effectivity: @entangle('date_of_effectivity'),
+        open: false, from: '', to: '', isInvalid: false
     }"
 >
 
@@ -188,7 +188,7 @@
     <div class="form-container relative flex flex-col gap-5 h-full" id="pan-form-container">
 
         <!-- Input Fields -->
-        <div class="input-fields grid gap-4 sm:grid-cols-1 md:grid-cols-{{$requestEntry->type_of_action == 'Wage Order' ? '5' : '4'}}" >
+        <div class="input-fields grid gap-4 sm:grid-cols-1 {{$requestEntry->type_of_action == 'Wage Order' ? 'md:grid-cols-5' : 'md:grid-cols-4'}}" >
             <div class="input-group">
                 <label for="date_hired">Date Hired:</label>
                 <input id="date_hired" type="date" class="form-input" wire:model="date_hired" x-ref="date_hired" x-model="date_hired" {{$isDisabled ? 'Readonly' : '' }}/>
@@ -219,10 +219,50 @@
                 </select>
                 
             </div>
-            <div class="input-group">
-                <label for="date_of_effectivity">Date of Effectivity:</label>
-                <input id="date_of_effectivity" type="date" class="form-input" wire:model="date_of_effectivity" x-ref="date_of_effectivity" x-model="date_of_effectivity" :min="date_hired || null"  @change="if(date_hired && new Date(date_of_effectivity) < new Date(date_hired)) date_of_effectivity = date_hired" {{$isDisabled ? 'Readonly' : '' }} />
-            </div>
+
+
+            
+            @if($mode == "create")
+                <div class="relative">
+                    <div class="input-group">
+                        <label for="date_of_effectivity">Date of Effectivity:</label>
+                        
+                        <!-- Displayed field -->
+                        <input id="date_of_effectivity"
+                            x-ref="date_of_effectivity"
+                            type="text"
+                            class="form-input cursor-pointer"
+                            :class="isInvalid ? '!border-red-500' : ''"
+                            value="{{ $date_of_effectivity_from && $date_of_effectivity_to ? $date_of_effectivity_from . ' - ' . $date_of_effectivity_to : '' }}"
+                            readonly
+                            @click="open = !open" />
+
+                        <!-- Dropdown -->
+                        <div x-show="open" @click.outside="open = false"
+                            class="absolute top-[75px] mt-2 bg-white border p-3 rounded shadow w-70 z-50">
+                            <label class="block text-sm mb-1">From:</label>
+                            <input type="date" 
+                                wire:model="date_of_effectivity_from"
+                                class="border rounded px-2 py-1 w-full mb-2"
+                                min="{{ $date_hired }}">
+
+                            <label class="block text-sm mb-1">To:</label>
+                            <input type="date" 
+                                wire:model="date_of_effectivity_to"
+                                class="border rounded px-2 py-1 w-full"
+                                min="{{ $date_of_effectivity_from ?: $date_hired }}">
+                        </div>
+                    </div>
+                </div>
+            @else 
+                <div class="input-group">
+                    <label for="date_of_effectivity">Date of Effectivity:</label>
+                    <input id="date_of_effectivity" type="text" x-ref="date_of_effectivity" value="{{$panEntry->doe_from->format('m/d/Y') }} - {{$panEntry->doe_to->format('m/d/Y') }}" {{$isDisabled ? 'Readonly' : '' }} />
+                </div>
+            @endif
+
+
+
             @if($requestEntry->type_of_action == 'Wage Order')
                 <div class="input-group">
                     <label for="wage_no">Wage Order No:</label>
