@@ -104,42 +104,37 @@
         },
 
         getFields() {
-            const fields = [
-                this.$refs.date_hired, 
-                this.$refs.employment_status, 
-                this.$refs.division, 
-                this.$refs.date_of_effectivity
-            ];
-
-            if (this.$refs.wage_no) {
-                fields.push(this.$refs.wage_no);
-            }
-
-            return fields;
+            return [
+                this.$refs.date_hired,
+                this.$refs.employment_status,
+                this.$refs.division,
+                this.$refs.date_of_effectivity, // validate this display input
+                this.$refs.wage_no
+            ].filter(Boolean);
         },
 
-        // Initialize their event listeners to a function
         init() {
             this.getFields().forEach(field => {
-                field.addEventListener('input', () => this.checkFields());
-                field.addEventListener('change', () => this.checkFields()); // for file input
+                ['input', 'change'].forEach(event =>
+                    field.addEventListener(event, () => this.checkFields())
+                );
             });
         },
 
         checkFields() {
-            this.showAction = this.getFields().some(f => f.value?.trim() !== '');
+            this.showAction = this.getFields().some(f => f.value?.trim());
         },
 
-
+        // 👇 bring this back (dynamic allowance validation)
         checkEmptyFields() {
-            return window.panForm.hasEmptyFromOrTo();
+            return window.panForm?.hasEmptyFromOrTo?.() || false;
         },
 
         validateBeforeModal(action) {
             let hasEmptyStatic = false;
 
             this.getFields().forEach((field) => {
-                if (field.value.trim() === '') {
+                if (!field.value.trim()) {
                     field.classList.add('!border-red-500');
                     hasEmptyStatic = true;
                 } else {
@@ -149,7 +144,7 @@
 
             if (hasEmptyStatic) return false;
 
-            // Now check dynamic fields
+            // Now check dynamic fields (allowances)
             let hasEmptyDynamic = this.checkEmptyFields();
             if (hasEmptyDynamic) return false;
 
@@ -160,7 +155,7 @@
 
         date_hired: @entangle('date_hired'),
         date_of_effectivity: @entangle('date_of_effectivity'),
-        open: false, from: '', to: '', isInvalid: false
+        open: false
     }"
 >
 
@@ -226,31 +221,35 @@
                 <div class="relative">
                     <div class="input-group">
                         <label for="date_of_effectivity">Date of Effectivity:</label>
-                        
-                        <!-- Displayed field -->
+
+                        <!-- Display input (validated by Alpine) -->
                         <input id="date_of_effectivity"
                             x-ref="date_of_effectivity"
                             type="text"
                             class="form-input cursor-pointer"
-                            :class="isInvalid ? '!border-red-500' : ''"
-                            value="{{ $date_of_effectivity_from && $date_of_effectivity_to ? $date_of_effectivity_from . ' - ' . $date_of_effectivity_to : '' }}"
+                            :value="($wire.date_of_effectivity_from && $wire.date_of_effectivity_to) 
+                                        ? $wire.date_of_effectivity_from + ' - ' + $wire.date_of_effectivity_to 
+                                        : ''"
                             readonly
                             @click="open = !open" />
 
                         <!-- Dropdown -->
                         <div x-show="open" @click.outside="open = false"
                             class="absolute top-[75px] mt-2 bg-white border p-3 rounded shadow w-70 z-50">
+                            
                             <label class="block text-sm mb-1">From:</label>
                             <input type="date" 
                                 wire:model="date_of_effectivity_from"
                                 class="border rounded px-2 py-1 w-full mb-2"
-                                min="{{ $date_hired }}">
+                                :min="$wire.date_hired"
+                            >
 
                             <label class="block text-sm mb-1">To:</label>
                             <input type="date" 
                                 wire:model="date_of_effectivity_to"
                                 class="border rounded px-2 py-1 w-full"
-                                min="{{ $date_of_effectivity_from ?: $date_hired }}">
+                                :min="$wire.date_of_effectivity_from || $wire.date_hired"
+                            >
                         </div>
                     </div>
                 </div>

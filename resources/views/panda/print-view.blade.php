@@ -212,7 +212,7 @@
                 </tr>
                 <tr>
                     <td>Employment Status: {{$panForm->employment_status}}</td>
-                    <td>Date of Effectivity: {{$panForm->date_of_effectivity->format('m/d/Y')}}</td>
+                    <td>Date of Effectivity: {{$panForm->doe_from->format('m/d/Y')}} - {{$panForm->doe_to->format('m/d/Y')}}</td>
                 </tr>
             </table>
 

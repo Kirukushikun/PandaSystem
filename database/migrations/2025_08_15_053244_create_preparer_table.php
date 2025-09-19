@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('wage_no')->nullable();
             $table->json('action_reference_data')->nullable();
             $table->text('remarks')->nullable();
+            $table->boolean('has_allowances')->default(false);
             $table->string('prepared_by');
             $table->string('approved_by')->nullable();
             $table->timestamps();

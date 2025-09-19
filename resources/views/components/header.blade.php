@@ -33,9 +33,11 @@
             });
         </script>
 
+        @if(Auth()->user()->access['HRP_Module'] == true || Auth()->user()->access['HRA_Module'] == true)
         <div x-data="{open: false}" class="relative">
             <livewire:notifications />
         </div>
+        @endif
 
         <!-- Icon with toggle dropdown -->
         <div @mouseenter="open = true" @mouseleave="open = false" class="relative">

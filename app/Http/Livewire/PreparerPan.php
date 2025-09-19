@@ -189,8 +189,23 @@ class PreparerPan extends Component
 
     public function submitPan($formData){
         try{
-            $this->validate();
 
+            // Cast to collection for easy searching
+            $data = collect($formData);
+
+            // List of tracked allowances
+            $targetAllowances = [
+                'Developmental Assignments',
+                'Interim Allowance',
+                'Training Allowance',
+            ];
+
+            // Check if any of these exist in the formData
+            $hasAllowance = $data->contains(function ($item) use ($targetAllowances) {
+                return in_array($item['field'], $targetAllowances);
+            });
+
+            $this->validate();
             $this->requestEntry->request_status = 'For Confirmation';
             $this->requestEntry->save();
 
@@ -204,6 +219,7 @@ class PreparerPan extends Component
                 $this->panEntry->action_reference_data = $formData;
                 $this->panEntry->wage_no = $this->wage_no ?? null;
                 $this->panEntry->remarks = $this->remarks;
+                $this->panEntry->has_allowances = $hasAllowance;
                 $this->panEntry->prepared_by = Auth::user()->name;
                 $this->panEntry->save();
 
@@ -220,6 +236,7 @@ class PreparerPan extends Component
                     'wage_no' => $this->wage_no ?? null,
                     'action_reference_data' => $formData,
                     'remarks' => $this->remarks,
+                    'has_allowances' => $hasAllowance,
                     'prepared_by' => Auth::user()->name,
                 ]);       
                 
@@ -245,6 +262,21 @@ class PreparerPan extends Component
 
     public function resubmitPan($formData){
         try{
+            // Cast to collection for easy searching
+            $data = collect($formData);
+
+            // List of tracked allowances
+            $targetAllowances = [
+                'Developmental Assignments',
+                'Interim Allowance',
+                'Training Allowance',
+            ];
+
+            // Check if any of these exist in the formData
+            $hasAllowance = $data->contains(function ($item) use ($targetAllowances) {
+                return in_array($item['field'], $targetAllowances);
+            });
+
             $this->validate();
 
             // Update request status
@@ -263,6 +295,7 @@ class PreparerPan extends Component
             $panEntry->doe_to = $this->date_of_effectivity_to;
             $panEntry->division = $this->division;
             $panEntry->action_reference_data = $formData;
+            $panEntry->has_allowances = $hasAllowance;
             $panEntry->remarks = $this->remarks;
             $panEntry->save();
 

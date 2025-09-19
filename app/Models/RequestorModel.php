@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\PreparerModel;
 
 class RequestorModel extends Model
 {
@@ -43,5 +44,10 @@ class RequestorModel extends Model
         'is_deleted_by' => 'array',
         'submitted_at' => 'datetime'
     ];
+
+    public function preparer()
+    {
+        return $this->hasOne(PreparerModel::class, 'request_id', 'id');
+    }
 
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\RequestorModel;
 
 class PreparerModel extends Model
 {
@@ -18,6 +19,7 @@ class PreparerModel extends Model
         'wage_no',
         'action_reference_data',
         'remarks',
+        'has_allowances',
         'prepared_by',
         'approved_by'
     ];
@@ -26,6 +28,12 @@ class PreparerModel extends Model
         'date_hired' => 'datetime',
         'doe_from' => 'datetime',
         'doe_to' => 'datetime',
-        'action_reference_data' => 'array'
+        'action_reference_data' => 'array',
+        'has_allowances' => 'boolean'
     ];
+
+    public function requestor()
+    {
+        return $this->belongsTo(RequestorModel::class, 'request_id', 'id');
+    }
 }
