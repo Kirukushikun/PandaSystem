@@ -13,10 +13,18 @@ class PanrecordsTable extends Component
 
     protected $listeners = ['requestSaved' => '$refresh'];
 
+    public $module;
+
     public $search = '';
     public $filterBy = '';
 
     protected $paginationTheme = 'tailwind'; // or 'bootstrap' or omit
+
+    public function mount($module = null){
+        if($module){
+            $this->module = $module;
+        }
+    }
 
     public function goToPage($page)
     {

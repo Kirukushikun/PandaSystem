@@ -23,7 +23,7 @@
                     <livewire:hrpreparer-table />
                </section>
                <section class="content-block" id="content-block-2">
-                    <livewire:panrecords-table />
+                    <livewire:panrecords-table module="hrpreparer"/>
                </section>
           </main>
      </div>

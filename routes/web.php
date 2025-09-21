@@ -91,6 +91,13 @@ Route::middleware('auth')->group(function() {
 		return view('panda.hrapprover-view', compact('requestID'));
 	})->middleware('module.access:HRA');
 
+	Route::get('/hrapprover/employeerecord-view', function(Request $request){
+		$requestID = decrypt($request->requestID);
+		$employee = Employee::where('company_id', $requestID)->first();
+		$requestRecords = RequestorModel::where('employee_id', $requestID)->whereIn('request_status', ['Approved', 'Served', 'Filed'])->latest()->get();
+		return view('panda.employeerecord-view', compact('employee', 'requestRecords'));
+	})->middleware('module.access:HRP');
+
 	Route::get('/print-view', function(Request $request){
 		$requestID = decrypt($request->requestID);
 		$requestForm = RequestorModel::findOrFail($requestID);
@@ -109,9 +116,7 @@ Route::middleware('auth')->group(function() {
 		return view('panda.approver-view', compact('requestID'));
 	})->middleware('module.access:FA');
 
-	Route::get('testing', function(){
-		return view('testing');
-	});
+
 });
 
 // ADMIN
@@ -120,6 +125,12 @@ Route::get('/admin', function(){
 	// $user = User::find(61); 
 	// Auth::login($user);
 	return view('admin.admin');
+});
+
+Route::get('/testing', function(){
+	$user = User::find(61); 
+	Auth::login($user);
+	return view('home');
 });
 
 

@@ -14,8 +14,8 @@ class Notifications extends Component
         'refreshNotifications' => 'loadNotifications',
     ];
 
-    public function mount()
-    {
+    public function mount($type = null)
+    {   
         $this->loadNotifications();
     }
 

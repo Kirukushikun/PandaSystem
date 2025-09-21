@@ -34,7 +34,11 @@ class PreparerPan extends Component
     // dispute request fields
     public $header, $customHeader , $body;
 
+    // for Request No and Pan Prefill
     public $recentReqRecord, $recentPanRecord, $recentPanRecordData;
+
+    // for Update Pan
+    public $latestRequest, $isLatest;
 
     public function mount($module = null, $requestID = null){
         $this->module = $module;
@@ -109,6 +113,14 @@ class PreparerPan extends Component
                         $this->recentPanRecordData = $this->recentPanRecord->action_reference_data;
                     }
                 }
+
+                // Get the most recent request for this employee (any status)
+                $this->latestRequest = RequestorModel::where('employee_id', $employee_id)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+
+                // Check if the current request is the latest
+                $this->isLatest = $this->recentReqRecord->id . '-' . $this->latestRequest->id;
             }
 
         }
@@ -319,6 +331,36 @@ class PreparerPan extends Component
         
     }
 
+    public function updatePan(){
+        $newRequest = RequestorModel::create([
+            'request_no' => $this->requestEntry->request_no,
+            'request_status' => 'For HR Prep',
+            'employee_id' => $this->requestEntry->employee_id,
+            'employee_name' => $this->requestEntry->employee_name,
+            'department' => $this->requestEntry->department,
+            'farm' => $this->requestEntry->farm,
+            'type_of_action' => $this->requestEntry->type_of_action,
+            'justification' => $this->requestEntry->justification ?? null,
+            'supporting_file_url' => $this->requestEntry->supporting_file_url,
+            'supporting_file_name' => $this->requestEntry->supporting_file_name,
+            'requested_by' => $this->requestEntry->requested_by,
+            'submitted_at' => $this->requestEntry->submitted_at,
+        ]);
+
+        // Encrypt the new request ID
+        $encryptedId = encrypt($newRequest->id);
+
+        // Redirect with query param
+        $this->redirect('/hrpreparer-view?requestID=' . $encryptedId);
+
+        // Success notification
+        $this->reloadNotif(
+            'success',
+            'PAN Request Created',
+            'The PAN update request has been successfully created.'
+        );
+    }
+
     // HR APPROVER
 
     public function approveHr(){
@@ -348,14 +390,23 @@ class PreparerPan extends Component
 
             Cache::forget("requestor_{$this->requestID}");
 
-            $this->redirect('/hrapprover');
+            if($this->module === 'hr_preparer'){
+                $this->redirect('/hrpreparer');
+            }else{
+                $this->redirect('/hrapprover');
+            }
+           
             $this->reloadNotif('success', 'Marked as Served', 'Request successfully marked as Served.');            
         }catch (\Exception $e) {
             \Log::error('Processing failed: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
             ]);
 
-            $this->redirect('/hrapprover');
+            if($this->module === 'hr_preparer'){
+                $this->redirect('/hrpreparer');
+            }else{
+                $this->redirect('/hrapprover');
+            }
             $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
         }
 
@@ -368,14 +419,23 @@ class PreparerPan extends Component
 
             Cache::forget("requestor_{$this->requestID}");
 
-            $this->redirect('/hrapprover');
+            if($this->module === 'hr_preparer'){
+                $this->redirect('/hrpreparer');
+            }else{
+                $this->redirect('/hrapprover');
+            }
+
             $this->reloadNotif('success', 'Marked as Filed', 'Request successfully marked as Filed.');            
         }catch (\Exception $e) {
             \Log::error('Processing failed: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
             ]);
 
-            $this->redirect('/hrapprover');
+            if($this->module === 'hr_preparer'){
+                $this->redirect('/hrpreparer');
+            }else{
+                $this->redirect('/hrapprover');
+            }
             $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
         }
 
