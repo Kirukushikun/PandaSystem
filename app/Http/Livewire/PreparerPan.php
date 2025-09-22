@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use App\Models\RequestorModel;
 use App\Models\PreparerModel;
+use App\Models\Employee;
 use App\Models\LogModel;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -35,10 +36,10 @@ class PreparerPan extends Component
     public $header, $customHeader , $body;
 
     // for Request No and Pan Prefill
-    public $recentReqRecord, $recentPanRecord, $recentPanRecordData;
+    public $recentRequestCompleted, $recentPanCompleted, $recentPanCompletedData;
 
     // for Update Pan
-    public $latestRequest, $isLatest;
+    public $newestRequest, $oldestRequest, $isRecentRequestCompleted, $latestCompletedRequest, $hasNewerOngoing, $canUpdate;
 
     public function mount($module = null, $requestID = null){
         $this->module = $module;
@@ -97,30 +98,71 @@ class PreparerPan extends Component
             if($this->requestEntry){    
                 $employee_id = $this->requestEntry->employee_id;
                 
-                // Get the most recent COMPLETED request for this employee (excluding current request)
-                $this->recentReqRecord = RequestorModel::where('employee_id', $employee_id)
+                // Most recent completed (Approved / Filed / Served)
+                $this->recentRequestCompleted = RequestorModel::where('employee_id', $employee_id)
                     ->where('id', '!=', $requestID) // Exclude current request
                     ->whereIn('request_status', ['Approved', 'Served', 'Filed']) // Include completed statuses
                     ->orderBy('created_at', 'desc') // Get the most recent
                     ->first();
-                
+
+                // Always get the most recent COMPLETED request (including the current request)
+                $this->latestCompletedRequest = RequestorModel::where('employee_id', $employee_id)
+                    ->whereIn('request_status', ['Approved', 'Served', 'Filed'])
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+                                
                 // Only try to get PAN record if we found a recent request
-                if($this->recentReqRecord){
-                    $this->recentPanRecord = PreparerModel::where('request_id', $this->recentReqRecord->id)->first();
+                if($this->recentRequestCompleted){
+                    $this->recentPanCompleted = PreparerModel::where('request_id', $this->recentRequestCompleted->id)->first();
                     
                     // Only set the data if PAN record exists
-                    if($this->recentPanRecord){
-                        $this->recentPanRecordData = $this->recentPanRecord->action_reference_data;
+                    if($this->recentPanCompleted && $this->requestEntry->confidentiality){ 
+                        $this->recentPanCompletedData = $this->recentPanCompleted->action_reference_data;
+                        
+                        $this->date_hired = optional($this->recentPanCompleted->date_hired)->format('Y-m-d');
+                        $this->date_of_effectivity_from = optional($this->recentPanCompleted->doe_from)->format('Y-m-d');
+                        $this->date_of_effectivity_to = optional($this->recentPanCompleted->doe_to)->format('Y-m-d');
+
+                        // auto-fill fields (mass assign)
+                        $this->fill($this->recentPanCompleted->only([
+                            'employment_status',
+                            'division',
+                            'remarks',
+                            'wage_no'
+                        ]));  
                     }
                 }
 
-                // Get the most recent request for this employee (any status)
-                $this->latestRequest = RequestorModel::where('employee_id', $employee_id)
+                // Most recent overall (any status)
+                $this->newestRequest = RequestorModel::where('employee_id', $employee_id)
                     ->orderBy('created_at', 'desc')
                     ->first();
 
-                // Check if the current request is the latest
-                $this->isLatest = $this->recentReqRecord->id . '-' . $this->latestRequest->id;
+                // Oldest (if you still need it for your other logic)
+                $this->oldestRequest = RequestorModel::where('employee_id', $employee_id)
+                    ->orderBy('created_at', 'asc')
+                    ->first();
+
+                // Flags
+                $this->isRecentRequestCompleted = $this->latestCompletedRequest?->id === $requestID;
+
+                // Is there a newer request that is NOT completed (i.e. ongoing)?
+                $this->hasNewerOngoing = $this->newestRequest
+                    && $this->newestRequest->id !== $this->latestCompletedRequest?->id
+                    && !in_array($this->newestRequest->request_status, ['Approved', 'Filed', 'Served']);
+
+                // Final: allowed to update?
+                $this->canUpdate = $this->isRecentRequestCompleted && !$this->hasNewerOngoing;
+
+
+                // Logging for debugging
+                // Log::info("Viewing {$requestID} — recentCompleted: {$this->recentRequestCompleted?->id}, newest: {$this->newestRequest?->id}, oldest: {$this->oldestRequest?->id}");
+                // Log::info("RecentRequestCompleted (excluding current): " . ($this->recentRequestCompleted?->id ?? 'none'));
+                // Log::info("LatestCompletedRequest (including current): " . ($this->latestCompletedRequest?->id ?? 'none'));
+                // Log::info("NewestRequest: " . ($this->newestRequest?->id ?? 'none') . " ({$this->newestRequest?->request_status})");
+                // Log::info("isRecentRequestCompleted: " . ($this->isRecentRequestCompleted ? 'true' : 'false'));
+                // Log::info("hasNewerOngoing: " . ($this->hasNewerOngoing ? 'true' : 'false'));
+                // Log::info("canUpdate: " . ($this->canUpdate ? 'true' : 'false'));
             }
 
         }
@@ -132,6 +174,26 @@ class PreparerPan extends Component
         'division' => 'required|string',
         'remarks' => 'nullable|string',
     ];
+
+    private function generateRequestNo()
+    {
+        $farmName = Auth::user()->farm;
+
+        // map full farm names to 3-letter codes
+        $farmCodes = [
+            'BFC'          => 'BFC',
+            'BBGC'         => 'BBG',
+            'BROOKDALE'    => 'BRK',
+            'Hatchery Farm'=> 'HCF',
+            'PFC'          => 'PFC',
+            'RH'           => 'RHH',
+        ];
+
+        // use code if it exists, otherwise first 3 letters of the farm name
+        $farmCode = $farmCodes[$farmName] ?? strtoupper(substr($farmName, 0, 3));
+
+        return 'PAN-' . $farmCode . '-' . now()->year . '-' . rand(100, 999);
+    }
 
     // Add this method to receive allowances from Alpine.js
     public function updateAllowances($allowances){
@@ -332,9 +394,13 @@ class PreparerPan extends Component
     }
 
     public function updatePan(){
+
+        $employee = Employee::where('company_id', $this->requestEntry->employee_id)->first();
+
         $newRequest = RequestorModel::create([
-            'request_no' => $this->requestEntry->request_no,
+            'request_no' => $this->generateRequestNo(),
             'request_status' => 'For HR Prep',
+            'confidentiality' => $employee->position == 'Supervisor' ? 'manila' : null,
             'employee_id' => $this->requestEntry->employee_id,
             'employee_name' => $this->requestEntry->employee_name,
             'department' => $this->requestEntry->department,
@@ -350,8 +416,14 @@ class PreparerPan extends Component
         // Encrypt the new request ID
         $encryptedId = encrypt($newRequest->id);
 
-        // Redirect with query param
-        $this->redirect('/hrpreparer-view?requestID=' . $encryptedId);
+        if (
+            ($newRequest->confidentiality === 'manila' && Auth::user()->role === 'hrhead') ||
+            ((is_null($newRequest->confidentiality) || $newRequest->confidentiality === 'tarlac') && Auth::user()->role !== 'hrhead')
+        ) {
+            $this->redirect('/hrpreparer-view?requestID=' . $encryptedId);
+        } else {
+            $this->redirect('/hrpreparer');
+        }
 
         // Success notification
         $this->reloadNotif(

@@ -44,15 +44,12 @@ class HrpreparerTable extends Component
             'For HR Prep',
             'For Confirmation',
             'For Resolution',
+            'Approved',
+            'Served',
+            'Filed'
         ];
 
         $panRequests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.preparer') != true")
-            ->when(Auth::user()->role === 'hrhead', function ($query) {
-                $query->where('confidentiality', 'manila');
-            }, function ($query) {
-                $query->where('confidentiality', 'tarlac')
-                    ->orWhere('confidentiality', null);
-            })
             ->whereIn('request_status', $statuses)
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {

@@ -134,6 +134,12 @@ class RequestorForm extends Component
         return 'PAN-' . $farmCode . '-' . now()->year . '-' . rand(100, 999);
     }
 
+    protected function isSupervisor()
+    {
+        $employee = Employee::where('company_id', $this->employee_id)->first();
+        return $employee && $employee->position === 'Supervisor';
+    }
+
     // REQUESTOR
 
     public function saveDraft()
@@ -196,6 +202,7 @@ class RequestorForm extends Component
 
             $requestEntry = RequestorModel::find($this->requestID);
             $requestEntry->request_status = 'For Head Approval';
+            $requestEntry->confidentiality = $this->isSupervisor() ? 'manila' : 'tarlac';
             $requestEntry->current_handler = 'division head';
             $requestEntry->employee_name = $this->employee_name;
             $requestEntry->employee_id = $this->employee_id;
@@ -235,6 +242,7 @@ class RequestorForm extends Component
             RequestorModel::create([
                 'request_no'         => $this->generateRequestNo(),
                 'request_status'      => 'For Head Approval',
+                'confidentiality'     => $this->isSupervisor() ? 'manila' : 'tarlac',
                 'current_handler'     => 'division head',
                 'employee_id'         => $this->employee_id,
                 'employee_name'       => $this->employee_name,
@@ -266,6 +274,7 @@ class RequestorForm extends Component
             // Update common fields
             $requestEntry = RequestorModel::find($this->requestID);
             $requestEntry->request_status = 'For Head Approval';
+            $requestEntry->confidentiality =$this->isSupervisor() ? 'manila' : 'tarlac';
             $requestEntry->employee_name = $this->employee_name;
             $requestEntry->employee_id = $this->employee_id;
             $requestEntry->department = $this->department;

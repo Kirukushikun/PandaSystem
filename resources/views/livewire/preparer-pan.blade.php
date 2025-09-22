@@ -325,13 +325,13 @@
         </div>
 
         @if($module == 'hr_preparer' && $mode === 'create')
-            @if($recentReqRecord && !is_null($requestEntry->confidentiality))
+            @if($recentRequestCompleted && !is_null($requestEntry->confidentiality))
                 <div class="flex items-center mb-2 text-sm text-gray-600 ml-2">
                     <span class="flex items-center gap-2">
                         <i class="fa-solid fa-arrow-turn-up fa-rotate-90 text-blue-500"></i>
                         Pre-generated from: 
-                        <a href="/hrpreparer-view?requestID={{ encrypt($recentReqRecord->id) }}" class="font-mono font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md cursor-pointer hover:underline">
-                            {{$recentReqRecord->request_no}}
+                        <a href="/hrpreparer-view?requestID={{ encrypt($recentRequestCompleted->id) }}" class="font-mono font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md cursor-pointer hover:underline">
+                            {{$recentRequestCompleted->request_no}}
                         </a>
                     </span>
                 </div>
@@ -396,17 +396,21 @@
             </div>
             @elseif($requestEntry->request_status == 'Filed')
             <div class="form-buttons bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                @if(!$latestRequest || in_array($latestRequest->request_status, ['Approved', 'Filed', 'Served']))
-                    <!-- No record OR last request is Filed → allow update -->
+                @if($canUpdate)
+                    <!-- Allow update -->
                     <button type="button"
                         @click="modalTarget = 'updatepan'; showModal = true"
                         class="border border-3 border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700 px-4 py-2">
                         Update PAN
                     </button>
-                @else
-                    <!-- Last request is NOT Filed → ongoing, disable update -->
+                @elseif($isRecentRequestCompleted && $hasNewerOngoing)
+                    <!-- Ongoing request exists -->
                     <p class="absolute top-[40px] text-xs text-red-600 whitespace-nowrap">
-                        Cannot update — there’s an <a href="/hrpreparer-view?requestID={{ encrypt($latestRequest->id) }}" class="underline font-bold">ongoing</a> request for this employee.
+                        Cannot update — there’s an 
+                        <a href="/hrpreparer-view?requestID={{ encrypt($newestRequest->id) }}" class="underline font-bold">
+                            ongoing
+                        </a> 
+                        request for this employee.
                     </p>
                     <button type="button"
                         class="border border-3 border-gray-600 bg-gray-600 text-white px-4 py-2 cursor-not-allowed"
@@ -414,11 +418,6 @@
                         Update PAN
                     </button>
                 @endif
-                <!-- <button type="button"
-                    @click="modalTarget = 'updatepan'; showModal = true"
-                    class="border border-3 border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700 px-4 py-2">
-                    Update PAN
-                </button> -->
                 <button type="button" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2" onclick="window.location.href='/print-view?requestID={{ encrypt($requestID) }}'"><i class="fa-solid fa-print"></i> Print</button>
             </div>
             @endif
@@ -940,16 +939,16 @@
             // Get the data from Livewire - these variables come from your Blade template
             const confidentiality = @json($requestEntry->confidentiality ?? null);
             const status = @json($requestEntry->request_status);
-            const recentPanRecordData = @json($recentPanRecordData ?? null);
+            const recentPanCompletedData = @json($recentPanCompletedData ?? null);
             const referenceTableData = @json($referenceTableData ?? null);
             
             // Initialize the form
             window.panForm = new PANForm();
 
             if(confidentiality){
-                if(status == 'For HR Prep' && recentPanRecordData){
+                if(status == 'For HR Prep' && recentPanCompletedData){
                     // Create mode with recent PAN data - "to" values become "from" values
-                    window.panForm.loadFromRecentPANData(recentPanRecordData);            
+                    window.panForm.loadFromRecentPANData(recentPanCompletedData);            
                 } else if (referenceTableData) {
                     // Edit mode or create mode with reference data - use data as-is
                     window.panForm.loadFromLivewireData(referenceTableData);

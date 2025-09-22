@@ -47,7 +47,7 @@ class RequestorModel extends Model
 
     public function preparer()
     {
-        return $this->hasOne(PreparerModel::class, 'request_id', 'id');
+        return $this->hasOne(PreparerModel::class, 'request_id', 'id')->latestOfMany();
     }
 
 }
