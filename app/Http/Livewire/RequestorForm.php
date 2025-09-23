@@ -242,7 +242,6 @@ class RequestorForm extends Component
             RequestorModel::create([
                 'request_no'         => $this->generateRequestNo(),
                 'request_status'      => 'For Head Approval',
-                'confidentiality'     => $this->isSupervisor() ? 'manila' : 'tarlac',
                 'current_handler'     => 'division head',
                 'employee_id'         => $this->employee_id,
                 'employee_name'       => $this->employee_name,

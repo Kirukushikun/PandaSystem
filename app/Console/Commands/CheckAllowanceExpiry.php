@@ -8,6 +8,9 @@ use App\Models\Notification;
 use Carbon\Carbon;
 use DB;
 
+use App\Mail\AllowanceExpiryMail;
+use Illuminate\Support\Facades\Mail;
+
 class CheckAllowanceExpiry extends Command
 {
     protected $signature = 'allowance:check-expiry';
@@ -25,46 +28,68 @@ class CheckAllowanceExpiry extends Command
             ->with(['preparer' => function ($q) {
                 $q->where('has_allowances', true);
             }])
-->chunk(100, function ($requests) {
-    foreach ($requests as $request) {
-        $prep = $request->preparer; // hasOne -> single record
+        ->chunk(100, function ($requests) {
+            foreach ($requests as $request) {
+                $prep = $request->preparer; // hasOne -> single record
 
-        if (! $prep || ! $prep->doe_to) {
-            continue; // skip if no preparer or no expiry date
-        }
+                if (! $prep || ! $prep->doe_to) {
+                    continue; // skip if no preparer or no expiry date
+                }
 
-        $expiry = Carbon::parse($prep->doe_to);
-        $now = now();
-        $daysLeft = ceil(($expiry->timestamp - $now->timestamp) / 86400);
+                $expiry = Carbon::parse($prep->doe_to)->startOfDay();
+                $now = now()->startOfDay();
+                $daysLeft = $now->diffInDays($expiry, false);
 
-        $status = $daysLeft < 0 ? 'expired' : 'pending';
+                // Add this after calculating $daysLeft
+                $notificationWindow = 10; // Days before expiry to start notifying
+                $maxExpiredDays = 30; // Stop notifying after 30 days past expiry
 
-        $currentUrl = url()->current(); 
-        $baseUrl = str_contains($currentUrl, 'hrapprover')
-            ? "/hrapprover-view?requestID=" . encrypt($request->id)
-            : "/hrpreparer-view?requestID=" . encrypt($request->id);
+                // Only process if within notification window or already expired
+                if ($daysLeft > $notificationWindow || $daysLeft < -$maxExpiredDays) {
+                    continue; // Skip - too far in the future
+                }
 
-        $link = "<a class='text-blue-600 hover:underline font-medium' href='{$baseUrl}'>{$request->request_no}</a>";
+                $status = $daysLeft < 0 ? 'expired' : 'pending';
 
-        $message = $daysLeft < 0
-            ? "The allowance under {$link} has expired. Please update the employee’s record if a new PAN is required."
-            : ($daysLeft === 0
-                ? "The allowance under {$link} will expire today."
-                : "Allowance under {$link} will expire in <b>{$daysLeft} day</b>" . ($daysLeft > 1 ? 's' : '') . ". Please review and take necessary action.");
+                $currentUrl = url()->current(); 
+                $baseUrl = str_contains($currentUrl, 'hrapprover')
+                    ? "/hrapprover-view?requestID=" . encrypt($request->id)
+                    : "/hrpreparer-view?requestID=" . encrypt($request->id);
 
-        Notification::updateOrCreate(
-            ['pan_id' => $prep->id, 'type' => 'allowance_expiry'],
-            [   
-                'ref_no' => $request->request_no,
-                'message' => $message,
-                'days_left' => $daysLeft,
-                'status' => $status,
-                'is_read' => false,
-                'last_notified_at' => now(),
-            ]
-        );
-    }
-});
+                $link = "<a class='text-blue-600 hover:underline font-medium' href='{$baseUrl}'>{$request->request_no}</a>";
+
+                if ($daysLeft < 0) {
+                    // Expired
+                    $status = 'expired';
+                    $daysExpired = abs($daysLeft);
+                    $message = "The allowance under {$link} expired <b>{$daysExpired} day" . ($daysExpired > 1 ? 's' : '') . "</b> ago. Please update the employee's record if a new PAN is required.";
+                } elseif ($daysLeft == 0) {
+                    // Expires today
+                    $status = 'pending'; // Use existing status value
+                    $message = "The allowance under {$link} will expire <b>today</b>. Please review and take necessary action.";
+                } else {
+                    // Future expiry
+                    $status = 'pending';
+                    $message = "The allowance under {$link} will expire in <b>{$daysLeft} day" . ($daysLeft > 1 ? 's' : '') . "</b>. Please review and take necessary action.";
+                }
+
+
+                Notification::updateOrCreate(
+                    ['pan_id' => $prep->id, 'type' => 'allowance_expiry'],
+                    [   
+                        'ref_no' => $request->request_no,
+                        'message' => $message,
+                        'days_left' => $daysLeft,
+                        'status' => $status,
+                        'is_read' => false,
+                        'last_notified_at' => now(),
+                    ]
+                );
+
+                // Send email (example: send to HR or employee)
+                // Mail::to('i.guno@bfcgroup.org')->send(new AllowanceExpiryMail($message));
+            }
+        });
 
         $this->info('Allowance expiry notifications updated.');
     }

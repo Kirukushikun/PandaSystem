@@ -79,15 +79,21 @@
             },
 
             // helper to collect all fields
-            get fields(){
-                return [
+            get fields() {
+                const baseFields = [
                     this.$refs.employee_name,
                     this.$refs.employee_id,
                     this.$refs.department,
                     this.$refs.type_of_action,
-                    this.$refs.supporting_file,
                     this.$refs.justification,
                 ];
+
+                // add supporting file only if it exists
+                if (this.$refs.supporting_file) {
+                    baseFields.push(this.$refs.supporting_file);
+                }
+
+                return baseFields;
             },
 
             // Initialize their event listeners to a function
@@ -167,7 +173,7 @@
                 <input type="text" name="employee_id" id="employee_id" x-ref="employee_id" wire:model="employee_id" Readonly>
             </div>
             <div class="input-group">
-                <label for="department">Department:</label>
+                <label for="department">Division/Department:</label>
                 <select name="department" id="department" x-ref="department" x-ref="department" wire:model="department" {{$isDisabled ? 'Disabled' : ''}}>
                     <option value="">Select department</option>
                     <option value="FEEDMILL">FEEDMILL</option>
@@ -248,7 +254,8 @@
                                     class="block w-full text-sm text-gray-500 border border-1 
                                     {{ $errors->has('reup_supporting_file') ? 'border-red-600' : 'border-gray-600' }} 
                                     rounded-md cursor-pointer bg-gray-50 focus:outline-none"
-                                    wire:model="reup_supporting_file">
+                                    wire:model="reup_supporting_file"
+                                    >
 
                                 <small class="text-gray-500">Leave empty if you don't want to change the file.</small>                                
                             </div>

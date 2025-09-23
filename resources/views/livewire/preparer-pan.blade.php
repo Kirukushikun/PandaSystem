@@ -104,7 +104,7 @@
                 header: 'Update Employee’s PAN',
                 message: 'Are you sure you want to update this employee’s PAN? This action will create a new PAN request entry',
                 action: 'updatePan',
-                needsInput: false,
+                needsTrigger: true,
                 needsFormData: false
             }       
 
@@ -210,15 +210,18 @@
                 </select>
             </div>
             <div class="input-group">
-                <label for="division">Division:</label>
+                <label for="division">Division/Department:</label>
                 <select id="division" type="text" class="form-input" wire:model="division" x-ref="division" {{$isDisabled ? 'Disabled' : '' }}>
                     <option value=""></option>
-                    <option value="BFC">BFC</option>
-                    <option value="BBGC">BBGC</option>
-                    <option value="BROOKDALE">BROOKDALE</option>
-                    <option value="Hatchery Farm">Hatchery Farm</option>
-                    <option value="PFC">PFC</option>
-                    <option value="RH">RH</option>
+                    <option value="FEEDMILL">FEEDMILL</option>
+                    <option value="FOC">FOC</option>
+                    <option value="GENERAL SERVICES">GENERAL SERVICES</option>
+                    <option value="HR">HR</option>
+                    <option value="IT & SECURITY">IT & SECURITY</option>
+                    <option value="POULTRY">POULTRY</option>
+                    <option value="PURCHASING">PURCHASING</option>
+                    <option value="SALES & MARKETING">SALES & MARKETING</option>
+                    <option value="SWINE">SWINE</option>
                 </select>
                 
             </div>
@@ -495,10 +498,10 @@
                 <template x-if="modalConfig[modalTarget]?.needsInput">
                     <div class="flex flex-col gap-3 mb-5">
                         <div class="input-group">
-                            <label for="header">Dispute Subject :</label>
+                            <label for="header"><span class="text-red-600 font-bold">*</span> Dispute Subject :</label>
                             <!-- <input type="text" name="header" wire:model="header" required> -->
                             <select name="header" wire:model="header" required>
-                                <option value="">Select subject</option>
+                                <option value="">Select subject </option>
                                 <option value="Incorrect Salary/Allowance Adjustment">Incorrect Salary/Allowance Adjustment</option>
                                 <option value="Wrong Effectivity Date">Wrong Effectivity Date</option>
                                 <option value="Position/Job Level Mismatch">Position/Job Level Mismatch</option>
@@ -512,13 +515,35 @@
 
                         <!-- Show this input if "Other" is selected -->
                         <div class="input-group" x-show="$wire.header === 'Other'">
-                            <label>Custom Reason :</label>
+                            <label><span class="text-red-600 font-bold">*</span> Custom Reason :</label>
                             <input type="text" class="w-full" placeholder="Type your reason" wire:model="customHeader">
                         </div>
 
                         <div class="input-group">
-                            <label>Details :</label>
+                            <label><span class="text-red-600 font-bold">*</span> Details :</label>
                             <textarea class="w-full h-24 resize-none" wire:model="body" required></textarea>
+                        </div>
+                    </div>
+                </template>
+
+                <template x-if="modalConfig[modalTarget]?.needsTrigger">
+                    <div class="flex flex-col gap-3 mb-5 mt-[-10px]">
+                        <div class="input-group">
+                            <label><span class="text-red-600 font-bold">*</span> Type of action:</label>
+                            <select name="type_of_action" wire:model="type_of_action" required>
+                                <option value="">Select type of action</option>
+                                <option value="Regularization">Regularization</option>
+                                <option value="Salary Alignment">Salary Alignment</option>
+                                <option value="Wage Order">Wage Order</option>
+                                <option value="Lateral Transfer">Lateral Transfer</option>
+                                <option value="Developmental Assignment">Developmental Assignment</option>
+                                <option value="Interim Allowance">Interim Allowance</option>
+                                <option value="Promotion">Promotion</option>
+                                <option value="Training Status">Training Status</option>
+                                <option value="Confirmation of Appointment">Confirmation of Appointment</option>
+                                <option value="Discontinuance of Interim Allowance">Discontinuance of Allowance</option>
+                                <option value="Confirmation of Development Assignment">Confirmation of Dev. Assignment</option>
+                            </select>
                         </div>
                     </div>
                 </template>

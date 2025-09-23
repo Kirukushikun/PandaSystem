@@ -39,7 +39,7 @@ class PreparerPan extends Component
     public $recentRequestCompleted, $recentPanCompleted, $recentPanCompletedData;
 
     // for Update Pan
-    public $newestRequest, $oldestRequest, $isRecentRequestCompleted, $latestCompletedRequest, $hasNewerOngoing, $canUpdate;
+    public $newestRequest, $oldestRequest, $isRecentRequestCompleted, $latestCompletedRequest, $hasNewerOngoing, $canUpdate, $type_of_action;
 
     public function mount($module = null, $requestID = null){
         $this->module = $module;
@@ -394,43 +394,55 @@ class PreparerPan extends Component
     }
 
     public function updatePan(){
+        try{
+            $this->validate([
+                'type_of_action' => 'required|string',
+            ]);
 
-        $employee = Employee::where('company_id', $this->requestEntry->employee_id)->first();
+            $employee = Employee::where('company_id', $this->requestEntry->employee_id)->first();
 
-        $newRequest = RequestorModel::create([
-            'request_no' => $this->generateRequestNo(),
-            'request_status' => 'For HR Prep',
-            'confidentiality' => $employee->position == 'Supervisor' ? 'manila' : null,
-            'employee_id' => $this->requestEntry->employee_id,
-            'employee_name' => $this->requestEntry->employee_name,
-            'department' => $this->requestEntry->department,
-            'farm' => $this->requestEntry->farm,
-            'type_of_action' => $this->requestEntry->type_of_action,
-            'justification' => $this->requestEntry->justification ?? null,
-            'supporting_file_url' => $this->requestEntry->supporting_file_url,
-            'supporting_file_name' => $this->requestEntry->supporting_file_name,
-            'requested_by' => $this->requestEntry->requested_by,
-            'submitted_at' => $this->requestEntry->submitted_at,
-        ]);
+            $newRequest = RequestorModel::create([
+                'request_no' => $this->generateRequestNo(),
+                'request_status' => 'For HR Prep',
+                'employee_id' => $this->requestEntry->employee_id,
+                'employee_name' => $this->requestEntry->employee_name,
+                'department' => $this->requestEntry->department,
+                'farm' => $this->requestEntry->farm,
+                'type_of_action' => $this->type_of_action,
+                'justification' => $this->requestEntry->justification ?? null,
+                'supporting_file_url' => $this->requestEntry->supporting_file_url,
+                'supporting_file_name' => $this->requestEntry->supporting_file_name,
+                'requested_by' => $this->requestEntry->requested_by,
+                'submitted_at' => $this->requestEntry->submitted_at,
+            ]);
 
-        // Encrypt the new request ID
-        $encryptedId = encrypt($newRequest->id);
+            // Encrypt the new request ID
+            $encryptedId = encrypt($newRequest->id);
 
-        if (
-            ($newRequest->confidentiality === 'manila' && Auth::user()->role === 'hrhead') ||
-            ((is_null($newRequest->confidentiality) || $newRequest->confidentiality === 'tarlac') && Auth::user()->role !== 'hrhead')
-        ) {
-            $this->redirect('/hrpreparer-view?requestID=' . $encryptedId);
-        } else {
+            if (
+                ($newRequest->confidentiality === 'manila' && Auth::user()->role === 'hrhead') ||
+                ((is_null($newRequest->confidentiality) || $newRequest->confidentiality === 'tarlac') && Auth::user()->role !== 'hrhead')
+            ) {
+                $this->redirect('/hrpreparer-view?requestID=' . $encryptedId);
+            } else {
+                $this->redirect('/hrpreparer');
+            }
+
+            // Success notification
+            $this->reloadNotif(
+                'success',
+                'PAN Request Created',
+                'The PAN update request has been successfully created.'
+            );
+        }catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
             $this->redirect('/hrpreparer');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn’t proccess your request, please try again.');
         }
 
-        // Success notification
-        $this->reloadNotif(
-            'success',
-            'PAN Request Created',
-            'The PAN update request has been successfully created.'
-        );
     }
 
     // HR APPROVER
