@@ -1,6 +1,3 @@
-
-
-
 <div class="flex flex-col gap-5 h-full">
     <div class="table-header flex w-full gap-3 items-center">
         <h1 class="text-[22px] flex-none">User Access</h1>
@@ -204,9 +201,9 @@
                                     x-model="modalData.farm">
                                 <option value="">Select Farm</option>
                                 <option value="BFC">BFC</option>
-                                <option value="BBGC">BBGC</option>
-                                <option value="BROOKDALE">BROOKDALE</option>
-                                <option value="Hatchery Farm">Hatchery Farm</option>
+                                <option value="BBG">BBGC</option>
+                                <option value="BRD">BROOKDALE</option>
+                                <option value="HCF">Hatchery Farm</option>
                                 <option value="PFC">PFC</option>
                                 <option value="RH">RH</option>
                             </select>
@@ -241,8 +238,6 @@
 
             </div>
         </div>
-    </div>
-       
     </div>
 
 </div>

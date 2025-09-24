@@ -103,9 +103,9 @@
                         <select name="" id="" wire:model="employee_farm">
                             <option value="">Select Farm</option>
                             <option value="BFC">BFC</option>
-                            <option value="BBGC">BBGC</option>
-                            <option value="BROOKDALE">BROOKDALE</option>
-                            <option value="Hatchery Farm">Hatchery Farm</option>
+                            <option value="BBG">BBGC</option>
+                            <option value="BRD">BROOKDALE</option>
+                            <option value="HCF">Hatchery Farm</option>
                             <option value="PFC">PFC</option>
                             <option value="RH">RH</option>
                         </select>
@@ -144,9 +144,9 @@
                         <select name="" id="" x-model="form.farm">
                             <option value="">Select Farm</option>
                             <option value="BFC">BFC</option>
-                            <option value="BBGC">BBGC</option>
-                            <option value="BROOKDALE">BROOKDALE</option>
-                            <option value="Hatchery Farm">Hatchery Farm</option>
+                            <option value="BBG">BBGC</option>
+                            <option value="BRD">BROOKDALE</option>
+                            <option value="HCF">Hatchery Farm</option>
                             <option value="PFC">PFC</option>
                             <option value="RH">RH</option>
                         </select>

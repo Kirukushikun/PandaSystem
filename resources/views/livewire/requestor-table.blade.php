@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-5 h-full">
     <div class="table-header flex w-full gap-3 items-center">
         <h1 class="text-[22px] flex-none">My Requests</h1>
-        <x-search-sort-filter role="requestor" />
+        <x-search-sort-filter role="requestor"/>
     </div>
 
     <div class="table-container">
@@ -28,7 +28,7 @@
                             <x-statustag :status-text="$request->request_status" status-location="Table"/>
                         </td>
                         <!-- <td>{{$request->updated_at->format('m/d/Y - h:i A')}}</td> -->
-                         <td>{{$request->updated_at->format('m/d/Y')}}</td>
+                        <td>{{$request->updated_at->format('m/d/Y')}}</td>
                         <td class="table-actions">
                             <button class="bg-blue-600 text-white"
                                 onclick="window.location.href='/requestor-view?requestID={{ encrypt($request->id) }}'">

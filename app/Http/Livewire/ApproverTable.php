@@ -42,7 +42,9 @@ class ApproverTable extends Component
         $statuses = [
             'For Final Approval',
             'Approved',
-            'Rejected'
+            'Rejected',
+            'Served', 
+            'Filed'
         ];
 
         $approvalRequests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.approver') != true")

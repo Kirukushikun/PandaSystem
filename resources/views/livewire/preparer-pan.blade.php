@@ -61,10 +61,10 @@
             },
 
             rejecthr: {
-                header: 'Reject PAN',
-                message: 'Are you sure you want to reject this PAN? It will be returned to Requestor for correction.',
+                header: 'Return PAN',
+                message: 'Are you sure you want to reject this PAN? It will be returned to HR for correction.',
                 action: 'rejectHr',
-                needsInput: false,
+                needsInput: true,
                 needsFormData: false
             },
 
@@ -77,10 +77,10 @@
             },
 
             rejectfinal: {
-                header: 'Reject Final Approval',
+                header: 'Return PAN',
                 message: 'Are you sure you want to reject this PAN? It will be returned to Requestor for further review.',
                 action: 'rejectFinal',
-                needsInput: false,
+                needsInput: true,
                 needsFormData: false
             },
 
@@ -367,19 +367,25 @@
 
             <!-- HR Preparer Actions: -->
             @if($requestEntry->request_status == 'For HR Prep')
-            <div x-show="showAction" class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Submit for Confirmation</button>
-                @if(Auth::user()->role == 'hrhead')
-                    <button class="border border-3 border-purple-500 bg-purple-500 rounded-md cursor-pointer text-white hover:bg-purple-600 px-4 py-2" @click="modalTarget = 'contarlac'; showModal = true">
-                        Confidentiality – Tarlac
-                    </button>
+            
+                @if(!is_null($requestEntry->confidentiality) && $recentPanCompleted)
+                   <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                 @else 
-                    <button class="border border-3 border-red-500 bg-red-500 rounded-md cursor-pointer text-white hover:bg-red-600 px-4 py-2" @click="modalTarget = 'conmanila'; showModal = true">
-                        Confidentiality – Manila
-                    </button>
+                    <div x-show="showAction" class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                 @endif
-                <button type="button" @click="resetForm()" class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
-            </div>
+                
+                    <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Submit for Confirmation</button>
+                    @if(Auth::user()->role == 'hrhead')
+                        <button class="border border-3 border-purple-500 bg-purple-500 rounded-md cursor-pointer text-white hover:bg-purple-600 px-4 py-2" @click="modalTarget = 'contarlac'; showModal = true">
+                            Confidentiality – Tarlac
+                        </button>
+                    @else 
+                        <button class="border border-3 border-red-500 bg-red-500 rounded-md cursor-pointer text-white hover:bg-red-600 px-4 py-2" @click="modalTarget = 'conmanila'; showModal = true">
+                            Confidentiality – Manila
+                        </button>
+                    @endif
+                    <button type="button" @click="resetForm()" class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
+                </div>
             @endif
             
             @if($requestEntry->request_status == 'For Resolution')
@@ -445,19 +451,9 @@
             @if($requestEntry->request_status == 'For HR Approval')
             <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                 <button type="button" @click="modalTarget = 'approvehr'; showModal = true" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Approve Request</button>
-                <button type="button" @click="modalTarget = 'rejecthr'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-700 px-4 py-2">Reject Request</button>
+                <button type="button" @click="modalTarget = 'rejecthr'; showModal = true" class="border border-3 border-amber-600 bg-amber-600 text-white hover:bg-amber-700 px-4 py-2">Return Request</button>
             </div>
             @elseif($requestEntry->request_status == 'Approved')
-            <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                <button type="button" @click="modalTarget = 'servehr'; showModal = true" class="border border-3 border-lime-600 bg-lime-600 text-white hover:bg-lime-700 px-4 py-2">Mark as Served</button>
-                <button type="button" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2" onclick="window.location.href='/print-view?requestID={{ encrypt($requestID) }}'"><i class="fa-solid fa-print"></i> Print</button>
-            </div>
-            @elseif($requestEntry->request_status == 'Served')
-            <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                <button type="button" @click="modalTarget = 'filehr'; showModal = true" class="border border-3 border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700 px-4 py-2">Mark as Filed</button>
-                <button type="button" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2" onclick="window.location.href='/print-view?requestID={{ encrypt($requestID) }}'"><i class="fa-solid fa-print"></i> Print</button>
-            </div>
-            @elseif($requestEntry->request_status == 'Filed')
             <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                 <button type="button" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2" onclick="window.location.href='/print-view?requestID={{ encrypt($requestID) }}'"><i class="fa-solid fa-print"></i> Print</button>
             </div>
@@ -471,7 +467,7 @@
             @if($requestEntry->request_status == 'For Final Approval')
             <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                 <button type="button" @click="modalTarget = 'approvefinal'; showModal = true" class="border border-3 border-green-600 bg-green-600 text-white hover:bg-green-700 px-4 py-2">Approve Request</button>
-                <button type="button" @click="modalTarget = 'rejectfinal'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-700 px-4 py-2">Reject Request</button>
+                <button type="button" @click="modalTarget = 'rejectfinal'; showModal = true" class="border border-3 border-amber-600 bg-amber-600 text-white hover:bg-amber-700 px-4 py-2">Return Request</button>
             </div>
             @endif
         
@@ -498,7 +494,7 @@
                 <template x-if="modalConfig[modalTarget]?.needsInput">
                     <div class="flex flex-col gap-3 mb-5">
                         <div class="input-group">
-                            <label for="header"><span class="text-red-600 font-bold">*</span> Dispute Subject :</label>
+                            <label for="header"><span class="text-red-600 font-bold">*</span> {{$requestEntry->request_status == 'For Resolution' ? 'Dispute' : 'Return' }} Subject :</label>
                             <!-- <input type="text" name="header" wire:model="header" required> -->
                             <select name="header" wire:model="header" required>
                                 <option value="">Select subject </option>

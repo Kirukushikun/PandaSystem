@@ -116,20 +116,7 @@ class RequestorForm extends Component
 
     private function generateRequestNo()
     {
-        $farmName = Auth::user()->farm;
-
-        // map full farm names to 3-letter codes
-        $farmCodes = [
-            'BFC'          => 'BFC',
-            'BBGC'         => 'BBG',
-            'BROOKDALE'    => 'BRK',
-            'Hatchery Farm'=> 'HCF',
-            'PFC'          => 'PFC',
-            'RH'           => 'RHH',
-        ];
-
-        // use code if it exists, otherwise first 3 letters of the farm name
-        $farmCode = $farmCodes[$farmName] ?? strtoupper(substr($farmName, 0, 3));
+        $farmCode = Auth::user()->farm;
 
         return 'PAN-' . $farmCode . '-' . now()->year . '-' . rand(100, 999);
     }

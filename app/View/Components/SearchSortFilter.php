@@ -10,12 +10,14 @@ class SearchSortFilter extends Component
 {   
     public $role;
     public $options;
+    public $farmFilter;
     /**
      * Create a new component instance.
      */
-    public function __construct($role)
+    public function __construct($role, $farmFilter = false)
     {
         $this->role = $role;
+        $this->farmFilter = $farmFilter;
 
         $optionsByRole = [
             'requestor' => [

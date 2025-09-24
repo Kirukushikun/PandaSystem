@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-5 h-full">
     <div class="table-header flex w-full gap-3 items-center">
         <h1 class="text-[22px] flex-none">PAN Requests</h1>
-        <x-search-sort-filter role="hrpreparer"/>
+        <x-search-sort-filter role="hrpreparer" farmFilter="true"/>
     </div>
     <div class="table-container">
         <table>

@@ -26,7 +26,7 @@
                 @endphp
                 @foreach($logs as $log)
                     @php
-                        $statusText = $log->success == '0' ? 'success': 'failure';
+                        $statusText = $log->success == '1' ? 'success': 'failure';
                         $statusColor = $statuses[$statusText];
                     @endphp
                     <tr>

@@ -120,8 +120,6 @@ class PreparerPan extends Component
                         $this->recentPanCompletedData = $this->recentPanCompleted->action_reference_data;
                         
                         $this->date_hired = optional($this->recentPanCompleted->date_hired)->format('Y-m-d');
-                        $this->date_of_effectivity_from = optional($this->recentPanCompleted->doe_from)->format('Y-m-d');
-                        $this->date_of_effectivity_to = optional($this->recentPanCompleted->doe_to)->format('Y-m-d');
 
                         // auto-fill fields (mass assign)
                         $this->fill($this->recentPanCompleted->only([
@@ -177,20 +175,7 @@ class PreparerPan extends Component
 
     private function generateRequestNo()
     {
-        $farmName = Auth::user()->farm;
-
-        // map full farm names to 3-letter codes
-        $farmCodes = [
-            'BFC'          => 'BFC',
-            'BBGC'         => 'BBG',
-            'BROOKDALE'    => 'BRK',
-            'Hatchery Farm'=> 'HCF',
-            'PFC'          => 'PFC',
-            'RH'           => 'RHH',
-        ];
-
-        // use code if it exists, otherwise first 3 letters of the farm name
-        $farmCode = $farmCodes[$farmName] ?? strtoupper(substr($farmName, 0, 3));
+        $farmCode = Auth::user()->farm;
 
         return 'PAN-' . $farmCode . '-' . now()->year . '-' . rand(100, 999);
     }
@@ -527,13 +512,30 @@ class PreparerPan extends Component
 
     public function rejectHr(){
         try{
-            $this->requestEntry->request_status = 'Returned to Requestor';
+            $this->validate([
+                'header' => 'required|string',
+                'body' => 'nullable|string'
+            ]);
+
+            $this->requestEntry->request_status = 'For HR Prep';
             $this->requestEntry->save();
 
             Cache::forget("requestor_{$this->requestID}");
 
+            $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
+
+            LogModel::create([
+                'request_id' => $this->requestID,
+                'origin' => 'Returned by HR Approver',
+                'header' => 'Subject: ' . $reason,
+                'body' => 'Details: ' . $this->body,
+                'created_at' => Carbon::now(),
+            ]);
+
+            Cache::forget("log_{$this->requestID}");
+
             $this->redirect('/hrapprover');
-            $this->reloadNotif('success', 'PAN Rejected', 'The PAN form has been rejected and returned to Requestor for revision.');   
+            $this->reloadNotif('success', 'PAN Rejected', 'The PAN form has been rejected and returned to HR Preparer for revision.');   
         }catch (\Exception $e) {
             \Log::error('Processing failed: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
@@ -618,13 +620,30 @@ class PreparerPan extends Component
 
     public function rejectFinal(){
         try{
-            $this->requestEntry->request_status = 'Returned to Requestor';
+            $this->validate([
+                'header' => 'required|string',
+                'body' => 'nullable|string'
+            ]);
+
+            $this->requestEntry->request_status = 'For HR Prep';
             $this->requestEntry->save();
 
             Cache::forget("requestor_{$this->requestID}");
 
+            $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
+
+            LogModel::create([
+                'request_id' => $this->requestID,
+                'origin' => 'Returned by Final Approver',
+                'header' => 'Subject: ' . $reason,
+                'body' => 'Details: ' . $this->body,
+                'created_at' => Carbon::now(),
+            ]);
+
+            Cache::forget("log_{$this->requestID}");
+
             $this->redirect('/approver');
-            $this->reloadNotif('success', 'PAN Rejected', 'The PAN form has been rejected and returned to Requestor for revision.');            
+            $this->reloadNotif('success', 'PAN Rejected', 'The PAN form has been rejected and returned to HR Preparer for revision.');            
         }catch (\Exception $e) {
             \Log::error('Processing failed: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),

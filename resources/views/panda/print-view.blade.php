@@ -187,9 +187,18 @@
         <div class="inner-border px-3 py-5 flex flex-col items-center">
             
             <div class="print-header">
+                @php
+                    $fullFarmName = [
+                        'BFC' => 'BROOKSIDE FARMS CORPORATION',
+                        'BRD' => 'BROOKDALE FARMS CORPORATION'
+                        'BBG' => 'BROOKSIDE BREEDING & GENETICS CORPORATION'
+                        'PFC' => 'POULTRYPURE FARMS CORPORATION',
+                        'HCF' => 'HATCHERY FARM CORPORATION'
+                    ]
+                @endphp 
                 <img src="{{asset('images/BGC.png')}}" alt="">
                 <h3 class="font-courier">
-                    BROOKDALE FARMS CORPORATION <br>
+                    {{$fullFarmName[$requestForm->farm]}} <br>
                     Anupul, Bamban, Tarlac 
                 </h3>
                 <h1 class="font-courier">NOTICE OF PERSONNEL ACTION</h1> 
@@ -212,7 +221,14 @@
                 </tr>
                 <tr>
                     <td>Employment Status: {{$panForm->employment_status}}</td>
-                    <td>Date of Effectivity: {{$panForm->doe_from->format('m/d/Y')}} - {{$panForm->doe_to->format('m/d/Y')}}</td>
+                    <td>
+                        Date of Effectivity:
+                        @if($panForm->doe_from == $panForm->doe_to)
+                            {{$panForm->doe_from->format('m/d/Y')}}
+                        @else 
+                            {{$panForm->doe_from->format('m/d/Y')}} - {{$panForm->doe_to->format('m/d/Y')}}
+                        @endif
+                    </td>
                 </tr>
             </table>
 

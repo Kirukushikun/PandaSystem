@@ -15,6 +15,7 @@ class HrpreparerTable extends Component
 
     public $search = '';
     public $filterBy = '';
+    public $filterFarm = '';
 
     protected $paginationTheme = 'tailwind'; // or 'bootstrap' or omit
 
@@ -29,6 +30,11 @@ class HrpreparerTable extends Component
     }
 
     public function updatedFilterBy()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilterFarm()
     {
         $this->resetPage();
     }
@@ -58,9 +64,13 @@ class HrpreparerTable extends Component
                         ->orWhere('employee_id', 'like', '%' . $this->search . '%')
                         ->orWhere('employee_name', 'like', '%' . $this->search . '%')
                         ->orWhere('department', 'like', '%' . $this->search . '%')
+                        ->orWhere('farm', 'like', '%' . $this->search . '%')
                         ->orWhere('type_of_action', 'like', '%' . $this->search . '%')
                         ->orWhere('justification', 'like', '%' . $this->search . '%');
                 });
+            })
+            ->when($this->filterFarm, function ($query) {
+                $query->where('farm', $this->filterFarm);
             })
             ->when($this->filterBy, function ($query) {
                 $query->where('request_status', $this->filterBy);
