@@ -130,7 +130,12 @@ Route::get('/admin', function(){
 Route::get('/testing', function(){
 	$user = User::find(61); 
 	Auth::login($user);
-	return view('home');
+	if(Auth::user()->role == 'admin'){
+		return view('home');
+	}else{
+		return redirect('/logout');
+	}
+	
 });
 
 

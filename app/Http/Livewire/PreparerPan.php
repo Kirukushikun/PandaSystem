@@ -7,6 +7,8 @@ use App\Models\RequestorModel;
 use App\Models\PreparerModel;
 use App\Models\Employee;
 use App\Models\LogModel;
+use App\Models\Audit;
+
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -194,7 +196,10 @@ class PreparerPan extends Component
 
             Cache::forget("requestor_{$this->requestID}");
 
-            $this->redirect('/divisionhead');            
+            $this->redirect('/divisionhead');    
+            $this->reloadNotif('success', 'PAN Confirmed', 'The request has been confirmed and will procceed for HR Approval.');               
+            
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Head', 'Confirmed Request');
         }catch (\Exception $e) {
             \Log::error('Processing failed: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
@@ -230,6 +235,8 @@ class PreparerPan extends Component
             $requestEntry->save();
 
             Cache::forget("requestor_{$this->requestID}");
+
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Head', 'Raised a Dispute');
 
             $this->redirect('/divisionhead');
             $this->reloadNotif('success', 'Returned to Requestor', 'The request has been returned for correction. Please review the remarks provided.');            
@@ -302,6 +309,7 @@ class PreparerPan extends Component
                 Cache::forget("requestor_{$this->requestID}");
             }
 
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Prep', 'Created PAN');
 
             $this->redirect("/hrpreparer");
             $this->reloadNotif(
@@ -361,6 +369,8 @@ class PreparerPan extends Component
             Cache::forget("requestor_{$this->requestID}");
             Cache::forget("preparer_{$this->requestID}");
 
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Prep', 'Resubmitted PAN');
+
             $this->redirect("/hrpreparer");
             $this->reloadNotif(
                 'success',
@@ -404,6 +414,8 @@ class PreparerPan extends Component
             // Encrypt the new request ID
             $encryptedId = encrypt($newRequest->id);
 
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Prep', 'Updated PAN');
+
             if (
                 ($newRequest->confidentiality === 'manila' && Auth::user()->role === 'hrhead') ||
                 ((is_null($newRequest->confidentiality) || $newRequest->confidentiality === 'tarlac') && Auth::user()->role !== 'hrhead')
@@ -439,6 +451,8 @@ class PreparerPan extends Component
 
             Cache::forget("requestor_{$this->requestID}");
 
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Head', 'Approved Request');
+
             $this->redirect('/hrapprover');
             $this->reloadNotif('success', 'PAN Approved', 'The PAN form has been approved and forwarded to the Final Approver.');            
         }catch (\Exception $e) {
@@ -458,6 +472,8 @@ class PreparerPan extends Component
             $this->requestEntry->save();
 
             Cache::forget("requestor_{$this->requestID}");
+
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Prep', 'Served PAN');
 
             if($this->module === 'hr_preparer'){
                 $this->redirect('/hrpreparer');
@@ -487,6 +503,8 @@ class PreparerPan extends Component
             $this->requestEntry->save();
 
             Cache::forget("requestor_{$this->requestID}");
+
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Prep', 'Filed PAN');
 
             if($this->module === 'hr_preparer'){
                 $this->redirect('/hrpreparer');
@@ -534,6 +552,8 @@ class PreparerPan extends Component
 
             Cache::forget("log_{$this->requestID}");
 
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Approver', 'Returned PAN');
+
             $this->redirect('/hrapprover');
             $this->reloadNotif('success', 'PAN Rejected', 'The PAN form has been rejected and returned to HR Preparer for revision.');   
         }catch (\Exception $e) {
@@ -553,6 +573,8 @@ class PreparerPan extends Component
             $this->requestEntry->save();
 
             Cache::forget("requestor_{$this->requestID}");
+
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Prep', 'PAN Tagged as Manila');
             
             $this->reloadNotif('success', 'Confidentiality Updated', 'PAN request has been successfully tagged as confidential Manila'); 
             if(Auth::user()->role == 'hrhead'){
@@ -577,6 +599,7 @@ class PreparerPan extends Component
 
             Cache::forget("requestor_{$this->requestID}");
 
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Prep', 'PAN Tagged as Tarlac');
             $this->reloadNotif('success', 'Confidentiality Updated', 'PAN request has been successfully tagged as confidential Tarlac');   
             if(Auth::user()->role == 'hrhead'){
                 $this->redirect('/hrpreparer');
@@ -605,6 +628,8 @@ class PreparerPan extends Component
 
             Cache::forget("requestor_{$this->requestID}");
             Cache::forget("preparer_{$this->requestID}");
+
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'Final Approver', 'Approved PAN');
 
             $this->redirect('/approver');
             $this->reloadNotif('success', 'PAN Approved', 'The PAN has been fully approved and marked as complete.');            
@@ -642,6 +667,8 @@ class PreparerPan extends Component
 
             Cache::forget("log_{$this->requestID}");
 
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'Final Approver', 'Returned PAN');
+
             $this->redirect('/approver');
             $this->reloadNotif('success', 'PAN Rejected', 'The PAN form has been rejected and returned to HR Preparer for revision.');            
         }catch (\Exception $e) {
@@ -672,6 +699,15 @@ class PreparerPan extends Component
             'type' => $type,
             'header' => $header,
             'message' => $message
+        ]);
+    }
+
+    private function registerAudit($userID, $userName, $module, $action){
+        Audit::create([
+            'user_id' => $userID,
+            'name' => $userName,
+            'module' => $module,
+            'action' => $action
         ]);
     }
 }

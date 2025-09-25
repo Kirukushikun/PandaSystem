@@ -16,6 +16,7 @@ class Employee extends Model
         'full_name',
         'farm',
         'position',
+        'department',
         'hasOngoing'
     ];
 

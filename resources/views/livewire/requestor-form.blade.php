@@ -174,18 +174,7 @@
             </div>
             <div class="input-group">
                 <label for="department">Division/Department:</label>
-                <select name="department" id="department" x-ref="department" x-ref="department" wire:model="department" {{$isDisabled ? 'Disabled' : ''}}>
-                    <option value="">Select department</option>
-                    <option value="FEEDMILL">FEEDMILL</option>
-                    <option value="FOC">FOC</option>
-                    <option value="GENERAL SERVICES">GENERAL SERVICES</option>
-                    <option value="HR">HR</option>
-                    <option value="IT & SECURITY">IT & SECURITY</option>
-                    <option value="POULTRY">POULTRY</option>
-                    <option value="PURCHASING">PURCHASING</option>
-                    <option value="SALES & MARKETING">SALES & MARKETING</option>
-                    <option value="SWINE">SWINE</option>
-                </select>
+                <input name="department" id="department" x-ref="department" x-ref="department" wire:model="department" Readonly>
             </div>
             <div class="input-group">
                 <label for="type_of_action">Type of Action:</label>

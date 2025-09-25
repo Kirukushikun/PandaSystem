@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Models\RequestorModel;
 use App\Models\LogModel;
 use App\Models\Employee;
+use App\Models\Audit;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -79,10 +80,12 @@ class RequestorForm extends Component
 
             if ($employee) {
                 $this->employee_id = $employee->company_id;
+                $this->department = $employee->department;
             }
         } else {
             // Reset when no employee is selected
             $this->employee_id = null;
+            $this->department = null;
         }
     }
 
@@ -204,6 +207,8 @@ class RequestorForm extends Component
 
             Cache::forget("requestor_{$this->requestID}");
 
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'Requestor', 'Created Request');
+
             $this->redirect('/requestor');
             $this->reloadNotif('success', 'Request Submitted', 'Your request has been submitted for Division Head approval.');
         } catch (\Exception $e) {
@@ -241,6 +246,8 @@ class RequestorForm extends Component
                 'requested_by'        => Auth::user()->name,
                 'submitted_at'        => Carbon::now()
             ]);
+
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'Requestor', 'Created Request');
 
             $this->dispatch('requestSaved'); // Notify table
             $this->noreloadNotif('success', 'Request Submitted', 'Your request has been submitted for Division Head approval.');
@@ -296,6 +303,8 @@ class RequestorForm extends Component
 
             Cache::forget("requestor_{$this->requestID}");
 
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'Requestor', 'Resubmitted Request');
+
             $this->redirect('/requestor');
             $this->reloadNotif('success', 'Request Resubmitted', 'Your request has been successfully resubmitted for processing.');
         } catch (\Exception $e) {
@@ -316,6 +325,8 @@ class RequestorForm extends Component
             $requestEntry->save();
 
             Cache::forget("requestor_{$this->requestID}");
+
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'Requestor', 'Withdrawn Request');
 
             $this->redirect('/requestor');
             $this->reloadNotif('success', 'Request Withdrawn', 'The request has been withdrawn and will no longer be processed.');
@@ -339,6 +350,8 @@ class RequestorForm extends Component
 
             Cache::forget("requestor_{$this->requestID}");
 
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'Division Head', 'Approved Request');
+
             $this->redirect('/divisionhead');
             $this->reloadNotif('success', 'Request Approved', 'The request has been approved and forwarded to HR for preparation.');
             Log::info("Withdrawing {$this->requestID}");
@@ -359,6 +372,8 @@ class RequestorForm extends Component
             $requestEntry->save();
 
             Cache::forget("requestor_{$this->requestID}");
+
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'Division Head', 'Rejected Request');
 
             $this->redirect('/divisionhead');
             $this->reloadNotif('success', 'Request Rejected', 'The request has been rejected and recorded in the system.');
@@ -396,6 +411,8 @@ class RequestorForm extends Component
 
             Cache::forget("requestor_{$this->requestID}");
 
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'Division Head', 'Returned Request');
+
             $this->redirect('/divisionhead');
             $this->reloadNotif('success', 'Request Returned', 'The request has been returned to the requestor for correction.');
         } catch (\Exception $e) {
@@ -427,6 +444,8 @@ class RequestorForm extends Component
 
             Cache::forget("requestor_{$this->requestID}");
 
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Preparer', 'Returned Request');
+
             $this->redirect('/hrpreparer');
             $this->reloadNotif('success', 'Request Returned', 'The request has been returned to the requestor for correction.');
         } catch (\Exception $e) {
@@ -456,6 +475,15 @@ class RequestorForm extends Component
             'type' => $type,
             'header' => $header,
             'message' => $message
+        ]);
+    }
+
+    private function registerAudit($userID, $userName, $module, $action){
+        Audit::create([
+            'user_id' => $userID,
+            'name' => $userName,
+            'module' => $module,
+            'action' => $action
         ]);
     }
 }

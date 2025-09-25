@@ -19,14 +19,17 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>2</td>
-                    <td>Iverson Guno</td>
-                    <td>HR Preparer</td>
-                    <td>Created PAN</td>
-                    <td>09/24/2025</td>
-                    <td>4:21 PM</td>
-                </tr>
+                @foreach($audits as $audit)
+                    <tr>
+                        <td>{{$audit->user_id}}</td>
+                        <td>{{$audit->name}}</td>
+                        <td>{{$audit->module}}</td>
+                        <td>{{$audit->action}}</td>
+                        <td>{{$audit->created_at->format('m/d/Y')}}</td>
+                        <td>{{$audit->created_at->format('h:i A')}}</td>
+                    </tr>                
+                @endforeach
+
             </tbody>
         </table>
     </div>

@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             'company_id' => 1234,
             'full_name' => 'Chris P. Bacon',
             'farm' => 'BFC',
+            'department' => 'IT & Security',
             'position' => 'IT Tech Support',
         ]);
     }

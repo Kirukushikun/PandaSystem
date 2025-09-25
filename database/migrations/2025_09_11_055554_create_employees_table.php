@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('company_id');
             $table->string('full_name');
             $table->string('farm');
+            $table->string('department');
             $table->string('position');
             $table->boolean('hasOngoing')->default(false);
             $table->timestamps();
