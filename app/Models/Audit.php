@@ -9,6 +9,15 @@ class Audit extends Model
 {
     use HasFactory;
 
+    protected $table = 'audits';
+
+    protected $fillable = [
+        'user_id',
+        'name',
+        'module',
+        'action',
+    ];
+
     public function user()
     {
     	return $this->belongsto('App\Models\User');

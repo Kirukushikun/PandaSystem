@@ -1,0 +1,308 @@
+:root {
+    --text-color: #1C1C1C;
+    --body-color: #F1F2F6;
+    --container-color: white;
+    --primary-default-color: var(--color-blue-600);
+    --primary-pale-color: var(--color-blue-300);
+
+     /* Backgrounds */
+    /* Table Theme (blue-based) */
+    --table-bg: var(--color-gray-50);
+    --table-header-bg: var(--color-gray-100);
+    --table-cell-bg: #ffffff;
+    --table-hover-bg: var(--color-gray-50);
+    --table-border-color: var(--color-gray-200);
+    --table-text-color: var(--color-gray-900);
+    --table-header-text-color: var(--color-gray-600);
+
+    /* Scrollbar */
+    --scrollbar-track: var(--color-gray-50);
+    --scrollbar-thumb: var(--color-gray-300);
+}
+
+* {
+    font-family: "Lexend", sans-serif;
+    box-sizing: border-box;
+    /* color: var(--text-color); */
+    transition: 0.3s ease;
+}
+
+body {
+    height: 100vh;
+    background-color: var(--body-color);
+    padding: 40px 15%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+@media(max-width:1800px){
+    body{
+
+        padding: 40px 10%;
+
+    }
+}
+
+@media(max-width:1400px){
+    body{
+
+        padding: 40px 5%;
+
+    }
+}
+
+/* Header */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 30px;
+    background-color: var(--container-color);
+    border-radius: 10px;
+}
+.header h2 {
+    font-weight: 500;
+    font-size: 22px;
+}
+.header .logo {
+    width: 70px;
+}
+.header .exit-icon {
+    display: flex;
+    justify-content: end;
+    width: 100px;
+}
+
+/* Layout */
+.layout {
+    display: flex;
+    gap: 20px;
+    height: 100%; 
+    overflow-x: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    border-radius: 10px;
+    background: var(--container-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    min-width: 70px;
+    padding: 20px 0;
+    height: fit-content;
+}
+.sidebar a {
+    display: block;
+    width: 100%;
+    padding: 15px 0;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--primary-pale-color);
+    text-decoration: none;
+    position: relative;
+}
+.sidebar a.active i,
+.sidebar a.active p {
+    color: var(--primary-default-color);
+    transform: scale(1.1);
+}
+.sidebar a.active div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 7px;
+    height: 100%;
+    background: var(--primary-default-color);
+    border-radius: 0 5px 5px 0;
+}
+.sidebar a:hover i,
+.sidebar a:hover p {
+    color: var(--primary-default-color);
+    transform: scale(1.2);
+}
+
+
+/* Table Container */
+.table-container {
+    overflow-x: auto;
+    overflow-y: auto;
+    border-radius: 10px 10px 0 0;
+    border-bottom: solid 3px var(--table-border-color);
+    position: relative;
+}
+
+/* Custom Scrollbar */
+.table-container::-webkit-scrollbar {
+    height: 15px; 
+    width: 15px;
+}
+.table-container::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 5px;
+}
+.table-container::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Table Styles */
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    background-color: var(--table-bg);
+}
+
+/* Table Header */
+.table-container table th {
+    padding: 15px 25px;
+    font-weight: 500;
+    color: var(--table-header-text-color);
+    white-space: nowrap;
+     position: sticky;
+    top: 0;
+    background: var(--table-header-bg);
+    z-index: 2
+}
+
+/* Sticky First Column */
+thead th:first-child{
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    background: var(--table-header-bg);
+}
+thead th:last-child{
+     position: sticky;
+    top: 0;
+    right: 0;
+    z-index: 3;
+    background: var(--table-header-bg);
+}
+
+/* Sticky Last Column */
+tbody td:first-child {
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    background: var(--table-cell-bg);
+}
+
+tbody td:last-child {
+    position: sticky;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    background: var(--table-cell-bg);
+}
+
+/* Table Body Cells */
+.table-container table td {
+     white-space: nowrap;
+    padding: 15px 25px;
+    background-color: var(--table-cell-bg);
+    border-top: solid var(--table-border-color) 2px;
+    color: var(--table-text-color);
+}
+
+/* Hover Effect */
+.table-container table tr:hover td {
+    background: var(--table-hover-bg);
+}
+
+.table-container table .table-actions{
+     /* display: flex;
+     align-items: center; */
+     gap: 10px;
+} 
+
+.table-container table .status-tag{
+     padding: 7px 15px;
+     border-radius: 7px;
+     font-weight: 400;
+     width: fit-content;
+}
+
+.table-actions button{
+     padding: 7px 10px;
+     border-radius: 7px;
+     cursor: pointer;
+     margin: 0 5px;
+}
+.table-actions button:hover{
+     transform: scale(1.1);
+}
+
+.table-actions i{
+     font-size: 20px;
+     cursor: pointer;
+     margin: 0 5px;
+}.table-actions i:hover{
+     transform: scale(1.1);
+}
+
+
+/* Global Styling */
+.request-status{
+     padding: 7px 15px;
+     border-radius: 7px;
+     font-weight: 400;
+     width: fit-content;
+}
+.form-buttons button {
+     padding: 6px 15px;
+     border-radius: 7px;
+     cursor: pointer;
+     font-weight: 500;
+}
+
+/* Input Groups */
+.input-group{
+     display: flex;
+     flex-direction: column;
+     gap: 10px;
+}
+.input-group label{
+     font-size: 18px;
+     white-space: nowrap;
+}
+.input-group input, .input-group textarea, .input-group select{
+     border: 2px solid var(--color-gray-400);
+     border-radius: 7px;
+     padding: 7px 12px;
+     outline: none;
+}
+
+.input-group input.error, .input-group select.error{
+     border: 3px solid var(--color-red-400);
+}
+
+
+/* Table Group */
+.table-group table th{
+    padding: 10px;
+}
+.table-group table td{
+    padding: 2px 0;
+}
+
+.table-group table th:first-child{
+    border-right: solid 2px var(--color-gray-300);
+}
+.table-group table th:last-child{
+    border-left: solid 2px var(--color-gray-300);
+}
+
+.table-group table td:first-child{
+    border-right: solid 2px var(--color-gray-300);
+}
+.table-group table td:last-child{
+    border-left: solid 2px var(--color-gray-300);
+}

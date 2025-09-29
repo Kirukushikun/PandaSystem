@@ -15,8 +15,13 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('password')->nullable();
-            $table->string('role', 20)->nullable();
+            $table->string('name');
+            $table->boolean('hasPending')->default(false);
+            $table->string('position')->nullable();
+            $table->string('farm')->nullable();
+            $table->string('role')->nullable();
+            $table->json('access')->nullable(); 
+            $table->text('esign')->nullable();
             $table->timestamps();
         });
     }

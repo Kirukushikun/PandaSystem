@@ -21,8 +21,22 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'id',
-        'password',
-        'role'
+        'name',
+        'hasPending',
+        'farm',
+        'position',
+        'role',
+        'access',
+        'esign'
+    ];
+
+    protected $casts = [
+        'access' => 'array',
+        'hasPending' => 'boolean'
+    ];
+
+    protected $attributes = [
+        'access' => '{"RQ_Module":true,"DH_Module":true,"HRP_Module":true,"HRA_Module":true,"FA_Module":true}',
     ];
 
 

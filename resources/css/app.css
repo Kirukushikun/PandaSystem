@@ -1,5 +1,24 @@
 @import 'tailwindcss';
+@import '../../vendor/livewire/flux/dist/flux.css';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
+
+
+/* CSS-first theme variables (Tailwind v4) — defining a full primary scale */
+
+@layer base {
+  *{
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    color: #1C1C1C; /* Global text color */
+
+  }
+  flux\:input {
+    all: unset;
+    display: inline-block;
+  }
+}
