@@ -4,7 +4,7 @@
 <main class="h-screen flex flex-col items-center justify-center">
     <div class="min-w-md mx-auto bg-white p-10 rounded-md shadow">
         <div class="logo flex flex-col text-center items-center justify-center mb-8">
-            <img class="border-b-2 pb-3 mb-3" style="width: 190px;" src="{{asset('BGC-Logo.png')}}" alt="">
+            <img class="border-b-2 pb-3 mb-3" style="width: 190px;" src="{{asset('BGC-logo.png')}}" alt="">
             <!-- <div class="line h-[2px] bg-black"></div> -->
             <h1 class="font-bold text-lg">Personnel Action Notice <br> Document Automation</h1>
         </div>
