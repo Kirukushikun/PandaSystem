@@ -191,9 +191,8 @@
                     $fullFarmName = [
                         'BFC' => 'BROOKSIDE FARMS CORPORATION',
                         'BRD' => 'BROOKDALE FARMS CORPORATION'
-                        'BBG' => 'BROOKSIDE BREEDING & GENETICS CORPORATION'
                         'PFC' => 'POULTRYPURE FARMS CORPORATION',
-                        'HCF' => 'HATCHERY FARM CORPORATION'
+                        'RH' => 'RH FARMS'
                     ]
                 @endphp 
                 <img src="{{asset('images/BGC.png')}}" alt="">

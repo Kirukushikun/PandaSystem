@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PandaController;
 
 use App\Utilities\GenericUtilities as GU;
 use App\Services\GenericServices as GS;
@@ -117,15 +118,16 @@ Route::middleware('auth')->group(function() {
 	})->middleware('module.access:FA');
 
 
+	// ADMIN
+	Route::get('/admin', function(){
+		return view('admin.admin');
+	});
+
+	Route::get('/export', [PandaController::class, 'export']);
+	Route::post('/import', [PandaController::class, 'import']);
 });
 
-// ADMIN
-Route::get('/admin', function(){
-	// {"DH_Module": true, "FA_Module": true, "RQ_Module": true, "HRA_Module": true, "HRP_Module": true}
-	// $user = User::find(61); 
-	// Auth::login($user);
-	return view('admin.admin');
-});
+
 
 Route::get('/testing', function(){
 	$user = User::find(61); 
@@ -135,7 +137,6 @@ Route::get('/testing', function(){
 	}else{
 		return redirect('/logout');
 	}
-	
 });
 
 

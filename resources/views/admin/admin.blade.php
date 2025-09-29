@@ -14,10 +14,12 @@
           <!-- Sidebar -->
           <aside class="sidebar">
                <a href="#content-block-1"><div></div><i class="fa-solid fa-users"></i></a>
-               <a href="#content-block-2"><div></div><i class="fa-solid fa-clipboard-user"></i></a>
-               <a href="#content-block-3"><div></div><i class="fa-solid fa-users-gear"></i></a>
-               <a href="#content-block-4"><div></div><i class="fa-solid fa-user-pen"></i></a>
-               <a href=""><i class="fa-solid fa-cloud-arrow-up"></i></a>
+               @if(Auth::user()->role == 'admin')
+                    <a href="#content-block-2"><div></div><i class="fa-solid fa-clipboard-user"></i></a>
+                    <a href="#content-block-3"><div></div><i class="fa-solid fa-users-gear"></i></a>
+                    <a href="#content-block-4"><div></div><i class="fa-solid fa-user-pen"></i></a>
+                    <a href=""><i class="fa-solid fa-cloud-arrow-up"></i></a>
+               @endif
           </aside>
 
           <!-- Content Area -->
@@ -25,15 +27,17 @@
                <section class="content-block" id="content-block-1">
                     <livewire:employees-table />
                </section>
-               <section class="content-block" id="content-block-2">
-                    <livewire:accesslogs-table />
-               </section>
-               <section class="content-block" id="content-block-3">
-                    <livewire:useraccess-table />
-               </section>
-               <section class="content-block" id="content-block-4">
-                    <livewire:audittrail-table />
-               </section>
+               @if(Auth::user()->role == 'admin')
+                    <section class="content-block" id="content-block-2">
+                         <livewire:accesslogs-table />
+                    </section>
+                    <section class="content-block" id="content-block-3">
+                         <livewire:useraccess-table />
+                    </section>
+                    <section class="content-block" id="content-block-4">
+                         <livewire:audittrail-table />
+                    </section>
+               @endif
           </main>
      </div>
      

@@ -34,4 +34,6 @@
         </table>
     </div>
 
+    <x-pagination :paginator="$audits" />
+
 </div>
