@@ -3,7 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\RequestorModel; // assuming you have a Pan model
+use App\Models\RequestorModel;
+use App\Models\User;
 use App\Models\Notification;
 use Carbon\Carbon;
 use DB;
@@ -86,8 +87,10 @@ class CheckAllowanceExpiry extends Command
                     ]
                 );
 
+                // $receiver = User::where('farm', $request->farm)->first();
+
                 // Send email (example: send to HR or employee)
-                // Mail::to('i.guno@bfcgroup.org')->send(new AllowanceExpiryMail($message));
+                Mail::to('i.guno@bfcgroup.org')->send(new AllowanceExpiryMail($message));
             }
         });
 
