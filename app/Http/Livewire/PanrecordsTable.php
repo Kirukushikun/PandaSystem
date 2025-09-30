@@ -16,7 +16,6 @@ class PanrecordsTable extends Component
     public $module;
 
     public $search = '';
-    public $filterBy = '';
 
     protected $paginationTheme = 'tailwind'; // or 'bootstrap' or omit
 
@@ -36,15 +35,6 @@ class PanrecordsTable extends Component
         $this->resetPage();
     }
 
-    public function updatedFilterBy()
-    {
-        $this->resetPage();
-    }
-
-    public function updatedSort(){
-        $this->resetPage();
-    }
-
     public function render()
     {   
         $panRecords = Employee::when($this->search, function ($query) {
@@ -57,9 +47,6 @@ class PanrecordsTable extends Component
                         ->orWhere('type_of_action', 'like', '%' . $this->search . '%')
                         ->orWhere('justification', 'like', '%' . $this->search . '%');
                 });
-            })
-            ->when($this->filterBy, function ($query) {
-                $query->where('request_status', $this->filterBy);
             })
             ->latest('updated_at')
             ->paginate(8);

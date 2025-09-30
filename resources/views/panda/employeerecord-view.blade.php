@@ -59,13 +59,14 @@
                          <div class="text-gray-700">
                               <span class="font-semibold">ID:</span> {{$employee->company_id}} | 
                               <span class="font-semibold">Employee:</span> {{$employee->full_name}} | 
+                              <span class="font-semibold">Position:</span> {{$employee->position}} |
                               <span class="font-semibold">Farm:</span> {{$employee->farm}} |
-                              <span class="font-semibold">Position:</span> {{$employee->position}}
+                              <span class="font-semibold">Department:</span> {{$employee->department}}
                          </div>
                     </div>
 
                     <!-- PAN Record -->
-                    @foreach($requestRecords as $record)
+                    @forelse($requestRecords as $record)
                          <div class="bg-white shadow rounded-xl p-5 border border-gray-200 flex justify-between items-center">
                               <div>
                                    <h2 class="text-base font-bold text-gray-800">
@@ -89,7 +90,12 @@
                                    @endif
                               </div>
                          </div>
-                    @endforeach
+                    @empty
+                         <div class="empty-promt w-full h-full flex flex-col items-center justify-center rounded text-gray-400 select-none">
+                              <i class="fa-solid fa-box-open text-xl mb-1"></i>
+                              <p class="text-lg">This employee don't have a PAN record yet</p>
+                         </div>
+                    @endforelse
 
                </div>
           </main>
