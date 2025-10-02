@@ -9,6 +9,7 @@ class Notifications extends Component
 {
     public $notifications = [];
     public $unreadCount = 0;
+    public $perPage = 3; // start with 3
 
     protected $listeners = [
         'refreshNotifications' => 'loadNotifications',
@@ -19,10 +20,16 @@ class Notifications extends Component
         $this->loadNotifications();
     }
 
+    public function loadMore()
+    {
+        $this->perPage += 3;
+        $this->loadNotifications();
+    }
+
     public function loadNotifications()
     {
         $this->notifications = Notification::latest()
-            ->take(3)
+            ->take($this->perPage)
             ->get();
 
         $this->unreadCount = Notification::where('is_read', false)->count();
