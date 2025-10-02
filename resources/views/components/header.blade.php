@@ -5,7 +5,7 @@
         <h2 class="whitespace-nowrap">| Personnel Action Notice Document Automation</h2>
     </div>
     
-    <div x-data="{ open: false }" class="profile flex items-center gap-3">
+    <div x-data="{ open: false, admin: false}" class="profile flex items-center gap-3">
         <div class="details text-right text-sm">
             <div class="name" id="user-name">{{ Auth::user()->name }}</div>
             <div class="email" id="user-email"></div>
@@ -72,6 +72,62 @@
                 </ul>
             </div>
         </div>
+
+        @if(Auth::check() && !request()->is('print-view*'))
+            @if(Auth::user()->role == 'admin')
+                <div @mouseenter="admin = true" @mouseleave="admin = false" class="relative">
+                    <!-- <i class="fa-solid fa-door-open "></i> -->
+                    <i class="fa-solid fa-user-tie cursor-pointer hover:scale-110 text-[22px]"></i>
+
+                    <!-- Dropdown Menu -->
+                    <div x-show="admin" x-transition class="absolute left-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-40">
+                        <ul class="py-2">
+                            <li>
+                                    <div class="home-btn text-left px-4 py-2 userselect-none cursor-pointer text-gray-500 text-[17px] hover:text-gray-800 hover:scale-105  hover:bg-gray-100 transition-transform duration-200 {{ request()->is('requestor*') ? 'text-gray-800 scale-105 bg-gray-100' : '' }}" onclick="window.location.href='/requestor'" >
+                                        <i class="fa-solid fa-circle-right rotate-180"></i>
+                                        Requestor
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <div class="home-btn text-left px-4 py-2 userselect-none cursor-pointer text-gray-500 text-[17px] hover:text-gray-800 hover:scale-105  hover:bg-gray-100 transition-transform duration-200 {{ request()->is('divisionhead*') ? 'text-gray-800 scale-105 bg-gray-100' : '' }}" onclick="window.location.href='/divisionhead'" >
+                                        <i class="fa-solid fa-circle-right rotate-180"></i>
+                                        Division Head
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <div class="home-btn text-left px-4 py-2 userselect-none cursor-pointer text-gray-500 text-[17px] hover:text-gray-800 hover:scale-105  hover:bg-gray-100 transition-transform duration-200 {{ request()->is('hrpreparer*') ? 'text-gray-800 scale-105 bg-gray-100' : '' }}" onclick="window.location.href='/hrpreparer'" >
+                                        <i class="fa-solid fa-circle-right rotate-180"></i>
+                                        HR Preparer
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <div class="home-btn text-left px-4 py-2 userselect-none cursor-pointer text-gray-500 text-[17px] hover:text-gray-800 hover:scale-105  hover:bg-gray-100 transition-transform duration-200 {{ request()->is('hrapprover*') ? 'text-gray-800 scale-105 bg-gray-100' : '' }}" onclick="window.location.href='/hrapprover'" >
+                                        <i class="fa-solid fa-circle-right rotate-180"></i>
+                                        HR Approver
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <div class="home-btn text-left px-4 py-2 userselect-none cursor-pointer text-gray-500 text-[17px] hover:text-gray-800 hover:scale-105  hover:bg-gray-100 transition-transform duration-200 {{ request()->is('approver*') ? 'text-gray-800 scale-105 bg-gray-100' : '' }}" onclick="window.location.href='/approver'" >
+                                        <i class="fa-solid fa-circle-right rotate-180"></i>
+                                        Approver
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <div class="home-btn text-left px-4 py-2 userselect-none cursor-pointer text-gray-500 text-[17px] hover:text-gray-800 hover:scale-105  hover:bg-gray-100 transition-transform duration-200 {{ request()->is('admin*') ? 'text-gray-800 scale-105 bg-gray-100' : '' }}" onclick="window.location.href='/admin'" >
+                                        <i class="fa-solid fa-circle-right rotate-180"></i>
+                                        Admin
+                                    </div>
+                                </li>
+                        </ul>
+                    </div>
+                </div>   
+            @endif
+        @endif
 
     </div>
 </div>

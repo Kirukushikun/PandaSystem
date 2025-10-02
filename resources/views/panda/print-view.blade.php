@@ -190,10 +190,10 @@
                 @php
                     $fullFarmName = [
                         'BFC' => 'BROOKSIDE FARMS CORPORATION',
-                        'BRD' => 'BROOKDALE FARMS CORPORATION'
+                        'BRD' => 'BROOKDALE FARMS CORPORATION',
                         'PFC' => 'POULTRYPURE FARMS CORPORATION',
                         'RH' => 'RH FARMS'
-                    ]
+                    ];
                 @endphp 
                 <img src="{{asset('images/BGC.png')}}" alt="">
                 <h3 class="font-courier">

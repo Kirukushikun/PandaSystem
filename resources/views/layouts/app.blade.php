@@ -26,9 +26,10 @@
      
      <x-loader/>
 
-     @if(Auth::check() && !request()->is('print-view*'))
+     <!-- @if(Auth::check() && !request()->is('print-view*'))
           @if(Auth::user()->role == 'admin')
-               <div class="navigator absolute left-[20px] top-[40px] flex flex-col gap-2 bg-white p-5 rounded-md">
+               <div class="navigator absolute flex flex-col gap-2 bg-white p-5 rounded-md" style="bottom: 50px; left: 180px">
+                    <h1 class="text-center font-bold">Admin Panel</h1>
                     <div class="navigations flex flex-col gap-2">
                          <a href="/requestor"
                               class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('requestor*') ? 'bg-blue-700' : 'bg-blue-400' }}">
@@ -62,7 +63,7 @@
                     </div>
                </div>
           @endif
-     @endif
+     @endif -->
      
      <div x-data="{ show: false, type: '', header: '', message: '' }" 
           x-init="
