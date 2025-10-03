@@ -333,9 +333,10 @@
                     <span class="flex items-center gap-2">
                         <i class="fa-solid fa-arrow-turn-up fa-rotate-90 text-blue-500"></i>
                         Pre-generated from: 
-                        <a href="/hrpreparer-view?requestID={{ encrypt($recentRequestCompleted->id) }}" class="font-mono font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md cursor-pointer hover:underline">
-                            {{$recentRequestCompleted->request_no}}
+                        <a href="/hrpreparer-view?requestID={{ encrypt($recentRequestCompleted->id) }}" target="_blank" class="font-mono font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md cursor-pointer hover:underline">
+                            {{$recentRequestCompleted->request_no}}.
                         </a>
+                        <a href="/hrpreparer/employeerecord-view?requestID={{ encrypt($recentRequestCompleted->employee_id) }}" target="_blank" class="text-blue-600 underline font-semibold">See more</a>
                     </span>
                 </div>
             @endif
