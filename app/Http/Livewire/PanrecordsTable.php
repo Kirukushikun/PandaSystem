@@ -39,13 +39,11 @@ class PanrecordsTable extends Component
     {   
         $panRecords = Employee::when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('request_no', 'like', '%' . $this->search . '%')
-                        ->orWhere('request_status', 'like', '%' . $this->search . '%')
-                        ->orWhere('employee_id', 'like', '%' . $this->search . '%')
-                        ->orWhere('employee_name', 'like', '%' . $this->search . '%')
+                    $q  ->where('company_id', 'like', '%' . $this->search . '%')
+                        ->orWhere('full_name', 'like', '%' . $this->search . '%')
+                        ->orWhere('farm', 'like', '%' . $this->search . '%')
                         ->orWhere('department', 'like', '%' . $this->search . '%')
-                        ->orWhere('type_of_action', 'like', '%' . $this->search . '%')
-                        ->orWhere('justification', 'like', '%' . $this->search . '%');
+                        ->orWhere('position', 'like', '%' . $this->search . '%');
                 });
             })
             ->latest('updated_at')
