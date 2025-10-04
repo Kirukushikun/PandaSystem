@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use App\Models\RequestorModel;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Log;
 
 class ApproverTable extends Component
 {   
@@ -16,6 +17,8 @@ class ApproverTable extends Component
     public $filterBy = '';
 
     protected $paginationTheme = 'tailwind'; // or 'bootstrap' or omit
+
+    public array $selectedRequests = [];
 
     public function goToPage($page)
     {
@@ -35,7 +38,17 @@ class ApproverTable extends Component
     public function updatedSort(){
         $this->resetPage();
     }
+    
+    public function approveRequests()
+    {
+        Log::info($this->selectedRequests);
+    }
 
+    public function rejectRequests()
+    {
+        Log::info($this->selectedRequests);
+    }
+    
     public function render()
     {   
         // Statuses relevant/visible only to the module
@@ -68,4 +81,5 @@ class ApproverTable extends Component
 
         return view('livewire.approver-table', compact('approvalRequests'));
     }
+    
 }

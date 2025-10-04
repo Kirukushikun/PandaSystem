@@ -279,7 +279,7 @@ public function submitRequest(){
             'user_id' => Auth::id(),
             'trace' => $e->getTraceAsString()
         ]);
-        
+        $this->redirect('/requestor');
         $this->reloadNotif('failed', 'Something went wrong', 'We couldn\'t process your request, please try again.');
     }
 }
