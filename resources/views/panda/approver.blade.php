@@ -12,15 +12,18 @@
      <div class="layout">
           
           <!-- Sidebar -->
-          <!-- <aside class="sidebar">
+          <aside class="sidebar">
                <a href="#content-block-1"><div></div><i class="fa-solid fa-table"></i></a>
-               <a href="#content-block-2"><div></div><i class="fa-solid fa-file-invoice"></i></a>
-          </aside> -->
+               <a href="#content-block-2"><div></div><i class="fa-regular fa-address-book"></i></a>
+          </aside>
 
           <!-- Content Area -->
           <main class="content">
                <section class="content-block" id="content-block-1">
                     <livewire:approver-table />
+               </section>
+               <section class="content-block" id="content-block-2">
+                    <livewire:panrecords-table module="approver"/>
                </section>
           </main>
      </div>

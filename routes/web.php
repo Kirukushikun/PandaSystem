@@ -117,7 +117,12 @@ Route::middleware('auth')->group(function() {
 		return view('panda.approver-view', compact('requestID'));
 	})->middleware('module.access:FA');
 
-
+	Route::get('/approver/employeerecord-view', function(Request $request){
+		$requestID = decrypt($request->requestID);
+		$employee = Employee::where('company_id', $requestID)->first();
+		$requestRecords = RequestorModel::where('employee_id', $requestID)->whereIn('request_status', ['Approved', 'Served', 'Filed'])->latest()->get();
+		return view('panda.employeerecord-view', compact('employee', 'requestRecords'));
+	})->middleware('module.access:HRP');
 	// ADMIN
 	Route::get('/admin', function(){
 		return view('admin.admin');

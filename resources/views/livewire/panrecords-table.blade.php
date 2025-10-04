@@ -28,7 +28,13 @@
                         <td>{{$record->farm}}</td>
                         <td>{{$record->department}}</td>
                         <td class="table-actions">
-                            <button class="bg-blue-600 text-white" onclick="window.location.href='/{{$module == 'hrpreparer' ? 'hrpreparer' : 'hrapprover'}}/employeerecord-view?requestID={{ encrypt($record->company_id) }}'">View Records</button>
+                            @if($module == 'hrpreparer')
+                                <button class="bg-blue-600 text-white" onclick="window.location.href='/hrpreparer/employeerecord-view?requestID={{ encrypt($record->company_id) }}'">View Records</button>
+                            @elseif($module == 'hrapprover')
+                                <button class="bg-blue-600 text-white" onclick="window.location.href='/hrapprover/employeerecord-view?requestID={{ encrypt($record->company_id) }}'">View Records</button>
+                            @else
+                                <button class="bg-blue-600 text-white" onclick="window.location.href='/approver/employeerecord-view?requestID={{ encrypt($record->company_id) }}'">View Records</button>
+                            @endif
                         </td>
                     </tr>
                 @endforeach
