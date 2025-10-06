@@ -14,7 +14,7 @@
                 header: 'Reject Selected Requests',
                 message: 'Are you sure you want to reject these selected request? This action cannot be undone.',
                 action: 'rejectRequests',
-                needsInput: false
+                needsInput: true
             },
         },
     }"
@@ -22,12 +22,13 @@
     <div class="table-header flex w-full gap-3 items-center">
         <h1 class="text-[22px] flex-none">Approval Requests</h1>
         <x-search-sort-filter role="finalapprover"/>
-
-        <button type="button" x-show="!showActions" @click="showActions = true" class="border-solid border-3 border-gray-300 text-blue-600 px-4 py-2 rounded-md cursor-pointer font-bold hover:bg-blue-600 hover:border-blue-600 hover:text-white">Select</button>
+        @if(!$approvalRequests->isEmpty())
+            <button type="button" x-show="!showActions" @click="showActions = true" class="border-solid border-3 border-gray-300 text-blue-600 px-4 py-2 rounded-md cursor-pointer font-bold hover:bg-blue-600 hover:border-blue-600 hover:text-white">Select</button>
+        @endif
         <!-- Action buttons -->
         <div x-show="showActions" class="flex gap-2">
-            <button type="button" @click="modalTarget = 'approve'; showModal = true" class="border-solid border-3 border-green-600 bg-green-600 text-white px-4 py-2 rounded-md cursor-pointer font-bold hover:bg-green-700 hover:border-green-700">Approve</button>
-            <button type="button" @click="modalTarget = 'reject'; showModal = true" class="border-solid border-3 border-red-600 bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer font-bold hover:bg-red-700 hover:border-red-700">Reject</button>
+            <button type="button" @click="modalTarget = 'approve'; showModal = true" @disabled($selectedRequests == []) class="border-solid border-3 text-white px-4 py-2 rounded-md cursor-pointer font-bold {{ $selectedRequests == [] ? 'border-gray-400 bg-gray-400' : 'border-green-600 bg-green-600 hover:bg-green-700 hover:border-green-700'}}">Approve</button>
+            <button type="button" @click="modalTarget = 'reject'; showModal = true" @disabled($selectedRequests == []) class="border-solid border-3 text-white px-4 py-2 rounded-md cursor-pointer font-bold {{ $selectedRequests == [] ? 'border-gray-400 bg-gray-400' : 'border-red-600 bg-red-600 hover:bg-red-700 hover:border-red-700'}}">Reject</button>
             <button type="button" @click="showActions = false" class="border-solid border-3 border-gray-300 text-blue-600 px-4 py-2 rounded-md cursor-pointer font-bold hover:bg-blue-600 hover:border-blue-600 hover:text-white">Cancel</button>
         </div>
     </div>
@@ -60,7 +61,7 @@
                                         x-show="showActions" 
                                         type="checkbox" 
                                         value="{{ $request->id }}" 
-                                        wire:model.defer="selectedRequests"
+                                        wire:model.live="selectedRequests"
                                         class="mr-2 border-2 cursor-pointer"
                                     />
                                 @else
@@ -107,6 +108,34 @@
         <div class="bg-white p-6 rounded-lg shadow-lg w-md z-10">
             <h2 class="text-xl font-semibold mb-4" x-text="modalConfig[modalTarget]?.header"></h2>
             <p class="mb-6" x-show="!modalConfig[modalTarget]?.needsInput" x-text="modalConfig[modalTarget]?.message"></p>
+
+            <!-- For input type -->
+            <template x-if="modalConfig[modalTarget]?.needsInput">
+                <div class="flex flex-col gap-3 mb-5">
+                    <div class="input-group">
+                        <label for="header">Reject Reason :</label>
+                        <select name="header" wire:model="header" required>
+                            <option value="">Select reason</option>
+                            <option value="Incomplete Employee Details">Incomplete Employee Details</option>
+                            <option value="Missing Supporting Documents">Missing Supporting Documents</option>
+                            <option value="Incorrect Type of Action">Incorrect Type of Action</option>
+                            <option value="Unclear or Insufficient Justification">Unclear or Insufficient Justification</option>
+                            <option value="Other">Other (Please Specify)</option>
+                        </select>
+                    </div>
+
+                    <!-- Show this input if "Other" is selected -->
+                    <div class="input-group" x-show="$wire.header === 'Other'">
+                        <label>Custom Reason :</label>
+                        <input type="text" class="w-full" placeholder="Type your reason" wire:model="customHeader">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Details :</label>
+                        <textarea class="w-full h-24 resize-none" placeholder="(Optional)" wire:model="body"></textarea>
+                    </div>
+                </div>
+            </template>
 
             <div class="flex justify-end gap-3">
                 <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>

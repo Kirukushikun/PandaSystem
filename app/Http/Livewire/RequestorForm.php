@@ -221,68 +221,68 @@ class RequestorForm extends Component
         }
     }
 
-public function submitRequest(){
-    try {
-        $this->validate();
+    public function submitRequest(){
+        try {
+            $this->validate();
 
-        // Initialize local variables for file storage
-        $filePath = null;
-        $fileName = null;
+            // Initialize local variables for file storage
+            $filePath = null;
+            $fileName = null;
 
-        // Handle file upload if present
-        if($this->supporting_file){
-            try {
-                // Store file in storage/app/public/supporting_files
-                $filePath = $this->supporting_file->store('supporting_files', 'public');
-                $fileName = $this->supporting_file->getClientOriginalName();
-                
-                // Log successful upload for debugging
-                \Log::info('File uploaded successfully', [
-                    'path' => $filePath,
-                    'original_name' => $fileName,
-                    'user_id' => Auth::id()
-                ]);
-            } catch (\Exception $e) {
-                \Log::error('File upload failed: ' . $e->getMessage(), [
-                    'user_id' => Auth::id(),
-                ]);
-                throw new \Exception('File upload failed. Please try again.');
+            // Handle file upload if present
+            if($this->supporting_file){
+                try {
+                    // Store file in storage/app/public/supporting_files
+                    $filePath = $this->supporting_file->store('supporting_files', 'public');
+                    $fileName = $this->supporting_file->getClientOriginalName();
+                    
+                    // Log successful upload for debugging
+                    \Log::info('File uploaded successfully', [
+                        'path' => $filePath,
+                        'original_name' => $fileName,
+                        'user_id' => Auth::id()
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::error('File upload failed: ' . $e->getMessage(), [
+                        'user_id' => Auth::id(),
+                    ]);
+                    throw new \Exception('File upload failed. Please try again.');
+                }
             }
+
+            // Create the request record
+            RequestorModel::create([
+                'request_no'          => $this->generateRequestNo(),
+                'request_status'      => 'For Head Approval',
+                'current_handler'     => 'division head',
+                'employee_id'         => $this->employee_id,
+                'employee_name'       => $this->employee_name,
+                'department'          => $this->department,
+                'farm'                => Auth::user()->farm,
+                'type_of_action'      => $this->type_of_action,
+                'justification'       => $this->justification ?? null,
+                'supporting_file_url' => $filePath,
+                'supporting_file_name' => $fileName,
+                'requested_by'        => Auth::user()->name,
+                'submitted_at'        => Carbon::now()
+            ]);
+
+            // Register audit trail
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'Requestor', 'Created Request');
+
+            // Notify and redirect
+            $this->dispatch('requestSaved'); // Notify table
+            $this->noreloadNotif('success', 'Request Submitted', 'Your request has been submitted for Division Head approval.');
+            
+        } catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            $this->redirect('/requestor');
+            $this->reloadNotif('failed', 'Something went wrong', 'We couldn\'t process your request, please try again.');
         }
-
-        // Create the request record
-        RequestorModel::create([
-            'request_no'          => $this->generateRequestNo(),
-            'request_status'      => 'For Head Approval',
-            'current_handler'     => 'division head',
-            'employee_id'         => $this->employee_id,
-            'employee_name'       => $this->employee_name,
-            'department'          => $this->department,
-            'farm'                => Auth::user()->farm,
-            'type_of_action'      => $this->type_of_action,
-            'justification'       => $this->justification ?? null,
-            'supporting_file_url' => $filePath,
-            'supporting_file_name' => $fileName,
-            'requested_by'        => Auth::user()->name,
-            'submitted_at'        => Carbon::now()
-        ]);
-
-        // Register audit trail
-        $this->registerAudit(Auth::user()->id, Auth::user()->name, 'Requestor', 'Created Request');
-
-        // Notify and redirect
-        $this->dispatch('requestSaved'); // Notify table
-        $this->noreloadNotif('success', 'Request Submitted', 'Your request has been submitted for Division Head approval.');
-        
-    } catch (\Exception $e) {
-        \Log::error('Processing failed: ' . $e->getMessage(), [
-            'user_id' => Auth::id(),
-            'trace' => $e->getTraceAsString()
-        ]);
-        $this->redirect('/requestor');
-        $this->reloadNotif('failed', 'Something went wrong', 'We couldn\'t process your request, please try again.');
     }
-}
 
     public function resubmitRequest(){   
         try {

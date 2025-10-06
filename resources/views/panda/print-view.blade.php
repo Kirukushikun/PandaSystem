@@ -101,6 +101,19 @@
             font-weight: 500;
         }
 
+        .page-1 {
+            display: none;
+        }
+
+        .page-2 {
+            display: none;
+        }
+
+        .copy{
+            opacity: 0;
+            right: 30px;
+        }
+
         @media print {
             .print-action{
                 display: none !important;
@@ -162,12 +175,27 @@
                 top: -10px;
                 width: 90px;
             }
+
+            .page{
+                page-break-after: always;
+            }
+
+            .page-1{
+                display: block !important;
+            }
+            .page-2{
+                display: block !important;
+            }
+
+            .copy{
+                opacity: 1;
+            }
         }
     </style>
 @endpush
 
 @section('content')
-    <div class="outer-border p-[3px] relative">
+    <div class="page outer-border p-[3px] relative">
         <div class="print-action absolute right-[-190px] top-[-35px] w-32 bg-white text-black shadow-lg">
             <ul class="py-2">
                 <li>
@@ -185,7 +213,290 @@
             </ul>
         </div>
         <div class="inner-border px-3 py-5 flex flex-col items-center">
+
+            <div class="copy absolute text-lg font-bold text-gray-400 tracking-widest">
+                <p>EMPLOYEE COPY</p>
+            </div>
             
+            <div class="print-header">
+                @php
+                    $fullFarmName = [
+                        'BFC' => 'BROOKSIDE FARMS CORPORATION',
+                        'BRD' => 'BROOKDALE FARMS CORPORATION',
+                        'PFC' => 'POULTRYPURE FARMS CORPORATION',
+                        'RH' => 'RH FARMS'
+                    ];
+                @endphp 
+                <img src="{{asset('images/BGC.png')}}" alt="">
+                <h3 class="font-courier">
+                    {{$fullFarmName[$requestForm->farm]}} <br>
+                    Anupul, Bamban, Tarlac 
+                </h3>
+                <h1 class="font-courier">NOTICE OF PERSONNEL ACTION</h1> 
+                @if($requestForm->type_of_action == 'Wage Order')
+                    <h2 class="font-courier text-[#70ad47]">WAGE ORDER NO. {{$panForm->wage_no}}</h2>      
+                @else 
+                    <h2 class="font-courier text-[#70ad47]">{{$requestForm->type_of_action}}</h2>      
+                @endif           
+            </div>
+
+
+            <table>
+                <tr>
+                    <td>Name: {{$requestForm->employee_name}}</td>
+                    <td>Employee No: {{$requestForm->employee_id}}</td>
+                </tr>
+                <tr>
+                    <td>Date Hired: {{$panForm->date_hired->format('m/d/Y')}}</td>
+                    <td>Division: {{$panForm->division}}</td>
+                </tr>
+                <tr>
+                    <td>Employment Status: {{$panForm->employment_status}}</td>
+                    <td>
+                        Date of Effectivity:
+                        @if($panForm->doe_from == $panForm->doe_to)
+                            {{$panForm->doe_from->format('m/d/Y')}}
+                        @else 
+                            {{$panForm->doe_from->format('m/d/Y')}} - {{$panForm->doe_to->format('m/d/Y')}}
+                        @endif
+                    </td>
+                </tr>
+            </table>
+
+
+            <table class="text-center">
+                <tr>
+                    <td class="!bg-[#e2efd9]">FROM</td>
+                    <td class="!bg-[#e2efd9]">ACTION REFERENCE</td>
+                    <td class="!bg-[#e2efd9]">TO</td>
+                </tr>
+                @foreach($panForm->action_reference_data as $item)
+                    @php
+                        $labels = [
+                            'place'    => 'Place of Assignment',
+                            'head'     => 'Immediate Head',
+                            'joblevel' => 'Job Level',
+                        ];
+                    @endphp
+
+                    <tr>
+                        <td>{{$item['from']}}</td>
+                        <td class="!bg-[#e2efd9] capitalize">{{ $labels[$item['field']] ?? $item['field'] }}</td>
+                        <td>{{$item['to']}}</td>
+                    </tr>
+
+                @endforeach
+            </table>
+
+
+            <table class="text-center">
+                <tr>
+                    <td class="!bg-[#e2efd9]">REMARKS AND OTHER CONSIDERATION</td>
+                </tr>
+                <tr>
+                    <td>
+                        <input class="w-full outline-non border-none focus:ring-0 text-center" type="text" value="{{$panForm->remarks ?? 'No Remarks'}}">
+                    </td>
+                </tr>
+            </table>
+
+
+            <table class="text-center">
+                <tr>
+                    <td class="!bg-[#e2efd9]">CONFIRMATION OF APPOINTMENT</td>
+                </tr>
+                <tr>
+                    <td class="flex items-center justify-around ">
+                        <div class="confirmation-field">(SIGNATURE OVER PRINTED NAME)</div>
+                        <div class="confirmation-field">(DATE RECIEVE)</div>
+                    </td>
+                </tr>
+            </table>
+
+
+            <div class="grid grid-cols-3 w-full px-6">
+                <div class="signatories">
+                    <label>Prepared By:</label>
+                    <div>
+                        <img src="{{asset('images/DummySignature.png')}}" alt="">
+                        <p>{{$panForm->prepared_by}}</p>
+                        <p>Head, Human Resources</p>
+                    </div>
+                </div>
+                <div class="signatories">
+                    <label>Recommended By:</label>
+                    <div>
+                        <img src="{{asset('images/DummySignature.png')}}" alt="">
+                        <p>{{$requestForm->requested_by}}</p>
+                        <p>Poultry Division Head</p>
+                    </div>
+                </div>
+                <div class="signatories">
+                    <label>Approved By:</label>
+                    <div>
+                        <img src="{{asset('images/DummySignature.png')}}" alt="">
+                        <p>Atty. {{$panForm->approved_by}}</p>
+                        <p>Vice President</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <span>
+                “Disclosing these confidential records to unauthorized personnel is punishable with Termination under Code of Discipline Section IV
+                No. 4.15 Betrayal of company’s trust and confidence Unauthorized disclosure of restricted company information such as but not limited to
+                development plans, budgets, details of finances and marketing strategies, test questionnaires and records, voluntarily and willingly to outsiders,
+                competitors and/or those who are not authorized to possess such information.”
+            </span>
+
+        </div>
+    </div>
+
+    <div class="page page-1 outer-border p-[3px] relative">
+        <div class="inner-border px-3 py-5 flex flex-col items-center">
+            <div class="copy absolute text-lg font-bold text-gray-400 tracking-widest">
+                <p>FOR 201 FILING</p>
+            </div>
+
+            <div class="print-header">
+                @php
+                    $fullFarmName = [
+                        'BFC' => 'BROOKSIDE FARMS CORPORATION',
+                        'BRD' => 'BROOKDALE FARMS CORPORATION',
+                        'PFC' => 'POULTRYPURE FARMS CORPORATION',
+                        'RH' => 'RH FARMS'
+                    ];
+                @endphp 
+                <img src="{{asset('images/BGC.png')}}" alt="">
+                <h3 class="font-courier">
+                    {{$fullFarmName[$requestForm->farm]}} <br>
+                    Anupul, Bamban, Tarlac 
+                </h3>
+                <h1 class="font-courier">NOTICE OF PERSONNEL ACTION</h1> 
+                @if($requestForm->type_of_action == 'Wage Order')
+                    <h2 class="font-courier text-[#70ad47]">WAGE ORDER NO. {{$panForm->wage_no}}</h2>      
+                @else 
+                    <h2 class="font-courier text-[#70ad47]">{{$requestForm->type_of_action}}</h2>      
+                @endif           
+            </div>
+
+
+            <table>
+                <tr>
+                    <td>Name: {{$requestForm->employee_name}}</td>
+                    <td>Employee No: {{$requestForm->employee_id}}</td>
+                </tr>
+                <tr>
+                    <td>Date Hired: {{$panForm->date_hired->format('m/d/Y')}}</td>
+                    <td>Division: {{$panForm->division}}</td>
+                </tr>
+                <tr>
+                    <td>Employment Status: {{$panForm->employment_status}}</td>
+                    <td>
+                        Date of Effectivity:
+                        @if($panForm->doe_from == $panForm->doe_to)
+                            {{$panForm->doe_from->format('m/d/Y')}}
+                        @else 
+                            {{$panForm->doe_from->format('m/d/Y')}} - {{$panForm->doe_to->format('m/d/Y')}}
+                        @endif
+                    </td>
+                </tr>
+            </table>
+
+
+            <table class="text-center">
+                <tr>
+                    <td class="!bg-[#e2efd9]">FROM</td>
+                    <td class="!bg-[#e2efd9]">ACTION REFERENCE</td>
+                    <td class="!bg-[#e2efd9]">TO</td>
+                </tr>
+                @foreach($panForm->action_reference_data as $item)
+                    @php
+                        $labels = [
+                            'place'    => 'Place of Assignment',
+                            'head'     => 'Immediate Head',
+                            'joblevel' => 'Job Level',
+                        ];
+                    @endphp
+
+                    <tr>
+                        <td>{{$item['from']}}</td>
+                        <td class="!bg-[#e2efd9] capitalize">{{ $labels[$item['field']] ?? $item['field'] }}</td>
+                        <td>{{$item['to']}}</td>
+                    </tr>
+
+                @endforeach
+            </table>
+
+
+            <table class="text-center">
+                <tr>
+                    <td class="!bg-[#e2efd9]">REMARKS AND OTHER CONSIDERATION</td>
+                </tr>
+                <tr>
+                    <td>
+                        <input class="w-full outline-non border-none focus:ring-0 text-center" type="text" value="{{$panForm->remarks ?? 'No Remarks'}}">
+                    </td>
+                </tr>
+            </table>
+
+
+            <table class="text-center">
+                <tr>
+                    <td class="!bg-[#e2efd9]">CONFIRMATION OF APPOINTMENT</td>
+                </tr>
+                <tr>
+                    <td class="flex items-center justify-around ">
+                        <div class="confirmation-field">(SIGNATURE OVER PRINTED NAME)</div>
+                        <div class="confirmation-field">(DATE RECIEVE)</div>
+                    </td>
+                </tr>
+            </table>
+
+
+            <div class="grid grid-cols-3 w-full px-6">
+                <div class="signatories">
+                    <label>Prepared By:</label>
+                    <div>
+                        <img src="{{asset('images/DummySignature.png')}}" alt="">
+                        <p>{{$panForm->prepared_by}}</p>
+                        <p>Head, Human Resources</p>
+                    </div>
+                </div>
+                <div class="signatories">
+                    <label>Recommended By:</label>
+                    <div>
+                        <img src="{{asset('images/DummySignature.png')}}" alt="">
+                        <p>{{$requestForm->requested_by}}</p>
+                        <p>Poultry Division Head</p>
+                    </div>
+                </div>
+                <div class="signatories">
+                    <label>Approved By:</label>
+                    <div>
+                        <img src="{{asset('images/DummySignature.png')}}" alt="">
+                        <p>Atty. {{$panForm->approved_by}}</p>
+                        <p>Vice President</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <span>
+                “Disclosing these confidential records to unauthorized personnel is punishable with Termination under Code of Discipline Section IV
+                No. 4.15 Betrayal of company’s trust and confidence Unauthorized disclosure of restricted company information such as but not limited to
+                development plans, budgets, details of finances and marketing strategies, test questionnaires and records, voluntarily and willingly to outsiders,
+                competitors and/or those who are not authorized to possess such information.”
+            </span>
+
+        </div>
+    </div>
+
+    <div class="page page-2 outer-border p-[3px] relative">
+        <div class="inner-border px-3 py-5 flex flex-col items-center">
+            <div class="copy absolute text-lg font-bold text-gray-400 tracking-widest">
+                <p>PAYROLL COPY</p>
+            </div>
             <div class="print-header">
                 @php
                     $fullFarmName = [

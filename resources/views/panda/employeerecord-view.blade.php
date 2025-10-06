@@ -53,7 +53,7 @@
 
           <!-- Content Area -->
           <main class="content">
-               <div class="content-block active">
+               <div class="content-block active overflow-y-auto">
                     <!-- Employee Header -->
                     <div class="">
                          <div class="text-gray-700">

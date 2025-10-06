@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\RequestorModel;
+use App\Models\LogModel;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Log;
 
@@ -19,6 +20,8 @@ class ApproverTable extends Component
     protected $paginationTheme = 'tailwind'; // or 'bootstrap' or omit
 
     public array $selectedRequests = [];
+
+    public $header, $customHeader , $body;
 
     public function goToPage($page)
     {
@@ -41,12 +44,70 @@ class ApproverTable extends Component
     
     public function approveRequests()
     {
-        Log::info($this->selectedRequests);
+        try{
+            $count = RequestorModel::whereIn('id', $this->selectedRequests)
+                ->update(['request_status' => 'Approved']);
+        
+            $this->redirect('/approver');
+            session()->flash('notif', [
+                'type' => 'success',
+                'header' => 'Approval Complete',
+                'message' => "{$count} request(s) have been approved successfully."
+            ]);
+
+            $this->selectedRequests = []; // clear after action
+        } catch (\Exception $e) {
+            \Log::error('Proccessing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/approver');
+            session()->flash('notif', [
+                'type' => 'failed',
+                'header' => 'Approval Complete',
+                'message' => "We couldn’t proccess your request, please try again."
+            ]);
+        }
     }
 
     public function rejectRequests()
-    {
-        Log::info($this->selectedRequests);
+    {   
+        try{    
+            $count = RequestorModel::whereIn('id', $this->selectedRequests)
+                ->update(['request_status' => 'For HR Prep']);
+
+            $this->redirect('/approver');
+            session()->flash('notif', [
+                'type' => 'success',
+                'header' => 'Rejection Complete',
+                'message' => "{$count} request(s) have been rejected."
+            ]);
+
+            $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
+
+            foreach ($this->selectedRequests as $requestId) {
+                LogModel::create([
+                    'request_id' => $requestId,
+                    'origin' => 'Returned by Final Approver',
+                    'header' => 'Subject: ' . $reason,
+                    'body' => 'Details: ' . $this->body,
+                    'created_at' => now(),
+                ]);
+            }
+
+            $this->selectedRequests = []; // clear after action
+        } catch (\Exception $e) {
+            \Log::error('Proccessing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            $this->redirect('/approver');
+            session()->flash('notif', [
+                'type' => 'failed',
+                'header' => 'Approval Complete',
+                'message' => "We couldn’t proccess your request, please try again."
+            ]);
+        }
     }
     
     public function render()
