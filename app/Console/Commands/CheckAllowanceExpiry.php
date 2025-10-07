@@ -11,6 +11,7 @@ use DB;
 
 use App\Mail\AllowanceExpiryMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 
 class CheckAllowanceExpiry extends Command
 {
@@ -87,10 +88,37 @@ class CheckAllowanceExpiry extends Command
                     ]
                 );
 
-                // $receiver = User::where('farm', $request->farm)->first();
-
                 // Send email (example: send to HR or employee)
-                Mail::to('i.guno@bfcgroup.org')->send(new AllowanceExpiryMail($message));
+                // Mail::to('i.guno@bfcgroup.org')->send(new AllowanceExpiryMail($message));
+
+                // 1. Get user IDs from the request
+                $userIDs = [
+                    $request->requestor_id,
+                    $request->divisionhead_id,
+                    $request->hr_id
+                ];
+
+                // 2. Loop through each ID and try sending the email
+                foreach ($userIDs as $userID) {
+
+                    if (!$userID) continue; // Skip if ID is null
+
+                    // Call API to get user details
+                    $response = Http::withHeaders([
+                        'x-api-key' => '123456789bgc',
+                    ])->post("https://bfcgroup.ph/api/v1/users/get-details/{$userID}");
+
+                    $userData = $response->json();
+                    $receiverEmail = $userData['email'] ?? null;
+
+                    // Send email if found
+                    if ($receiverEmail) {
+                        Mail::to($receiverEmail)->send(new AllowanceExpiryMail($message));
+                    }
+                }
+
+                // 3. Return success response
+                return response()->json(['message' => 'Emails sent successfully']);
             }
         });
 

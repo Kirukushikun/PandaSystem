@@ -6,7 +6,7 @@
      <link rel="icon" href="{{ asset('/images/PANDA.ico') }}" type="image/x-icon">
      <!-- <title>@yield('title')</title> -->
       
-     <title>PANDA System</title>
+     <title>PAN System</title>
      <meta name="csrf-token" content="{{ csrf_token() }}">     
 
      <!-- Styling -->

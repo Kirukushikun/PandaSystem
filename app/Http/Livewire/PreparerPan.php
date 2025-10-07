@@ -273,6 +273,7 @@ class PreparerPan extends Component
 
             $this->validate();
             $this->requestEntry->request_status = 'For Confirmation';
+            $this->requestEntry->hr_id = Auth::user()->id;
             $this->requestEntry->save();
 
             if($this->panEntry){

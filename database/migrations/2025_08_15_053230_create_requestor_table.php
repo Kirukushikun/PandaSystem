@@ -59,6 +59,9 @@ return new class extends Migration
             $table->string('supporting_file_url')->nullable();
             $table->text('supporting_file_name')->nullable();
             $table->string('requested_by')->nullable();
+            $table->unsignedBigInteger('requestor_id')->nullable();
+            $table->unsignedBigInteger('divisionhead_id')->nullable();
+            $table->unsignedBigInteger('hr_id')->nullable();
             $table->timestamp('submitted_at')->nullable(); // Set upon submission
             $table->timestamps();
         });

@@ -72,7 +72,7 @@ class DivisionheadTable extends Component
             ->when($this->filterBy, function ($query) {
                 $query->where('request_status', $this->filterBy);
             })
-            ->latest('updated_at')
+            ->orderBy('id', 'asc')
             ->paginate(8);
 
         return view('livewire.divisionhead-table', compact('requests'));

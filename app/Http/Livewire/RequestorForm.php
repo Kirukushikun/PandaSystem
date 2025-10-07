@@ -147,6 +147,7 @@ class RequestorForm extends Component
                 'type_of_action'=> $this->type_of_action ?? null,
                 'justification' => $this->justification ?? null,
                 'requested_by'  => Auth::user()->name,
+                'requestor_id'  => Auth::user()->id,
             ]);
 
             $this->dispatch('requestSaved');
@@ -201,6 +202,7 @@ class RequestorForm extends Component
             $requestEntry->justification = $this->justification;
             $requestEntry->supporting_file_url = $path ?? null;
             $requestEntry->supporting_file_name = $originalName ?? null;
+            $requestEntry->requestor_id = Auth::user()->id;
             $requestEntry->requested_by = Auth::user()->name;
             $requestEntry->submitted_at = Carbon::now();
             $requestEntry->save();
@@ -224,6 +226,25 @@ class RequestorForm extends Component
     public function submitRequest(){
         try {
             $this->validate();
+
+            // $nonBlockingStatuses = [
+            //     'Approved',
+            //     'Served',
+            //     'Filed',
+            //     'Withdrew',
+            //     'Draft'
+            // ];
+
+            // $existingRequest = RequestorModel::where('employee_id', $this->employee_id)
+            //     ->where('type_of_action', $this->type_of_action)
+            //     ->whereNotIn('request_status', $nonBlockingStatuses)
+            //     ->first();
+
+            // if($existingRequest){
+            //     $this->noreloadNotif('failed', 'Request Failed', 'A request for this employee with the same action type is already in progress.');
+
+            //     return;
+            // }
 
             // Initialize local variables for file storage
             $filePath = null;
@@ -263,6 +284,7 @@ class RequestorForm extends Component
                 'justification'       => $this->justification ?? null,
                 'supporting_file_url' => $filePath,
                 'supporting_file_name' => $fileName,
+                'requestor_id'  => Auth::user()->id,
                 'requested_by'        => Auth::user()->name,
                 'submitted_at'        => Carbon::now()
             ]);
@@ -370,6 +392,7 @@ class RequestorForm extends Component
         try {
             $requestEntry = RequestorModel::find($this->requestID);
             $requestEntry->request_status = 'For HR Prep';
+            $requestEntry->divisionhead_id = Auth::user()->id;
             $requestEntry->save();
 
             Cache::forget("requestor_{$this->requestID}");

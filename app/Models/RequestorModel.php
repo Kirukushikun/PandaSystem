@@ -24,6 +24,9 @@ class RequestorModel extends Model
         'supporting_file_url',
         'supporting_file_name',
         'requested_by',
+        'requestor_id',
+        'divisionhead_id',
+        'hr_id',
         'submitted_at',
     ];
 
