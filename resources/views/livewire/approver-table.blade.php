@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-5 h-full" 
+<div class="flex flex-col h-full" 
     x-data="{
         showActions: false,
         showModal: false,
@@ -30,6 +30,31 @@
             <button type="button" @click="modalTarget = 'approve'; showModal = true" @disabled($selectedRequests == []) class="border-solid border-3 text-white px-4 py-2 rounded-md cursor-pointer font-bold {{ $selectedRequests == [] ? 'border-gray-400 bg-gray-400' : 'border-green-600 bg-green-600 hover:bg-green-700 hover:border-green-700'}}">Approve</button>
             <button type="button" @click="modalTarget = 'reject'; showModal = true" @disabled($selectedRequests == []) class="border-solid border-3 text-white px-4 py-2 rounded-md cursor-pointer font-bold {{ $selectedRequests == [] ? 'border-gray-400 bg-gray-400' : 'border-red-600 bg-red-600 hover:bg-red-700 hover:border-red-700'}}">Reject</button>
             <button type="button" @click="showActions = false" class="border-solid border-3 border-gray-300 text-blue-600 px-4 py-2 rounded-md cursor-pointer font-bold hover:bg-blue-600 hover:border-blue-600 hover:text-white">Cancel</button>
+        </div>
+    </div>
+    <div class="ml-1" x-data="{ filter: localStorage.getItem('approver') || 'all' }" 
+        x-init="$wire.set('filterStatus', filter)">
+        <div class="flex gap-4 mb-4">
+            <label>
+                <input type="radio" name="status_filter" value="all" 
+                    x-model="filter" 
+                    @change="localStorage.setItem('approver', filter); $wire.set('filterStatus', filter)">
+                All
+            </label>
+
+            <label>
+                <input type="radio" name="status_filter" value="in_progress" 
+                    x-model="filter" 
+                    @change="localStorage.setItem('approver', filter); $wire.set('filterStatus', filter)">
+                In Progress
+            </label>
+
+            <label>
+                <input type="radio" name="status_filter" value="completed" 
+                    x-model="filter" 
+                    @change="localStorage.setItem('approver', filter); $wire.set('filterStatus', filter)">
+                Completed
+            </label>
         </div>
     </div>
     @if($approvalRequests->isEmpty())

@@ -18,6 +18,8 @@ class RequestorTable extends Component
 
     protected $paginationTheme = 'tailwind'; // or 'bootstrap' or omit
 
+    public $filterStatus = 'all';
+
     public function goToPage($page)
     {
         $this->setPage($page);
@@ -54,6 +56,16 @@ class RequestorTable extends Component
             })
             ->when($this->filterBy, function ($query) {
                 $query->where('request_status', $this->filterBy);
+            })
+            ->when($this->filterStatus === 'in_progress', function ($query) {
+                $query->whereNotIn('request_status', [
+                    'Approved', 'Served', 'Filed', 'Withdrew'
+                ]);
+            })
+            ->when($this->filterStatus === 'completed', function ($query) {
+                $query->whereIn('request_status', [
+                    'Approved', 'Served', 'Filed', 'Withdrew'
+                ]);
             })
             ->latest('updated_at')
             ->paginate(8);
