@@ -18,6 +18,9 @@ class HrapproverTable extends Component
 
     protected $paginationTheme = 'tailwind'; // or 'bootstrap' or omit
 
+    public $filterStatus = 'all';
+
+
     public function goToPage($page)
     {
         $this->setPage($page);
@@ -47,6 +50,7 @@ class HrapproverTable extends Component
         // Statuses relevant/visible only to the module
         $statuses = [
             'For HR Approval',
+            'For Final Approval',
             'Approved',
             'Rejected',
             'Served',
@@ -66,6 +70,16 @@ class HrapproverTable extends Component
                         ->orWhere('type_of_action', 'like', '%' . $this->search . '%')
                         ->orWhere('justification', 'like', '%' . $this->search . '%');
                 });
+            })
+            ->when($this->filterStatus === 'in_progress', function ($query) {
+                $query->whereNotIn('request_status', [
+                    'Approved', 'Served', 'Filed'
+                ]);
+            })
+            ->when($this->filterStatus === 'completed', function ($query) {
+                $query->whereIn('request_status', [
+                    'Approved', 'Served', 'Filed'
+                ]);
             })
             ->when($this->filterFarm, function ($query) {
                 $query->where('farm', $this->filterFarm);

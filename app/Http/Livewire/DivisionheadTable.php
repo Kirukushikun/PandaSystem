@@ -18,6 +18,8 @@ class DivisionheadTable extends Component
     public $search = '';
     public $filterBy = '';
 
+    public $filterStatus = 'all';
+
     public function goToPage($page)
     {
         $this->setPage($page);
@@ -72,7 +74,16 @@ class DivisionheadTable extends Component
             ->when($this->filterBy, function ($query) {
                 $query->where('request_status', $this->filterBy);
             })
-            ->orderBy('id', 'asc')
+            ->when($this->filterStatus === 'in_progress', function ($query) {
+                $query->whereNotIn('request_status', [
+                    'Approved', 'Served', 'Filed'
+                ]);
+            })
+            ->when($this->filterStatus === 'completed', function ($query) {
+                $query->whereIn('request_status', [
+                    'Approved', 'Served', 'Filed'
+                ]);
+            })
             ->paginate(8);
 
         return view('livewire.divisionhead-table', compact('requests'));

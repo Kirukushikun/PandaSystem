@@ -1,7 +1,32 @@
-<div class="flex flex-col gap-5 h-full">
+<div class="flex flex-col h-full">
     <div class="table-header flex w-full gap-3 items-center">
         <h1 class="text-[22px] flex-none">Head Approval Requests</h1>
         <x-search-sort-filter role="divisionhead"/>
+    </div>
+    <div class="ml-1" x-data="{ filter: localStorage.getItem('divisionHeadFilter') || 'all' }" 
+        x-init="$wire.set('filterStatus', filter)">
+        <div class="flex gap-4 mb-4">
+            <label>
+                <input type="radio" name="status_filter" value="all" 
+                    x-model="filter" 
+                    @change="localStorage.setItem('divisionHeadFilter', filter); $wire.set('filterStatus', filter)">
+                All
+            </label>
+
+            <label>
+                <input type="radio" name="status_filter" value="in_progress" 
+                    x-model="filter" 
+                    @change="localStorage.setItem('divisionHeadFilter', filter); $wire.set('filterStatus', filter)">
+                In Progress
+            </label>
+
+            <label>
+                <input type="radio" name="status_filter" value="completed" 
+                    x-model="filter" 
+                    @change="localStorage.setItem('divisionHeadFilter', filter); $wire.set('filterStatus', filter)">
+                Completed
+            </label>
+        </div>
     </div>
     @if($requests->isEmpty())
         <div class="empty-promt w-full h-full flex flex-col items-center justify-center rounded text-gray-400 select-none">

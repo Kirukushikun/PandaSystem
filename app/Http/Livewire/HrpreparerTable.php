@@ -17,6 +17,8 @@ class HrpreparerTable extends Component
     public $filterBy = '';
     public $filterFarm = '';
 
+    public $filterStatus = 'all';
+
     protected $paginationTheme = 'tailwind'; // or 'bootstrap' or omit
 
     public function goToPage($page)
@@ -68,6 +70,16 @@ class HrpreparerTable extends Component
                         ->orWhere('type_of_action', 'like', '%' . $this->search . '%')
                         ->orWhere('justification', 'like', '%' . $this->search . '%');
                 });
+            })
+            ->when($this->filterStatus === 'in_progress', function ($query) {
+                $query->whereNotIn('request_status', [
+                    'Approved', 'Served', 'Filed'
+                ]);
+            })
+            ->when($this->filterStatus === 'completed', function ($query) {
+                $query->whereIn('request_status', [
+                    'Approved', 'Served', 'Filed'
+                ]);
             })
             ->when($this->filterFarm, function ($query) {
                 $query->where('farm', $this->filterFarm);
