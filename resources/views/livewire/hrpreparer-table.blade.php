@@ -3,7 +3,7 @@
         <h1 class="text-[22px] flex-none">PAN Requests</h1>
         <x-search-sort-filter role="hrpreparer" farmFilter="true"/>
     </div>
-    <div class="ml-1" x-data="{ filter: localStorage.getItem('hrpreparer') || 'all' }" 
+    <div class="ml-1" x-data="{ filter: localStorage.getItem('hrpreparer') || 'in_progress' }" 
         x-init="$wire.set('filterStatus', filter)">
         <div class="flex gap-4 mb-4">
             <label>
@@ -39,11 +39,11 @@
                 <thead>
                     <tr>
                         <th>Request No</th>
+                        <th>Status</th>
                         <th>Employee Name</th>
                         <th>Type of Action</th>
                         <th>Requested By</th>
                         <th>Date Submitted</th>
-                        <th>Status</th>
                         <th>Last Update</th>
                         <th>Action</th>
                     </tr>
@@ -51,14 +51,23 @@
                 <tbody>
                     @foreach($panRequests as $request)
                         <tr>
-                            <td>{{$request->request_no}}</td>
+                            <td> 
+                                @if(Auth::user()->role == 'hrhead')
+                                    @if($request->confidentiality)
+                                        <i class="fa-solid fa-circle !text-xs text-{{$request->confidentiality == 'manila' ? 'purple' : 'blue'}}-400 cursor-pointer" title="{{$request->confidentiality}}"></i> 
+                                    @else
+                                        <i class="fa-solid fa-circle !text-xs text-gray-300 cursor-pointer" title="Not set"></i> 
+                                    @endif
+                                @endif 
+                                {{$request->request_no}}
+                            </td>
+                            <td>
+                                <x-statustag :status-text="$request->request_status" status-location="Table"/>
+                            </td>
                             <td>{{$request->employee_name}}</td>
                             <td>{{$request->type_of_action}}</td>
                             <td>{{$request->requested_by}}</td>
                             <td>{{$request->submitted_at->format('m/d/Y')}}</td>
-                            <td>
-                                <x-statustag :status-text="$request->request_status" status-location="Table"/>
-                            </td>
                             <td>{{$request->updated_at->format('m/d/Y')}}</td>
                             <td class="table-actions">
                                 @if($request->confidentiality != 'manila' && Auth::user()->role != 'hrhead')

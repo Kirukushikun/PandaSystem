@@ -62,6 +62,10 @@ class PreparerPan extends Component
                 return PreparerModel::where('request_id', $requestID)->first();
             });
 
+            if($this->requestEntry){    
+                $this->division = $this->requestEntry->department;
+            }
+
             if($this->panEntry){
                 $this->referenceTableData = $this->panEntry->action_reference_data;    
 
@@ -239,7 +243,7 @@ class PreparerPan extends Component
             $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Head', 'Raised a Dispute');
 
             $this->redirect('/divisionhead');
-            $this->reloadNotif('success', 'Returned to Requestor', 'The request has been returned for correction. Please review the remarks provided.');            
+            $this->reloadNotif('success', 'Returned to HR', 'The request has been returned for correction. Please review the remarks provided.');            
         }catch (\Exception $e) {
             \Log::error('Processing failed: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
@@ -398,7 +402,7 @@ class PreparerPan extends Component
             $employee = Employee::where('company_id', $this->requestEntry->employee_id)->first();
 
             $newRequest = RequestorModel::create([
-                'request_no' => $this->generateRequestNo(),
+                'request_no' => 'PAN-' . $this->requestEntry->farm . '-' . now()->year . '-' . rand(100, 999),
                 'request_status' => 'For HR Prep',
                 'employee_id' => $this->requestEntry->employee_id,
                 'employee_name' => $this->requestEntry->employee_name,
@@ -622,6 +626,11 @@ class PreparerPan extends Component
 
     public function approveFinal(){
         try{
+
+            if($this->requestEntry->type_of_action == 'Regularization'){
+                $this->panEntry->employment_status == 'Regular';
+            }
+
             $this->requestEntry->request_status = 'Approved';
             $this->requestEntry->save();
             $this->panEntry->approved_by = Auth::user()->name;

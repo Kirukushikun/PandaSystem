@@ -59,12 +59,12 @@ class RequestorTable extends Component
             })
             ->when($this->filterStatus === 'in_progress', function ($query) {
                 $query->whereNotIn('request_status', [
-                    'Approved', 'Served', 'Filed', 'Withdrew'
+                    'Filed', 'Withdrew'
                 ]);
             })
             ->when($this->filterStatus === 'completed', function ($query) {
                 $query->whereIn('request_status', [
-                    'Approved', 'Served', 'Filed', 'Withdrew'
+                    'Filed', 'Withdrew'
                 ]);
             })
             ->latest('updated_at')

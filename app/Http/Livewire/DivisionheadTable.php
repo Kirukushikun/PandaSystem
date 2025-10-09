@@ -76,14 +76,15 @@ class DivisionheadTable extends Component
             })
             ->when($this->filterStatus === 'in_progress', function ($query) {
                 $query->whereNotIn('request_status', [
-                    'Approved', 'Served', 'Filed'
+                    'Filed'
                 ]);
             })
             ->when($this->filterStatus === 'completed', function ($query) {
                 $query->whereIn('request_status', [
-                    'Approved', 'Served', 'Filed'
+                    'Filed'
                 ]);
             })
+            ->latest('updated_at')
             ->paginate(8);
 
         return view('livewire.divisionhead-table', compact('requests'));

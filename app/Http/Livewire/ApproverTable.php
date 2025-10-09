@@ -7,6 +7,7 @@ use App\Models\RequestorModel;
 use App\Models\LogModel;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class ApproverTable extends Component
 {   
@@ -49,6 +50,11 @@ class ApproverTable extends Component
         try{
             $count = RequestorModel::whereIn('id', $this->selectedRequests)
                 ->update(['request_status' => 'Approved']);
+
+            // Forget cache for all updated requestors
+            foreach ($this->selectedRequests as $id) {
+                Cache::forget("requestor_{$id}");
+            }
         
             $this->redirect('/approver');
             session()->flash('notif', [
@@ -77,6 +83,11 @@ class ApproverTable extends Component
         try{    
             $count = RequestorModel::whereIn('id', $this->selectedRequests)
                 ->update(['request_status' => 'For HR Prep']);
+
+            // Forget cache for all updated requestors
+            foreach ($this->selectedRequests as $id) {
+                Cache::forget("requestor_{$id}");
+            }
 
             $this->redirect('/approver');
             session()->flash('notif', [
@@ -141,12 +152,12 @@ class ApproverTable extends Component
             })
             ->when($this->filterStatus === 'in_progress', function ($query) {
                 $query->whereNotIn('request_status', [
-                    'Approved', 'Served', 'Filed'
+                    'Filed'
                 ]);
             })
             ->when($this->filterStatus === 'completed', function ($query) {
                 $query->whereIn('request_status', [
-                    'Approved', 'Served', 'Filed'
+                    'Filed'
                 ]);
             })
             ->latest()

@@ -16,6 +16,18 @@
                 action: 'rejectRequests',
                 needsInput: true
             },
+            approveAll: {
+                header: 'Approve All Requests',
+                message: 'Are you sure you want to approve all pending request? This action cannot be undone.',
+                action: 'approveRequestsAll',
+                needsInput: false
+            },
+            rejectAll: {
+                header: 'Reject All Requests',
+                message: 'Are you sure you want to reject all pending request? This action cannot be undone.',
+                action: 'rejectRequestsAll',
+                needsInput: false
+            },
         },
     }"
 >
@@ -23,6 +35,8 @@
         <h1 class="text-[22px] flex-none">Approval Requests</h1>
         <x-search-sort-filter role="finalapprover"/>
         @if(!$approvalRequests->isEmpty())
+            <button type="button" x-show="!showActions" @click="modalTarget = 'approveAll'; showModal = true" class="border-solid border-3 text-white px-4 py-2 rounded-md cursor-pointer font-bold border-green-600 bg-green-600 hover:bg-green-700 hover:border-green-700">Approve All</button>
+            <button type="button" x-show="!showActions" @click="modalTarget = 'rejectAll'; showModal = true" class="border-solid border-3 text-white px-4 py-2 rounded-md cursor-pointer font-bold border-red-600 bg-red-600 hover:bg-red-700 hover:border-red-700">Reject All</button>
             <button type="button" x-show="!showActions" @click="showActions = true" class="border-solid border-3 border-gray-300 text-blue-600 px-4 py-2 rounded-md cursor-pointer font-bold hover:bg-blue-600 hover:border-blue-600 hover:text-white">Select</button>
         @endif
         <!-- Action buttons -->
@@ -32,7 +46,7 @@
             <button type="button" @click="showActions = false" class="border-solid border-3 border-gray-300 text-blue-600 px-4 py-2 rounded-md cursor-pointer font-bold hover:bg-blue-600 hover:border-blue-600 hover:text-white">Cancel</button>
         </div>
     </div>
-    <div class="ml-1" x-data="{ filter: localStorage.getItem('approver') || 'all' }" 
+    <div class="ml-1" x-data="{ filter: localStorage.getItem('approver') || 'in_progress' }" 
         x-init="$wire.set('filterStatus', filter)">
         <div class="flex gap-4 mb-4">
             <label>
@@ -68,11 +82,11 @@
                 <thead>
                     <tr>
                         <th>Request No</th>
+                        <th>Status</th>
                         <th>Employee Name</th>
                         <th>Type of Action</th>
                         <th>Requested By</th>
                         <th>Date Submitted</th>
-                        <th>Status</th>
                         <th>Last Update</th>
                         <th>Action</th>
                     </tr>
@@ -94,13 +108,13 @@
                                 @endif
                                 {{$request->request_no}}
                             </td>
+                            <td>
+                                <x-statustag :status-text="$request->request_status" status-location="Table"/>
+                            </td>
                             <td>{{$request->employee_name}}</td>
                             <td>{{$request->type_of_action}}</td>
                             <td>{{$request->requested_by}}</td>
                             <td>{{$request->submitted_at->format('m/d/Y')}}</td>
-                            <td>
-                                <x-statustag :status-text="$request->request_status" status-location="Table"/>
-                            </td>
                             <td>{{$request->updated_at->format('m/d/Y')}}</td>
                             <td class="table-actions">
                                 <button class="bg-blue-600 text-white" onclick="window.location.href='/approver-view?requestID={{ encrypt($request->id) }}'">View</button>
