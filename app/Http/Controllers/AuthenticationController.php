@@ -14,7 +14,7 @@ class AuthenticationController extends Controller
     public function app_login($id = null)
     {
         if(Auth::check()) {
-            return redirect()->route('dash');
+            return redirect()->route('home');
         }
 
     	$id = GC::decryptString($id);
@@ -27,7 +27,7 @@ class AuthenticationController extends Controller
     		if(Auth::loginUsingId($user->id)) {
                 // Login Success
                 // Sessions For Current Users
-    			return redirect()->route('dash');
+    			return redirect()->route('home');
     		}
     		else {
                 // Login Error
