@@ -258,12 +258,10 @@
                 </div>
             @endif
 
-
-
             @if($requestEntry->type_of_action == 'Wage Order')
                 <div class="input-group">
                     <label for="wage_no">Wage Order No:</label>
-                    <input type="text" id="wage_no" wire:model="wage_no" x-ref="wage_no" {{$isDisabled ? 'Readonly' : '' }} required>
+                    <input type="text" id="wage_no" wire:model="wage_no" x-ref="wage_no" {{$isDisabled ? 'readonly' : '' }} />
                 </div>
             @endif
         </div>
@@ -363,14 +361,14 @@
                 @endif
                 
                     <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Submit for Confirmation</button>
-                    @if(Auth::user()->role == 'hrhead')
+                    @if($requestEntry->confidentiality == 'manila') 
                         <button class="border border-3 border-sky-500 bg-sky-500 rounded-md cursor-pointer text-white hover:bg-sky-600 px-4 py-2" @click="modalTarget = 'contarlac'; showModal = true">
                             Tag as Tarlac
-                        </button>
-                    @else 
+                        </button>                                            
+                    @else
                         <button class="border border-3 border-red-500 bg-red-500 rounded-md cursor-pointer text-white hover:bg-red-600 px-4 py-2" @click="modalTarget = 'conmanila'; showModal = true">
                             Tag as Manila
-                        </button>
+                        </button>                            
                     @endif
                     <button type="button" @click="resetForm()" class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
                 </div>

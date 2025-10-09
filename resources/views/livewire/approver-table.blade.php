@@ -8,25 +8,29 @@
                 header: 'Approve Selected Requests',
                 message: 'Are you sure you want to approve these selected request? This action cannot be undone.',
                 action: 'approveRequests',
-                needsInput: false
+                needsInput: false,
+                massApprove: false,
             },
             reject: {
                 header: 'Reject Selected Requests',
                 message: 'Are you sure you want to reject these selected request? This action cannot be undone.',
                 action: 'rejectRequests',
-                needsInput: true
+                needsInput: true,
+                massApprove: false,
             },
             approveAll: {
                 header: 'Approve All Requests',
-                message: 'Are you sure you want to approve all pending request? This action cannot be undone.',
-                action: 'approveRequestsAll',
-                needsInput: false
+                message: 'You’re about to approve all requests currently marked as *For Final Approval*. Please select the type of request you wish to mass approve:',
+                action: 'approveAll',
+                needsInput: false,
+                massApprove: true,
             },
             rejectAll: {
                 header: 'Reject All Requests',
                 message: 'Are you sure you want to reject all pending request? This action cannot be undone.',
-                action: 'rejectRequestsAll',
-                needsInput: false
+                action: 'rejectAll',
+                needsInput: true,
+                massApprove: true,
             },
         },
     }"
@@ -35,8 +39,8 @@
         <h1 class="text-[22px] flex-none">Approval Requests</h1>
         <x-search-sort-filter role="finalapprover"/>
         @if(!$approvalRequests->isEmpty())
-            <button type="button" x-show="!showActions" @click="modalTarget = 'approveAll'; showModal = true" class="border-solid border-3 text-white px-4 py-2 rounded-md cursor-pointer font-bold border-green-600 bg-green-600 hover:bg-green-700 hover:border-green-700">Approve All</button>
-            <button type="button" x-show="!showActions" @click="modalTarget = 'rejectAll'; showModal = true" class="border-solid border-3 text-white px-4 py-2 rounded-md cursor-pointer font-bold border-red-600 bg-red-600 hover:bg-red-700 hover:border-red-700">Reject All</button>
+            <button type="button" x-show="!showActions" @click="modalTarget = 'approveAll'; showModal = true" @disabled($pendingApprovals->isEmpty()) class="border-solid border-3 text-white whitespace-nowrap px-4 py-2 rounded-md cursor-pointer {{ $pendingApprovals->isEmpty() ? 'border-gray-400 bg-gray-400' : 'font-bold border-green-600 bg-green-600 hover:bg-green-700 hover:border-green-700'}}">Approve All</button>
+            <button type="button" x-show="!showActions" @click="modalTarget = 'rejectAll'; showModal = true" @disabled($pendingApprovals->isEmpty()) class="border-solid border-3 text-white whitespace-nowrap px-4 py-2 rounded-md cursor-pointer {{ $pendingApprovals->isEmpty() ? 'border-gray-400 bg-gray-400' : 'font-bold border-red-600 bg-red-600 hover:bg-red-700 hover:border-red-700'}}">Reject All</button>
             <button type="button" x-show="!showActions" @click="showActions = true" class="border-solid border-3 border-gray-300 text-blue-600 px-4 py-2 rounded-md cursor-pointer font-bold hover:bg-blue-600 hover:border-blue-600 hover:text-white">Select</button>
         @endif
         <!-- Action buttons -->
@@ -148,6 +152,26 @@
             <h2 class="text-xl font-semibold mb-4" x-text="modalConfig[modalTarget]?.header"></h2>
             <p class="mb-6" x-show="!modalConfig[modalTarget]?.needsInput" x-text="modalConfig[modalTarget]?.message"></p>
 
+            <template x-if="modalConfig[modalTarget]?.massApprove">
+                <div class="input-group mb-5">
+                    <label x-show="modalConfig[modalTarget]?.needsInput">Select Type:</label>
+                    <select name="target_type" wire:model="target_type" required>
+                        <option value="">Select Type</option>
+                        <option value="Regularization">Regularization</option>
+                        <option value="Salary Alignment">Salary Alignment</option>
+                        <option value="Wage Order">Wage Order</option>
+                        <option value="Lateral Transfer">Lateral Transfer</option>
+                        <option value="Developmental Assignment">Developmental Assignment</option>
+                        <option value="Interim Allowance">Interim Allowance</option>
+                        <option value="Promotion">Promotion</option>
+                        <option value="Training Status">Training Status</option>
+                        <option value="Confirmation of Appointment">Confirmation of Appointment</option>
+                        <option value="Discontinuance of Interim Allowance">Discontinuance of Allowance</option>
+                        <option value="Confirmation of Development Assignment">Confirmation of Dev. Assignment</option>
+                    </select>
+                </div>
+            </template>
+
             <!-- For input type -->
             <template x-if="modalConfig[modalTarget]?.needsInput">
                 <div class="flex flex-col gap-3 mb-5">
@@ -175,6 +199,8 @@
                     </div>
                 </div>
             </template>
+
+
 
             <div class="flex justify-end gap-3">
                 <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>

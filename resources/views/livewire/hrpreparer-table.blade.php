@@ -82,7 +82,9 @@
                                     @endif
                                 @else 
                                     <button class="bg-gray-400 text-white">View</button>
-                                    <i class="fa-solid fa-print text-gray-400"></i>
+                                    @if(in_array($request->request_status, ['Approved', 'Served', 'Filed']))
+                                        <i class="fa-solid fa-print text-gray-400"></i>
+                                    @endif
                                 @endif
                             </td>
                         </tr>

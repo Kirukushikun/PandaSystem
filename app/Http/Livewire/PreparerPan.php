@@ -78,7 +78,7 @@ class PreparerPan extends Component
                     'employment_status',
                     'division',
                     'remarks',
-                    'wage_no'
+                    'wage_no',
                 ]));
 
                 if($this->requestEntry->request_status == "For HR Prep"){
@@ -132,8 +132,8 @@ class PreparerPan extends Component
                             'employment_status',
                             'division',
                             'remarks',
-                            'wage_no'
                         ]));  
+
                     }
                 }
 
@@ -628,7 +628,7 @@ class PreparerPan extends Component
         try{
 
             if($this->requestEntry->type_of_action == 'Regularization'){
-                $this->panEntry->employment_status == 'Regular';
+                $this->panEntry->employment_status = 'Regular';
             }
 
             $this->requestEntry->request_status = 'Approved';

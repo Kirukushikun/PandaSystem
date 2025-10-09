@@ -51,7 +51,6 @@ class DivisionheadTable extends Component
             'Returned to Requestor',
             'Returned to Head',
             'Rejected by Head',
-            'Withdrew',
             'Approved',
             'Served',
             'Filed'

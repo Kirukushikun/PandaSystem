@@ -21,6 +21,8 @@ class ApproverTable extends Component
     protected $paginationTheme = 'tailwind'; // or 'bootstrap' or omit
 
     public array $selectedRequests = [];
+    public $pendingApprovals = [];
+    public $target_type;
 
     public $header, $customHeader , $body;
 
@@ -43,6 +45,110 @@ class ApproverTable extends Component
 
     public function updatedSort(){
         $this->resetPage();
+    }
+
+    public function mount()
+    {
+        $this->loadPendingApprovals();
+    }
+
+    public function loadPendingApprovals()
+    {
+        // Get all requests that are for final approval
+        $this->pendingApprovals = RequestorModel::where('request_status', 'For Final Approval')->get();
+    }
+
+    public function approveAll()
+    {
+        try {
+            // Only proceed if there are any pending approvals
+            if ($this->pendingApprovals->isEmpty()) {
+                session()->flash('notif', [
+                    'type' => 'warning',
+                    'header' => 'No Pending Requests',
+                    'message' => 'There are no requests to approve.',
+                ]);
+                return;
+            }
+
+            $count = RequestorModel::where('request_status', 'For Final Approval')
+                ->where('type_of_action', $this->target_type)
+                ->update(['request_status' => 'Approved']);
+
+            // Forget cache for all updated requests
+            foreach ($this->pendingApprovals as $request) {
+                Cache::forget("requestor_{$request->id}");
+            }
+
+            // Refresh the collection after approval
+            $this->loadPendingApprovals();
+
+            $this->redirect('/approver');
+            session()->flash('notif', [
+                'type' => 'success',
+                'header' => 'Mass Approval Complete',
+                'message' => "{$count} request(s) have been approved successfully."
+            ]);
+        } catch (\Exception $e) {
+            $this->redirect('/approver');
+            session()->flash('notif', [
+                'type' => 'failed',
+                'header' => 'Approval Failed',
+                'message' => "We couldn’t process your mass approval. Please try again."
+            ]);
+        }
+    }
+
+    public function rejectAll()
+    {
+        try {
+            // Only proceed if there are any pending approvals
+            if ($this->pendingApprovals->isEmpty()) {
+                session()->flash('notif', [
+                    'type' => 'warning',
+                    'header' => 'No Pending Requests',
+                    'message' => 'There are no requests to reject.',
+                ]);
+                return;
+            }
+
+            $count = RequestorModel::where('request_status', 'For Final Approval')
+                ->where('type_of_action', $this->target_type)
+                ->update(['request_status' => 'For HR Prep']);
+
+
+            $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
+            
+            // Forget cache for all updated requests
+            foreach ($this->pendingApprovals as $request) {
+                Cache::forget("requestor_{$request->id}");
+                Cache::forget("log_{$request->id}");
+                LogModel::create([
+                    'request_id' => $request->id,
+                    'origin' => 'Returned by Final Approver',
+                    'header' => 'Subject: ' . $reason,
+                    'body' => 'Details: ' . $this->body, 
+                    'created_at' => now(),
+                ]);
+            }
+
+            // Refresh the collection after approval
+            $this->loadPendingApprovals();
+
+            $this->redirect('/approver');
+            session()->flash('notif', [
+                'type' => 'success',
+                'header' => 'Mass Rejection Complete',
+                'message' => "{$count} request(s) have been rejected successfully."
+            ]);
+        } catch (\Exception $e) {
+            $this->redirect('/approver');
+            session()->flash('notif', [
+                'type' => 'failed',
+                'header' => 'Approval Failed',
+                'message' => "We couldn’t process your mass approval. Please try again."
+            ]);
+        }
     }
     
     public function approveRequests()

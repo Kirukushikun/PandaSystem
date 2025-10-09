@@ -193,7 +193,6 @@ class RequestorForm extends Component
 
             $requestEntry = RequestorModel::find($this->requestID);
             $requestEntry->request_status = 'For Head Approval';
-            $requestEntry->confidentiality = $this->isSupervisor() ? 'manila' : 'tarlac';
             $requestEntry->current_handler = 'division head';
             $requestEntry->employee_name = $this->employee_name;
             $requestEntry->employee_id = $this->employee_id;
@@ -313,7 +312,6 @@ class RequestorForm extends Component
             // Update common fields
             $requestEntry = RequestorModel::find($this->requestID);
             $requestEntry->request_status = 'For Head Approval';
-            $requestEntry->confidentiality =$this->isSupervisor() ? 'manila' : 'tarlac';
             $requestEntry->employee_name = $this->employee_name;
             $requestEntry->employee_id = $this->employee_id;
             $requestEntry->department = $this->department;
