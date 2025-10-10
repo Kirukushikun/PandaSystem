@@ -39,8 +39,8 @@
         <h1 class="text-[22px] flex-none">Approval Requests</h1>
         <x-search-sort-filter role="finalapprover"/>
         @if(!$approvalRequests->isEmpty())
-            <button type="button" x-show="!showActions" @click="modalTarget = 'approveAll'; showModal = true" @disabled($pendingApprovals->isEmpty()) class="border-solid border-3 text-white whitespace-nowrap px-4 py-2 rounded-md cursor-pointer {{ $pendingApprovals->isEmpty() ? 'border-gray-400 bg-gray-400' : 'font-bold border-green-600 bg-green-600 hover:bg-green-700 hover:border-green-700'}}">Approve All</button>
-            <button type="button" x-show="!showActions" @click="modalTarget = 'rejectAll'; showModal = true" @disabled($pendingApprovals->isEmpty()) class="border-solid border-3 text-white whitespace-nowrap px-4 py-2 rounded-md cursor-pointer {{ $pendingApprovals->isEmpty() ? 'border-gray-400 bg-gray-400' : 'font-bold border-red-600 bg-red-600 hover:bg-red-700 hover:border-red-700'}}">Reject All</button>
+            <button type="button" x-show="!showActions" @click="modalTarget = 'approveAll'; showModal = true" @disabled($pendingApprovals->isEmpty()) class="border-solid border-3 text-white whitespace-nowrap px-4 py-2 rounded-md cursor-pointer {{ $pendingApprovals->isEmpty() ? 'border-gray-400 bg-gray-400' : 'font-bold border-green-600 bg-green-600 hover:bg-green-700 hover:border-green-700'}}">Mass Approve</button>
+            <button type="button" x-show="!showActions" @click="modalTarget = 'rejectAll'; showModal = true" @disabled($pendingApprovals->isEmpty()) class="border-solid border-3 text-white whitespace-nowrap px-4 py-2 rounded-md cursor-pointer {{ $pendingApprovals->isEmpty() ? 'border-gray-400 bg-gray-400' : 'font-bold border-red-600 bg-red-600 hover:bg-red-700 hover:border-red-700'}}">Mass Reject</button>
             <button type="button" x-show="!showActions" @click="showActions = true" class="border-solid border-3 border-gray-300 text-blue-600 px-4 py-2 rounded-md cursor-pointer font-bold hover:bg-blue-600 hover:border-blue-600 hover:text-white">Select</button>
         @endif
         <!-- Action buttons -->
