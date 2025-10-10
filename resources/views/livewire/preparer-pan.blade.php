@@ -171,12 +171,12 @@
         @if(is_null($requestEntry->confidentiality))
             <div class="absolute inset-0 bg-black/30 z-40 flex gap-3 items-end justify-end p-10">
                 <i class="fa-solid fa-lock absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-6xl"></i>
-                <button class="border border-3 border-red-500 bg-red-500 rounded-md cursor-pointer text-white hover:bg-red-600 px-4 py-2" @click="modalTarget = 'conmanila'; showModal = true">
-                    Confidentiality – Manila
+                <button class="border border-3 border-purple-500 bg-purple-500 rounded-md cursor-pointer text-white hover:bg-purple-600 px-4 py-2" @click="modalTarget = 'conmanila'; showModal = true">
+                    Tag as Manila
                 </button>
 
-                <button class="border border-3 border-purple-500 bg-purple-500 rounded-md cursor-pointer text-white hover:bg-purple-600 px-4 py-2" @click="modalTarget = 'contarlac'; showModal = true">
-                    Confidentiality – Tarlac
+                <button class="border border-3 border-blue-500 bg-blue-500 rounded-md cursor-pointer text-white hover:bg-blue-600 px-4 py-2" @click="modalTarget = 'contarlac'; showModal = true">
+                    Tag as Tarlac
                 </button>
             </div>
         @endif
@@ -209,24 +209,11 @@
                     <option value="Seasonal">Seasonal</option> 
                 </select>
             </div>
+
             <div class="input-group">
                 <label for="division">Division/Department:</label>
-                <select id="division" type="text" class="form-input" wire:model="division" x-ref="division" {{$isDisabled ? 'Disabled' : '' }}>
-                    <option value=""></option>
-                    <option value="FEEDMILL">FEEDMILL</option>
-                    <option value="FOC">FOC</option>
-                    <option value="GENERAL SERVICES">GENERAL SERVICES</option>
-                    <option value="HR">HR</option>
-                    <option value="IT & SECURITY">IT & SECURITY</option>
-                    <option value="POULTRY">POULTRY</option>
-                    <option value="PURCHASING">PURCHASING</option>
-                    <option value="SALES & MARKETING">SALES & MARKETING</option>
-                    <option value="SWINE">SWINE</option>
-                </select>
-                
+                <input id="division" type="text" class="form-input" wire:model="division" x-ref="division" readonly/>
             </div>
-
-
             
             @if($mode == "create")
                 <div class="relative">
@@ -271,12 +258,10 @@
                 </div>
             @endif
 
-
-
             @if($requestEntry->type_of_action == 'Wage Order')
                 <div class="input-group">
                     <label for="wage_no">Wage Order No:</label>
-                    <input type="text" id="wage_no" wire:model="wage_no" x-ref="wage_no" {{$isDisabled ? 'Readonly' : '' }} required>
+                    <input type="text" id="wage_no" wire:model="wage_no" x-ref="wage_no" {{$isDisabled ? 'readonly' : '' }} />
                 </div>
             @endif
         </div>
@@ -363,7 +348,7 @@
                 </div> 
             @endif           
         </div>
-
+                                            
         @if($module == 'hr_preparer')
 
             <!-- HR Preparer Actions: -->
@@ -376,14 +361,14 @@
                 @endif
                 
                     <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Submit for Confirmation</button>
-                    @if(Auth::user()->role == 'hrhead')
-                        <button class="border border-3 border-purple-500 bg-purple-500 rounded-md cursor-pointer text-white hover:bg-purple-600 px-4 py-2" @click="modalTarget = 'contarlac'; showModal = true">
-                            Confidentiality – Tarlac
-                        </button>
-                    @else 
+                    @if($requestEntry->confidentiality == 'manila') 
+                        <button class="border border-3 border-sky-500 bg-sky-500 rounded-md cursor-pointer text-white hover:bg-sky-600 px-4 py-2" @click="modalTarget = 'contarlac'; showModal = true">
+                            Tag as Tarlac
+                        </button>                                            
+                    @else
                         <button class="border border-3 border-red-500 bg-red-500 rounded-md cursor-pointer text-white hover:bg-red-600 px-4 py-2" @click="modalTarget = 'conmanila'; showModal = true">
-                            Confidentiality – Manila
-                        </button>
+                            Tag as Manila
+                        </button>                            
                     @endif
                     <button type="button" @click="resetForm()" class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
                 </div>

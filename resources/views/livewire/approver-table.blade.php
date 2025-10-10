@@ -8,13 +8,29 @@
                 header: 'Approve Selected Requests',
                 message: 'Are you sure you want to approve these selected request? This action cannot be undone.',
                 action: 'approveRequests',
-                needsInput: false
+                needsInput: false,
+                massApprove: false,
             },
             reject: {
                 header: 'Reject Selected Requests',
                 message: 'Are you sure you want to reject these selected request? This action cannot be undone.',
                 action: 'rejectRequests',
-                needsInput: true
+                needsInput: true,
+                massApprove: false,
+            },
+            approveAll: {
+                header: 'Approve All Requests',
+                message: 'You’re about to approve all requests currently marked as *For Final Approval*. Please select the type of request you wish to mass approve:',
+                action: 'approveAll',
+                needsInput: false,
+                massApprove: true,
+            },
+            rejectAll: {
+                header: 'Reject All Requests',
+                message: 'Are you sure you want to reject all pending request? This action cannot be undone.',
+                action: 'rejectAll',
+                needsInput: true,
+                massApprove: true,
             },
         },
     }"
@@ -23,6 +39,8 @@
         <h1 class="text-[22px] flex-none">Approval Requests</h1>
         <x-search-sort-filter role="finalapprover"/>
         @if(!$approvalRequests->isEmpty())
+            <button type="button" x-show="!showActions" @click="modalTarget = 'approveAll'; showModal = true" @disabled($pendingApprovals->isEmpty()) class="border-solid border-3 text-white whitespace-nowrap px-4 py-2 rounded-md cursor-pointer {{ $pendingApprovals->isEmpty() ? 'border-gray-400 bg-gray-400' : 'font-bold border-green-600 bg-green-600 hover:bg-green-700 hover:border-green-700'}}">Mass Approve</button>
+            <button type="button" x-show="!showActions" @click="modalTarget = 'rejectAll'; showModal = true" @disabled($pendingApprovals->isEmpty()) class="border-solid border-3 text-white whitespace-nowrap px-4 py-2 rounded-md cursor-pointer {{ $pendingApprovals->isEmpty() ? 'border-gray-400 bg-gray-400' : 'font-bold border-red-600 bg-red-600 hover:bg-red-700 hover:border-red-700'}}">Mass Reject</button>
             <button type="button" x-show="!showActions" @click="showActions = true" class="border-solid border-3 border-gray-300 text-blue-600 px-4 py-2 rounded-md cursor-pointer font-bold hover:bg-blue-600 hover:border-blue-600 hover:text-white">Select</button>
         @endif
         <!-- Action buttons -->
@@ -32,7 +50,7 @@
             <button type="button" @click="showActions = false" class="border-solid border-3 border-gray-300 text-blue-600 px-4 py-2 rounded-md cursor-pointer font-bold hover:bg-blue-600 hover:border-blue-600 hover:text-white">Cancel</button>
         </div>
     </div>
-    <div class="ml-1" x-data="{ filter: localStorage.getItem('approver') || 'all' }" 
+    <div class="ml-1" x-data="{ filter: localStorage.getItem('approver') || 'in_progress' }" 
         x-init="$wire.set('filterStatus', filter)">
         <div class="flex gap-4 mb-4">
             <label>
@@ -68,11 +86,11 @@
                 <thead>
                     <tr>
                         <th>Request No</th>
+                        <th>Status</th>
                         <th>Employee Name</th>
                         <th>Type of Action</th>
                         <th>Requested By</th>
                         <th>Date Submitted</th>
-                        <th>Status</th>
                         <th>Last Update</th>
                         <th>Action</th>
                     </tr>
@@ -94,13 +112,13 @@
                                 @endif
                                 {{$request->request_no}}
                             </td>
+                            <td>
+                                <x-statustag :status-text="$request->request_status" status-location="Table"/>
+                            </td>
                             <td>{{$request->employee_name}}</td>
                             <td>{{$request->type_of_action}}</td>
                             <td>{{$request->requested_by}}</td>
                             <td>{{$request->submitted_at->format('m/d/Y')}}</td>
-                            <td>
-                                <x-statustag :status-text="$request->request_status" status-location="Table"/>
-                            </td>
                             <td>{{$request->updated_at->format('m/d/Y')}}</td>
                             <td class="table-actions">
                                 <button class="bg-blue-600 text-white" onclick="window.location.href='/approver-view?requestID={{ encrypt($request->id) }}'">View</button>
@@ -134,6 +152,26 @@
             <h2 class="text-xl font-semibold mb-4" x-text="modalConfig[modalTarget]?.header"></h2>
             <p class="mb-6" x-show="!modalConfig[modalTarget]?.needsInput" x-text="modalConfig[modalTarget]?.message"></p>
 
+            <template x-if="modalConfig[modalTarget]?.massApprove">
+                <div class="input-group mb-5">
+                    <label x-show="modalConfig[modalTarget]?.needsInput">Select Type:</label>
+                    <select name="target_type" wire:model="target_type" required>
+                        <option value="">Select Type</option>
+                        <option value="Regularization">Regularization</option>
+                        <option value="Salary Alignment">Salary Alignment</option>
+                        <option value="Wage Order">Wage Order</option>
+                        <option value="Lateral Transfer">Lateral Transfer</option>
+                        <option value="Developmental Assignment">Developmental Assignment</option>
+                        <option value="Interim Allowance">Interim Allowance</option>
+                        <option value="Promotion">Promotion</option>
+                        <option value="Training Status">Training Status</option>
+                        <option value="Confirmation of Appointment">Confirmation of Appointment</option>
+                        <option value="Discontinuance of Interim Allowance">Discontinuance of Allowance</option>
+                        <option value="Confirmation of Development Assignment">Confirmation of Dev. Assignment</option>
+                    </select>
+                </div>
+            </template>
+
             <!-- For input type -->
             <template x-if="modalConfig[modalTarget]?.needsInput">
                 <div class="flex flex-col gap-3 mb-5">
@@ -161,6 +199,8 @@
                     </div>
                 </div>
             </template>
+
+
 
             <div class="flex justify-end gap-3">
                 <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
