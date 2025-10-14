@@ -13,9 +13,24 @@ return new class extends Migration
     {
         Schema::create('requestor', function (Blueprint $table) {
             $table->id();
+
+            // 🔹 Basic Info
             $table->string('request_no');
-            $table->json('is_deleted_by')->nullable();
-            $table->string('current_handler')->default('requestor');
+            $table->text('confidentiality', ['manila', 'tarlac'])->nullable();
+
+            // 🔹 Employee Details
+            $table->string('farm')->nullable();
+            $table->unsignedBigInteger('employee_id')->nullable();
+            $table->string('employee_name')->nullable();
+            $table->string('department')->nullable();
+            $table->string('type_of_action')->nullable(); // or enum if fixed set
+            $table->text('justification')->nullable();
+            
+            // 🔹 Attachments
+            $table->string('supporting_file_url')->nullable();
+            $table->text('supporting_file_name')->nullable();
+
+            // 🔹 Workflow & Status
             $table->enum('request_status', [
                 // Requestor -> Division Head
                 'Draft', 
@@ -46,23 +61,18 @@ return new class extends Migration
                 'Filed',
                 'Withdrew'
             ])->nullable();
-            $table->enum('confidentiality', [
-                'manila',
-                'tarlac'
-            ])->nullable();
-            $table->unsignedBigInteger('employee_id')->nullable();
-            $table->string('employee_name')->nullable();
-            $table->string('department')->nullable();
-            $table->string('farm')->nullable();
-            $table->string('type_of_action')->nullable(); // or enum if fixed set
-            $table->text('justification')->nullable();
-            $table->string('supporting_file_url')->nullable();
-            $table->text('supporting_file_name')->nullable();
-            $table->string('requested_by')->nullable();
-            $table->unsignedBigInteger('requestor_id')->nullable();
-            $table->unsignedBigInteger('divisionhead_id')->nullable();
-            $table->unsignedBigInteger('hr_id')->nullable();
-            $table->timestamp('submitted_at')->nullable(); // Set upon submission
+
+            $table->string('current_handler')->default('requestor');
+            $table->json('is_deleted_by')->nullable();
+
+            // 🔹 References
+            $table->text('requested_by')->nullable();
+            $table->text('requestor_id')->nullable();
+            $table->text('divisionhead_id')->nullable();
+            $table->text('hr_id')->nullable();
+
+            // 🔹 Timestamps
+            $table->timestamp('submitted_at')->nullable();
             $table->timestamps();
         });
     }

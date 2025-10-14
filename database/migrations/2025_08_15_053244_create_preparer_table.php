@@ -13,19 +13,36 @@ return new class extends Migration
     {
         Schema::create('preparer', function (Blueprint $table) {
             $table->id();
+
+            // Relationship
             $table->unsignedBigInteger('request_id');
-            $table->foreign('request_id')->references('id')->on('requestor')->onDelete('cascade');
-            $table->date('date_hired');
-            $table->string('employment_status');
-            $table->string('division');
-            $table->date('doe_from');
-            $table->date('doe_to'); // renamed for clarity
-            $table->string('wage_no')->nullable();
-            $table->json('action_reference_data')->nullable();
+            $table->foreign('request_id')
+                ->references('id')
+                ->on('requestor')
+                ->onDelete('cascade');
+
+            // Employment Details
+            $table->text('date_hired');
+            $table->text('employment_status');
+            $table->text('division');
+
+            // Duration of Effectivity
+            $table->text('doe_from');
+            $table->text('doe_to');
+
+            // Compensation & References
+            $table->text('wage_no')->nullable();
+            $table->text('action_reference_data')->nullable();
+
+            // Additional Info
             $table->text('remarks')->nullable();
             $table->boolean('has_allowances')->default(false);
-            $table->string('prepared_by');
-            $table->string('approved_by')->nullable();
+
+            // Prepared & Approved
+            $table->text('prepared_by')->nullable();
+            $table->text('approved_by')->nullable();
+
+            // System Timestamps
             $table->timestamps();
         });
     }
