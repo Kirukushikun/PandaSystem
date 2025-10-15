@@ -632,6 +632,7 @@ class PreparerPan extends Component
             }
 
             $this->requestEntry->request_status = 'Approved';
+            $this->requestEntry->approver_id = Auth::user()->id;
             $this->requestEntry->save();
             $this->panEntry->approved_by = Auth::user()->name;
             $this->panEntry->save();

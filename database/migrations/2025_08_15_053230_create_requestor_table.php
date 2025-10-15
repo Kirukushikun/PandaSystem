@@ -70,6 +70,7 @@ return new class extends Migration
             $table->text('requestor_id')->nullable();
             $table->text('divisionhead_id')->nullable();
             $table->text('hr_id')->nullable();
+            $table->text('approver_id')->nullable();
 
             // 🔹 Timestamps
             $table->timestamp('submitted_at')->nullable();
