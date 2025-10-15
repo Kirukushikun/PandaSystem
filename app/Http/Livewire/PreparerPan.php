@@ -122,7 +122,7 @@ class PreparerPan extends Component
                     $this->recentPanCompleted = PreparerModel::where('request_id', $this->recentRequestCompleted->id)->first();
                     
                     // Only set the data if PAN record exists
-                    if($this->recentPanCompleted && $this->requestEntry->confidentiality){ 
+                    if($this->recentPanCompleted && $this->requestEntry->confidentiality && !$this->panEntry){ 
                         $this->recentPanCompletedData = $this->recentPanCompleted->action_reference_data;
                         
                         $this->date_hired = optional($this->recentPanCompleted->date_hired)->format('Y-m-d');
@@ -132,8 +132,8 @@ class PreparerPan extends Component
                             'employment_status',
                             'division',
                             'remarks',
+                            'wage_no',
                         ]));  
-
                     }
                 }
 

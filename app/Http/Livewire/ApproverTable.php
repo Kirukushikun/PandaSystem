@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\RequestorModel;
+use App\Models\PreparerModel;
 use App\Models\LogModel;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Log;
@@ -71,13 +72,21 @@ class ApproverTable extends Component
                 return;
             }
 
-            $count = RequestorModel::where('request_status', 'For Final Approval')
+            $requests = RequestorModel::where('request_status', 'For Final Approval')
                 ->where('type_of_action', $this->target_type)
-                ->update(['request_status' => 'Approved']);
+                ->get();
 
-            // Forget cache for all updated requests
-            foreach ($this->pendingApprovals as $request) {
+            // Update each and handle related panRequest + cache
+            foreach ($requests as $request) {
+                $request->update(['request_status' => 'Approved']);
+
+                if ($this->target_type == 'Regularization' && $request->preparer) {
+                    $request->preparer->employment_status = 'Regular';
+                    $request->preparer->save();
+                }
+
                 Cache::forget("requestor_{$request->id}");
+                Cache::forget("preparer_{$request->id}");
             }
 
             // Refresh the collection after approval
@@ -87,7 +96,7 @@ class ApproverTable extends Component
             session()->flash('notif', [
                 'type' => 'success',
                 'header' => 'Mass Approval Complete',
-                'message' => "{$count} request(s) have been approved successfully."
+                'message' => "{$requests->count()} request(s) have been approved successfully."
             ]);
         } catch (\Exception $e) {
             $this->redirect('/approver');
@@ -153,15 +162,30 @@ class ApproverTable extends Component
     
     public function approveRequests()
     {
-        try{
-            $count = RequestorModel::whereIn('id', $this->selectedRequests)
-                ->update(['request_status' => 'Approved']);
+        try {
+            // Get selected requests
+            $requests = RequestorModel::whereIn('id', $this->selectedRequests)->get();
 
-            // Forget cache for all updated requestors
-            foreach ($this->selectedRequests as $id) {
-                Cache::forget("requestor_{$id}");
+            // Track how many were updated
+            $count = 0;
+
+            foreach ($requests as $request) {
+                // Approve the request
+                $request->update(['request_status' => 'Approved']);
+                $count++;
+
+                // If the action type is Regularization, update related preparer
+                if ($request->type_of_action === 'Regularization' && $request->preparer) {
+                    $request->preparer->employment_status = 'Regular';
+                    $request->preparer->save();
+                }
+
+                // Clear cache
+                Cache::forget("requestor_{$request->id}");
+                Cache::forget("preparer_{$request->id}");
             }
-        
+
+            // Redirect with success message
             $this->redirect('/approver');
             session()->flash('notif', [
                 'type' => 'success',
@@ -169,17 +193,19 @@ class ApproverTable extends Component
                 'message' => "{$count} request(s) have been approved successfully."
             ]);
 
-            $this->selectedRequests = []; // clear after action
+            // Clear selected list
+            $this->selectedRequests = [];
+
         } catch (\Exception $e) {
-            \Log::error('Proccessing failed: ' . $e->getMessage(), [
+            \Log::error('Processing failed: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
             ]);
 
             $this->redirect('/approver');
             session()->flash('notif', [
                 'type' => 'failed',
-                'header' => 'Approval Complete',
-                'message' => "We couldn’t proccess your request, please try again."
+                'header' => 'Approval Failed',
+                'message' => "We couldn’t process your request, please try again."
             ]);
         }
     }

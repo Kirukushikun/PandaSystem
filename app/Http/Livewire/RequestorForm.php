@@ -64,8 +64,8 @@ class RequestorForm extends Component
 
             // auto-fill fields (mass assign)
             $this->fill($this->requestEntry->only([
-                'employee_name',
                 'employee_id',
+                'employee_name',
                 'department',
                 'type_of_action',
                 'justification'
@@ -132,8 +132,7 @@ class RequestorForm extends Component
 
     // REQUESTOR
 
-    public function saveDraft()
-    {
+    public function saveDraft(){
         try {
             $this->validate($this->draftRules);
 
