@@ -78,7 +78,10 @@ class ApproverTable extends Component
 
             // Update each and handle related panRequest + cache
             foreach ($requests as $request) {
-                $request->update(['request_status' => 'Approved']);
+                $request->update([
+                    'request_status' => 'Approved',
+                    'approver_id' => Auth::user()->id                    
+                ]);
 
                 if ($this->target_type == 'Regularization' && $request->preparer) {
                     $request->preparer->employment_status = 'Regular';
@@ -171,7 +174,10 @@ class ApproverTable extends Component
 
             foreach ($requests as $request) {
                 // Approve the request
-                $request->update(['request_status' => 'Approved']);
+                $request->update([
+                    'request_status' => 'Approved',
+                    'approver_id' => Auth::user()->id
+                ]);
                 $count++;
 
                 // If the action type is Regularization, update related preparer

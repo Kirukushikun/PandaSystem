@@ -104,7 +104,18 @@ Route::middleware('auth')->group(function() {
 		$requestForm = RequestorModel::findOrFail($requestID);
 		$panForm = PreparerModel::where('request_id', $requestID)->first();
 		
-		return view('panda.print-view', compact('requestID', 'requestForm', 'panForm'));
+		$divisionhead = User::find(5);
+		$hr = User::find(1);
+		$approver = User::find($requestForm->approver_id);
+		
+		return view('panda.print-view', compact(
+			'requestID', 
+			'requestForm', 
+			'panForm',
+			'divisionhead',
+			'hr',
+			'approver',
+		));
 	})->middleware('module.access:HRA');
 
 	// FINAL APPROVER

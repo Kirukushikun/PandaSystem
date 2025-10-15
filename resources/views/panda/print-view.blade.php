@@ -318,23 +318,23 @@
                 <div class="signatories">
                     <label>Prepared By:</label>
                     <div>
-                        <img src="{{asset('images/DummySignature.png')}}" alt="">
-                        <p>{{$panForm->prepared_by}}</p>
+                        <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
+                        <p>{{$hr->name}}</p>
                         <p>Head, Human Resources</p>
                     </div>
                 </div>
                 <div class="signatories">
                     <label>Recommended By:</label>
                     <div>
-                        <img src="{{asset('images/DummySignature.png')}}" alt="">
-                        <p>{{$requestForm->requested_by}}</p>
-                        <p>Poultry Division Head</p>
+                        <img src="{{asset('storage/' . $divisionhead?->esign)}}" alt="Unavailable">
+                        <p>{{$divisionhead?->name}}</p>
+                        <p>{{$divisionhead->position ?? 'Division Head'}}</p>
                     </div>
                 </div>
                 <div class="signatories">
                     <label>Approved By:</label>
                     <div>
-                        <img src="{{asset('images/DummySignature.png')}}" alt="">
+                        <img src="{{asset('storage/' . $approver?->esign)}}" alt="Unavailable">
                         <p>Atty. {{$panForm->approved_by}}</p>
                         <p>Vice President</p>
                     </div>
@@ -458,23 +458,23 @@
                 <div class="signatories">
                     <label>Prepared By:</label>
                     <div>
-                        <img src="{{asset('images/DummySignature.png')}}" alt="">
-                        <p>{{$panForm->prepared_by}}</p>
+                        <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
+                        <p>{{$hr->name}}</p>
                         <p>Head, Human Resources</p>
                     </div>
                 </div>
                 <div class="signatories">
                     <label>Recommended By:</label>
                     <div>
-                        <img src="{{asset('images/DummySignature.png')}}" alt="">
-                        <p>{{$requestForm->requested_by}}</p>
-                        <p>Poultry Division Head</p>
+                        <img src="{{asset('storage/' . $divisionhead?->esign)}}" alt="">
+                        <p>{{$divisionhead?->name}}</p>
+                        <p>{{$divisionhead?->position}}</p>
                     </div>
                 </div>
                 <div class="signatories">
                     <label>Approved By:</label>
                     <div>
-                        <img src="{{asset('images/DummySignature.png')}}" alt="">
+                        <img src="{{asset('storage/' . $approver?->esign)}}" alt="Unavailable">
                         <p>Atty. {{$panForm->approved_by}}</p>
                         <p>Vice President</p>
                     </div>
@@ -597,23 +597,23 @@
                 <div class="signatories">
                     <label>Prepared By:</label>
                     <div>
-                        <img src="{{asset('images/DummySignature.png')}}" alt="">
-                        <p>{{$panForm->prepared_by}}</p>
+                        <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
+                        <p>{{$hr->name}}</p>
                         <p>Head, Human Resources</p>
                     </div>
                 </div>
                 <div class="signatories">
                     <label>Recommended By:</label>
                     <div>
-                        <img src="{{asset('images/DummySignature.png')}}" alt="">
-                        <p>{{$requestForm->requested_by}}</p>
-                        <p>Poultry Division Head</p>
+                        <img src="{{asset('storage/' . $divisionhead?->esign)}}" alt="">
+                        <p>{{$divisionhead?->name}}</p>
+                        <p>{{$divisionhead?->position}}</p>
                     </div>
                 </div>
                 <div class="signatories">
                     <label>Approved By:</label>
                     <div>
-                        <img src="{{asset('images/DummySignature.png')}}" alt="">
+                        <img src="{{asset('storage/' . $approver?->esign)}}" alt="Unavailable">
                         <p>Atty. {{$panForm->approved_by}}</p>
                         <p>Vice President</p>
                     </div>
