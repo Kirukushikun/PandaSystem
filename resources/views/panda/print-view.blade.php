@@ -270,21 +270,26 @@
                     <td class="!bg-[#e2efd9]">ACTION REFERENCE</td>
                     <td class="!bg-[#e2efd9]">TO</td>
                 </tr>
-                @foreach($panForm->action_reference_data as $item)
-                    @php
-                        $labels = [
-                            'place'    => 'Place of Assignment',
-                            'head'     => 'Immediate Head',
-                            'joblevel' => 'Job Level',
-                        ];
-                    @endphp
+                @php
+                    $items = collect($panForm->action_reference_data);
 
+                    // Move 'leavecredits' item to the end
+                    $items = $items->sortBy(fn($item) => $item['field'] === 'leavecredits' ? 1 : 0);
+
+                    $labels = [
+                        'place'    => 'Place of Assignment',
+                        'head'     => 'Immediate Head',
+                        'joblevel' => 'Job Level',
+                        'leavecredits' => 'Leave Credits'
+                    ];
+                @endphp
+
+                @foreach($items as $item)
                     <tr>
-                        <td>{{$item['from']}}</td>
+                        <td>{{ $item['from'] }}</td>
                         <td class="!bg-[#e2efd9] capitalize">{{ $labels[$item['field']] ?? $item['field'] }}</td>
-                        <td>{{$item['to']}}</td>
+                        <td>{{ $item['to'] }}</td>
                     </tr>
-
                 @endforeach
             </table>
 
@@ -320,7 +325,7 @@
                     <div>
                         <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
                         <p>{{$hr->name}}</p>
-                        <p>Head, Human Resources</p>
+                        <p>{{$hr->position}}</p>
                     </div>
                 </div>
                 <div class="signatories">
@@ -335,8 +340,8 @@
                     <label>Approved By:</label>
                     <div>
                         <img src="{{asset('storage/' . $approver?->esign)}}" alt="Unavailable">
-                        <p>Atty. {{$panForm->approved_by}}</p>
-                        <p>Vice President</p>
+                        <p>{{$panForm->approved_by}}</p>
+                        <p>{{$divisionhead?->position}}</p>
                     </div>
                 </div>
             </div>
@@ -410,21 +415,26 @@
                     <td class="!bg-[#e2efd9]">ACTION REFERENCE</td>
                     <td class="!bg-[#e2efd9]">TO</td>
                 </tr>
-                @foreach($panForm->action_reference_data as $item)
-                    @php
-                        $labels = [
-                            'place'    => 'Place of Assignment',
-                            'head'     => 'Immediate Head',
-                            'joblevel' => 'Job Level',
-                        ];
-                    @endphp
+                @php
+                    $items = collect($panForm->action_reference_data);
 
+                    // Move 'leavecredits' item to the end
+                    $items = $items->sortBy(fn($item) => $item['field'] === 'leavecredits' ? 1 : 0);
+
+                    $labels = [
+                        'place'    => 'Place of Assignment',
+                        'head'     => 'Immediate Head',
+                        'joblevel' => 'Job Level',
+                        'leavecredits' => 'Leave Credits'
+                    ];
+                @endphp
+
+                @foreach($items as $item)
                     <tr>
-                        <td>{{$item['from']}}</td>
+                        <td>{{ $item['from'] }}</td>
                         <td class="!bg-[#e2efd9] capitalize">{{ $labels[$item['field']] ?? $item['field'] }}</td>
-                        <td>{{$item['to']}}</td>
+                        <td>{{ $item['to'] }}</td>
                     </tr>
-
                 @endforeach
             </table>
 
@@ -475,7 +485,7 @@
                     <label>Approved By:</label>
                     <div>
                         <img src="{{asset('storage/' . $approver?->esign)}}" alt="Unavailable">
-                        <p>Atty. {{$panForm->approved_by}}</p>
+                        <p>{{$panForm->approved_by}}</p>
                         <p>Vice President</p>
                     </div>
                 </div>
@@ -549,21 +559,26 @@
                     <td class="!bg-[#e2efd9]">ACTION REFERENCE</td>
                     <td class="!bg-[#e2efd9]">TO</td>
                 </tr>
-                @foreach($panForm->action_reference_data as $item)
-                    @php
-                        $labels = [
-                            'place'    => 'Place of Assignment',
-                            'head'     => 'Immediate Head',
-                            'joblevel' => 'Job Level',
-                        ];
-                    @endphp
+                @php
+                    $items = collect($panForm->action_reference_data);
 
+                    // Move 'leavecredits' item to the end
+                    $items = $items->sortBy(fn($item) => $item['field'] === 'leavecredits' ? 1 : 0);
+
+                    $labels = [
+                        'place'    => 'Place of Assignment',
+                        'head'     => 'Immediate Head',
+                        'joblevel' => 'Job Level',
+                        'leavecredits' => 'Leave Credits'
+                    ];
+                @endphp
+
+                @foreach($items as $item)
                     <tr>
-                        <td>{{$item['from']}}</td>
+                        <td>{{ $item['from'] }}</td>
                         <td class="!bg-[#e2efd9] capitalize">{{ $labels[$item['field']] ?? $item['field'] }}</td>
-                        <td>{{$item['to']}}</td>
+                        <td>{{ $item['to'] }}</td>
                     </tr>
-
                 @endforeach
             </table>
 
@@ -614,7 +629,7 @@
                     <label>Approved By:</label>
                     <div>
                         <img src="{{asset('storage/' . $approver?->esign)}}" alt="Unavailable">
-                        <p>Atty. {{$panForm->approved_by}}</p>
+                        <p>{{$panForm->approved_by}}</p>
                         <p>Vice President</p>
                     </div>
                 </div>

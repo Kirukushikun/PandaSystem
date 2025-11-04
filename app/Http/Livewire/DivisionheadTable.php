@@ -45,9 +45,11 @@ class DivisionheadTable extends Component
         $statuses = [
             'For Head Approval',
             'For HR Prep',
-            'For HR Approval',
             'For Confirmation',
             'For Resolution',
+            'For HR Approval',
+            'For Final Approval',
+            
             'Returned to Requestor',
             'Returned to Head',
             'Rejected by Head',
@@ -57,6 +59,7 @@ class DivisionheadTable extends Component
         ];
 
         $requests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.requestor') != true")
+            ->where('divisionhead_id', Auth::user()->id)
             ->where('farm', Auth::user()->farm)
             ->whereIn('request_status', $statuses)
             ->when($this->search, function ($query) {
