@@ -196,6 +196,7 @@ class PreparerPan extends Component
     public function confirmPan(){
         try{
             $this->requestEntry->request_status = 'For HR Approval';
+            $this->requestEntry->divisionhead_id = Auth::user()->id;
             $this->requestEntry->save();
 
             Cache::forget("requestor_{$this->requestID}");

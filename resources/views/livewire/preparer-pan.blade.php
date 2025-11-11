@@ -592,7 +592,9 @@
                     { field: 'position', label: 'Position', from: '', to: '' },
                     { field: 'joblevel', label: 'Job Level', from: '', to: '' },
                     { field: 'basic', label: 'Basic', from: '', to: '' },
-                    { field: 'leavecredits', label: 'Leave Credits', from: '', to: '' }
+                    @if($requestEntry->type_of_action == 'Regularization')
+                    ,{ field: 'leavecredits', label: 'Leave Credits', from: '', to: '' }
+                    @endif
                 ];
 
                 this.allowances = [];
@@ -975,6 +977,11 @@
                 this.allowances = [];
 
                 data.forEach(item => {
+                    // Skip leavecredits field when loading from previous PAN
+                    if (item.field === 'leavecredits') {
+                        return; // Skip this iteration
+                    }
+
                     // Check if it's a static field
                     const staticField = this.staticFields.find(sf => sf.field === item.field);
                     if (staticField) {
