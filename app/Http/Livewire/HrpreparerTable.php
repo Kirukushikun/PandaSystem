@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\RequestorModel;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class HrpreparerTable extends Component
 {   
@@ -45,6 +46,20 @@ class HrpreparerTable extends Component
         $this->resetPage();
     }
 
+    public function deleteEntry($targetEntry){
+        $request = RequestorModel::findOrFail($targetEntry);
+
+        $request->is_deleted = true;
+        $request->save();
+
+        $this->redirect('/hrpreparer'); 
+        session()->flash('notif', [
+            'type' => 'success',
+            'header' => 'Deletion Success',
+            'message' => 'PAN Initiation was successfully deleted'
+        ]);
+    }
+
     public function render()
     {   
         // Statuses relevant/visible only to the module
@@ -60,6 +75,7 @@ class HrpreparerTable extends Component
         ];
 
         $panRequests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.preparer') != true")
+            ->where('is_deleted', false)
             ->whereIn('request_status', $statuses)
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
