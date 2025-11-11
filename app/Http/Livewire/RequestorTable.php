@@ -42,6 +42,7 @@ class RequestorTable extends Component
     public function render()
     {   
         $myRequests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.requestor') != true")
+            ->where('is_deleted', false)
             ->where('requestor_id', Auth::user()->id)
             ->where('farm', Auth::user()->farm)
             ->when($this->search, function ($query) {
