@@ -8,22 +8,26 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckModuleAccess
 {
-    public function handle(Request $request, Closure $next, $module): Response
+    public function handle(Request $request, Closure $next, ...$modules): Response
     {
         $user = $request->user();
 
-        if (!$user || !$this->hasAccess($user, $module)) {
-            abort(403, 'Unauthorized access to this module.');
+        if (!$user) {
+            abort(403, 'Unauthorized access.');
         }
 
-        return $next($request);
+        foreach ($modules as $module) {
+            if ($this->hasAccess($user, $module)) {
+                return $next($request); // ✅ Access granted if *any* module matches
+            }
+        }
+
+        abort(403, 'Unauthorized access to this module.');
     }
 
     protected function hasAccess($user, $module): bool
     {
-        // Directly access as array
         $access = $user->access;
-
         $key = strtoupper($module) . '_Module';
 
         return !empty($access[$key]) && $access[$key] === true;

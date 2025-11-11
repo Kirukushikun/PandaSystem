@@ -149,10 +149,17 @@
             cursor: pointer;
         }
 
-        .userpriv-btn{
+        .actions{
             position: absolute;
             top: 40px;
             right: 35px;
+
+            display: flex;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .userpriv-btn{
             font-size: 20px;
             cursor: pointer;
             color: #4C4C4C;
@@ -162,9 +169,6 @@
         }
 
         .logout-btn{
-            position: absolute;
-            top: 35px;
-            right: 70px;
             font-size: 20px;
             cursor: pointer;
             color: #4C4C4C;
@@ -182,10 +186,12 @@
     </style>
 </head>
 <body>
-    <a class="logout-btn" href="/logout"><i class="fa-solid fa-arrow-right-from-bracket" style="transform: rotate(180deg);"></i> Logout</a>
-    @if(Auth::user()->role == 'admin')
+    <div class="actions">
+        <a class="logout-btn" href="https://bfcgroup.ph/user/profile">Change Password</a> 
+        <a class="logout-btn" href="/logout">Logout</a> 
         <i class="fa-solid fa-gear userpriv-btn" onclick="window.location.href='/admin'"></i>
-    @endif
+    </div>
+
 
     <img src="{{asset('/images/BGC.png')}}" id="logo" alt="">
     <div class="row">

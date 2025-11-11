@@ -184,6 +184,13 @@
                 top: -10px;
                 width: 90px;
             }
+            .grid-cols-4 label{
+                font-size: 12px;
+            }
+
+            .grid-cols-4 p{
+                font-size: 12px;
+            }
 
             .page{
                 page-break-after: always;
@@ -322,7 +329,7 @@
                 <tr>
                     <td class="flex items-center justify-around ">
                         <div class="confirmation-field">(SIGNATURE OVER PRINTED NAME)</div>
-                        <div class="confirmation-field">(DATE RECIEVE)</div>
+                        <div class="confirmation-field">(DATE RECEIVE)</div>
                     </td>
                 </tr>
             </table>
@@ -335,13 +342,13 @@
                         <div>
                             <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
                             <p>{{$hr->name}}</p>
-                            <p>Head, Human Resources</p>
+                            <p>{{$hr->position}}</p>
                         </div>
                     </div>
                     <div class="signatories">
                         <label>Noted By:</label>
                         <div>
-                            <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
+                            <img src="{{asset('storage/' . $hra?->esign)}}" alt="Unavailable">
                             <p>{{$hra->name}}</p>
                             <p>Head, Human Resources</p>
                         </div>
@@ -368,8 +375,8 @@
                     <label>Approved By:</label>
                     <div>
                         <img src="{{asset('storage/' . $approver?->esign)}}" alt="Unavailable">
-                        <p>Atty. {{$panForm->approved_by}}</p>
-                        <p>Vice President</p>
+                        <p>{{$approver->name}}</p>
+                        <p>{{$approver->position}}</p>
                     </div>
                 </div>
             </div>
@@ -486,21 +493,40 @@
                 <tr>
                     <td class="flex items-center justify-around ">
                         <div class="confirmation-field">(SIGNATURE OVER PRINTED NAME)</div>
-                        <div class="confirmation-field">(DATE RECIEVE)</div>
+                        <div class="confirmation-field">(DATE RECEIVE)</div>
                     </td>
                 </tr>
             </table>
 
 
-            <div class="grid grid-cols-3 w-full px-6">
-                <div class="signatories">
-                    <label>Prepared By:</label>
-                    <div>
-                        <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
-                        <p>{{$hr->name}}</p>
-                        <p>Head, Human Resources</p>
+            <div class="grid grid-cols-{{$hra->id != $hr->id ? '4' : '3'}} w-full px-6">
+                @if($hra->id != $hr->id)
+                    <div class="signatories">
+                        <label>Prepared By:</label>
+                        <div>
+                            <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
+                            <p>{{$hr->name}}</p>
+                            <p>{{$hr->position}}</p>
+                        </div>
                     </div>
-                </div>
+                    <div class="signatories">
+                        <label>Noted By:</label>
+                        <div>
+                            <img src="{{asset('storage/' . $hra?->esign)}}" alt="Unavailable">
+                            <p>{{$hra->name}}</p>
+                            <p>Head, Human Resources</p>
+                        </div>
+                    </div>
+                @else 
+                    <div class="signatories">
+                        <label>Prepared/Noted By:</label>
+                        <div>
+                            <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
+                            <p>{{$hra->name}}</p>
+                            <p>Head, Human Resources</p>
+                        </div>
+                    </div>
+                @endif
                 <div class="signatories">
                     <label>Recommended By:</label>
                     <div>
@@ -513,8 +539,8 @@
                     <label>Approved By:</label>
                     <div>
                         <img src="{{asset('storage/' . $approver?->esign)}}" alt="Unavailable">
-                        <p>{{$panForm->approved_by}}</p>
-                        <p>Vice President</p>
+                        <p>{{$approver->name}}</p>
+                        <p>{{$approver->position}}</p>
                     </div>
                 </div>
             </div>
@@ -630,21 +656,40 @@
                 <tr>
                     <td class="flex items-center justify-around ">
                         <div class="confirmation-field">(SIGNATURE OVER PRINTED NAME)</div>
-                        <div class="confirmation-field">(DATE RECIEVE)</div>
+                        <div class="confirmation-field">(DATE RECEIVE)</div>
                     </td>
                 </tr>
             </table>
 
 
-            <div class="grid grid-cols-3 w-full px-6">
-                <div class="signatories">
-                    <label>Prepared By:</label>
-                    <div>
-                        <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
-                        <p>{{$hr->name}}</p>
-                        <p>Head, Human Resources</p>
+            <div class="grid grid-cols-{{$hra->id != $hr->id ? '4' : '3'}} w-full px-6">
+                @if($hra->id != $hr->id)
+                    <div class="signatories">
+                        <label>Prepared By:</label>
+                        <div>
+                            <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
+                            <p>{{$hr->name}}</p>
+                            <p>{{$hr->position}}</p>
+                        </div>
                     </div>
-                </div>
+                    <div class="signatories">
+                        <label>Noted By:</label>
+                        <div>
+                            <img src="{{asset('storage/' . $hra?->esign)}}" alt="Unavailable">
+                            <p>{{$hra->name}}</p>
+                            <p>Head, Human Resources</p>
+                        </div>
+                    </div>
+                @else 
+                    <div class="signatories">
+                        <label>Prepared/Noted By:</label>
+                        <div>
+                            <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
+                            <p>{{$hra->name}}</p>
+                            <p>Head, Human Resources</p>
+                        </div>
+                    </div>
+                @endif
                 <div class="signatories">
                     <label>Recommended By:</label>
                     <div>
@@ -657,8 +702,8 @@
                     <label>Approved By:</label>
                     <div>
                         <img src="{{asset('storage/' . $approver?->esign)}}" alt="Unavailable">
-                        <p>Atty. {{$panForm->approved_by}}</p>
-                        <p>Vice President</p>
+                        <p>{{$approver->name}}</p>
+                        <p>{{$approver->position}}</p>
                     </div>
                 </div>
             </div>

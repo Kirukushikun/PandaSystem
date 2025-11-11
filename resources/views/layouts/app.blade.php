@@ -26,44 +26,33 @@
      
      <x-loader/>
 
-     <!-- @if(Auth::check() && !request()->is('print-view*'))
+     @if(Auth::check() && !request()->is('print-view*'))
           @if(Auth::user()->role == 'admin')
-               <div class="navigator absolute flex flex-col gap-2 bg-white p-5 rounded-md" style="bottom: 50px; left: 180px">
-                    <h1 class="text-center font-bold">Admin Panel</h1>
-                    <div class="navigations flex flex-col gap-2">
-                         <a href="/requestor"
-                              class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('requestor*') ? 'bg-blue-700' : 'bg-blue-400' }}">
-                              Requestor
-                         </a>
-
-                         <a href="/divisionhead"
-                              class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('divisionhead*') ? 'bg-blue-700' : 'bg-blue-400' }}">
-                              Division Head
-                         </a>
-
-                         <a href="/hrpreparer"
-                              class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('hrpreparer*') ? 'bg-blue-700' : 'bg-blue-400' }}">
-                              HR Preparer
-                         </a>
-
-                         <a href="/hrapprover"
-                              class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('hrapprover*') ? 'bg-blue-700' : 'bg-blue-400' }}">
-                              HR Approver
-                         </a>
-
-                         <a href="/approver"
-                              class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('approver*') ? 'bg-blue-700' : 'bg-blue-400' }}">
-                              Approver
-                         </a>
-
-                         <a href="/admin"
-                              class="px-4 py-2 text-white hover:bg-blue-400 {{ request()->is('admin*') ? 'bg-blue-700' : 'bg-blue-400' }}">
-                              Admin
-                         </a>
-                    </div>
+               <div class="navigator absolute flex flex-col gap-2 p-5 rounded-md text-gray-600 text-xl font-bold" style="top: 5px; left: 280px">
+                    @if(request()->is('requestor*'))
+                         <div>
+                              Requestor Module
+                         </div>
+                    @elseif(request()->is('divisionhead*'))
+                         <div>
+                              Division Head Module
+                         </div>
+                    @elseif(request()->is('hrpreparer*'))
+                         <div>
+                              HR Preparer Module
+                         </div>
+                    @elseif(request()->is('hrapprover*'))
+                         <div>
+                              HR Approver Module
+                         </div>
+                    @elseif(request()->is('approver*'))
+                         <div>
+                              Final Apporver Module
+                         </div>
+                    @endif
                </div>
           @endif
-     @endif -->
+     @endif
      
      <div x-data="{ show: false, type: '', header: '', message: '' }" 
           x-init="

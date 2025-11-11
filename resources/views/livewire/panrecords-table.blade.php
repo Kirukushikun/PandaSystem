@@ -65,7 +65,7 @@
     >
         <div class="bg-white p-6 rounded-lg shadow-lg w-md z-10">
             <h2 class="text-xl font-semibold mb-4">Update Employee’s PAN</h2>
-            <p class="mb-6">Are you sure you want to update this employee’s PAN? This action will create a new PAN request entry</p>
+            <p class="mb-6">Are you sure you want to update this employee’s PAN? This action will initiate a new PAN entry</p>
 
             <div class="flex flex-col gap-3 mb-5 mt-[-10px]">
                 <div class="input-group">

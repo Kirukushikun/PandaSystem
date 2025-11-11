@@ -106,7 +106,7 @@ Route::middleware('auth')->group(function() {
 		
 		$divisionhead = User::find($requestForm->divisionhead_id);
 		$hr = User::find($requestForm->hr_id);
-		$hra = User::find(61);
+		$hra = User::where('role', 'hrhead')->first();
 		$approver = User::find($requestForm->approver_id);
 		
 		return view('panda.print-view', compact(
@@ -118,7 +118,7 @@ Route::middleware('auth')->group(function() {
 			'hra',
 			'approver',
 		));
-	})->middleware('module.access:HRA');
+	})->middleware('module.access:HRA,HRP');
 
 	// FINAL APPROVER
 	Route::get('/approver', function(){

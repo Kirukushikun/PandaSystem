@@ -198,16 +198,21 @@
             </div>
             <div class="input-group">
                 <label for="employment_status">Employment Status:</label>
-                <select id="employment_status" type="text" class="form-input" wire:model="employment_status" x-ref="employment_status" {{$isDisabled ? 'Disabled' : '' }}>
-                    <option value=""></option>
-                    <option value="Probationary">Probationary</option>
-                    <option value="Regular">Regular</option>
-                    <option value="Project-Based">Project-Based</option>
-                    <option value="Fixed-Term">Fixed-Term</option>
-                    <option value="Casual">Casual</option> 
-                    <option value="Part-Time">Part-Time</option> 
-                    <option value="Seasonal">Seasonal</option> 
-                </select>
+                @if($recentRequestCompleted)
+                    <input type="text" id="employment_status" type="text" class="form-input" wire:model="employment_status" x-ref="employment_status" readonly>
+                @else 
+                    <select id="employment_status" type="text" class="form-input" wire:model="employment_status" x-ref="employment_status" {{$isDisabled ? 'Disabled' : '' }}>
+                        <option value=""></option>
+                        <option value="Probationary">Probationary</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Project-Based">Project-Based</option>
+                        <option value="Fixed-Term">Fixed-Term</option>
+                        <option value="Casual">Casual</option> 
+                        <option value="Part-Time">Part-Time</option> 
+                        <option value="Seasonal">Seasonal</option> 
+                    </select>
+                @endif
+
             </div>
 
             <div class="input-group">
@@ -519,7 +524,9 @@
                             <label><span class="text-red-600 font-bold">*</span> Type of action:</label>
                             <select name="type_of_action" wire:model="type_of_action" required>
                                 <option value="">Select type of action</option>
-                                <option value="Regularization">Regularization</option>
+                                @if($panEntry && $panEntry->employment_status == 'Probationary')
+                                    <option value="Regularization">Regularization</option>
+                                @endif
                                 <option value="Salary Alignment">Salary Alignment</option>
                                 <option value="Wage Order">Wage Order</option>
                                 <option value="Lateral Transfer">Lateral Transfer</option>
@@ -551,7 +558,7 @@
                      class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
                 </div>
             </div>
-
+    
         </div>
 
         <!-- Debug Section -->
@@ -585,7 +592,9 @@
                     { field: 'position', label: 'Position', from: '', to: '' },
                     { field: 'joblevel', label: 'Job Level', from: '', to: '' },
                     { field: 'basic', label: 'Basic', from: '', to: '' },
-                    { field: 'leavecredits', label: 'Leave Credits', from: '', to: '' }
+                    @if($requestEntry->type_of_action == 'Regularization')
+                    ,{ field: 'leavecredits', label: 'Leave Credits', from: '', to: '' }
+                    @endif
                 ];
 
                 this.allowances = [];
@@ -968,6 +977,11 @@
                 this.allowances = [];
 
                 data.forEach(item => {
+                    // Skip leavecredits field when loading from previous PAN
+                    if (item.field === 'leavecredits') {
+                        return; // Skip this iteration
+                    }
+
                     // Check if it's a static field
                     const staticField = this.staticFields.find(sf => sf.field === item.field);
                     if (staticField) {

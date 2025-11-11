@@ -52,6 +52,8 @@ class HrpreparerTable extends Component
             'For HR Prep',
             'For Confirmation',
             'For Resolution',
+            'For HR Approval',
+            'For Final Approval',
             'Approved',
             'Served',
             'Filed'
