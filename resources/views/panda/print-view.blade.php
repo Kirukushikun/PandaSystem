@@ -89,6 +89,8 @@
             position: relative;
         }
 
+
+
         .signatories img{
             position: absolute;
             top: -30px;
@@ -161,6 +163,13 @@
 
             .signatories{
                 gap: 10px;
+            }
+            .grid-cols-4 label{
+                font-size: 12px;
+            }
+
+            .grid-cols-4 p{
+                font-size: 12px;
             }
 
             label, p{
@@ -326,7 +335,7 @@
             </table>
 
 
-            <div class="grid grid-cols-{{$hra->id != $hr->id ? '4' : '3'}} w-full px-6">
+            <div class="grid grid-cols-{{$hra->id != $hr->id ? '4' : '3'}} text-sm w-full px-6">
                 @if($hra->id != $hr->id)
                     <div class="signatories">
                         <label>Prepared By:</label>

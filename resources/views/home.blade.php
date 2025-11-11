@@ -193,7 +193,6 @@
     </div>
 
 
-
     <img src="{{asset('/images/BGC.png')}}" id="logo" alt="">
     <div class="row">
         @if(Auth()->user()->access['RQ_Module'] == true)
