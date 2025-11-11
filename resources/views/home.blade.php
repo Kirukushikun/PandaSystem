@@ -15,6 +15,7 @@
             box-sizing: border-box;
             margin: 0;
             color: #4C4C4C;
+            transition: 0.3s ease;
         }
 
         body{
@@ -38,32 +39,83 @@
         }
 
 
-        .row{
-            display: flex;
-            flex-wrap: wrap;
+        .row {
+            display: grid;
+            grid-template-columns: repeat(3, 320px);
             justify-content: center;
             gap: 40px;
+            max-width: 100%;
         }
 
-        @media(max-width: 1112px){
+        /* 5 cards: 3 on top, 2 centered below */
+        .row:has(.card:nth-child(5):last-child) {
+            grid-template-columns: repeat(3, 320px);
+        }
+
+        .row:has(.card:nth-child(5):last-child) .card:nth-child(4),
+        .row:has(.card:nth-child(5):last-child) .card:nth-child(5) {
+            grid-column: span 1;
+        }
+
+        .row:has(.card:nth-child(5):last-child) .card:nth-child(4) {
+            grid-column-start: 1;
+            margin-left: auto;
+            margin-right: 20px;
+        }
+
+        .row:has(.card:nth-child(5):last-child) .card:nth-child(5) {
+            grid-column-start: 3;
+            margin-right: auto;
+            margin-left: 20px;
+        }
+
+        /* 4 cards: 2x2 grid */
+        .row:has(.card:nth-child(4):last-child) {
+            grid-template-columns: repeat(2, 320px);
+        }
+
+        /* 3 cards: all in one row */
+        .row:has(.card:nth-child(3):last-child):not(:has(.card:nth-child(4))) {
+            grid-template-columns: repeat(3, 320px);
+        }
+
+        /* 2 cards: side by side */
+        .row:has(.card:nth-child(2):last-child):not(:has(.card:nth-child(3))) {
+            grid-template-columns: repeat(2, 320px);
+        }
+
+        /* 1 card: centered */
+        .row:has(.card:only-child) {
+            grid-template-columns: 320px;
+        }
+
+        @media(max-width: 1112px) {
             body {
                 padding: 50px 0;
                 height: auto;
             }
+            
+            .row {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+                padding: 0 20px;
+            }
+            
+            /* Reset custom positioning on mobile */
+            .row:has(.card:nth-child(5):last-child) .card:nth-child(4),
+            .row:has(.card:nth-child(5):last-child) .card:nth-child(5) {
+                margin-left: 0;
+                margin-right: 0;
+                grid-column: auto;
+            }
         }
 
-        
-
-        .card{
-            width: calc(100% - 40px);
-            max-width: 320px;
-
+        .card {
+            width: 320px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 10px;
-
 
             background-color: white;
             padding: 30px;
@@ -72,14 +124,17 @@
             text-align: center;
             box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
         }
-        .card h3{
+
+        .card h3 {
             font-size: clamp(14px, 3vw, 17px);
             font-weight: 700;
         }
-        .card img{
+
+        .card img {
             width: clamp(70px, 10vw, 110px);
         }
-        .card button{
+
+        .card button {
             width: 100%;
             padding: 12px;
             border: none;
@@ -96,14 +151,26 @@
 
         .userpriv-btn{
             position: absolute;
-            top: 35px;
+            top: 40px;
             right: 35px;
-            font-size: 30px;
+            font-size: 20px;
             cursor: pointer;
             color: #4C4C4C;
             transition: 0.4 ease;
         }.userpriv-btn:hover{
-            transform:scale(1.2);
+            transform:scale(1.1);
+        }
+
+        .logout-btn{
+            position: absolute;
+            top: 35px;
+            right: 70px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #4C4C4C;
+            transition: 0.4 ease;
+        }.logout-btn:hover{
+            transform:scale(1.1);
         }
 
         @media(max-width: 679px){
@@ -115,10 +182,10 @@
     </style>
 </head>
 <body>
+    <a class="logout-btn" href="/logout"><i class="fa-solid fa-arrow-right-from-bracket" style="transform: rotate(180deg);"></i> Logout</a>
     @if(Auth::user()->role == 'admin')
         <i class="fa-solid fa-gear userpriv-btn" onclick="window.location.href='/admin'"></i>
     @endif
-
 
     <img src="{{asset('/images/BGC.png')}}" id="logo" alt="">
     <div class="row">

@@ -282,20 +282,25 @@
                     <tbody id="pan-tbody">
 
                         @if($mode == "view")
-                            @foreach($referenceTableData as $item)
+                            @php
+                                $items = collect($referenceTableData);
+
+                                // Move 'leavecredits' item to the end
+                                $items = $items->sortBy(fn($item) => $item['field'] === 'leavecredits' ? 1 : 0);
+
+                                $labels = [
+                                    'place'    => 'Place of Assignment',
+                                    'head'     => 'Immediate Head',
+                                    'joblevel' => 'Job Level',
+                                    'leavecredits' => 'Leave Credits'
+                                ];
+                            @endphp
+                            @foreach($items as $item)
                                 <tr>
                                     <td class="border-t-2 border-gray-300">
                                         <input type="text" class="w-full border-none focus:ring-0 text-center outline-none" value="{{$item['from']}}" Readonly />
                                     </td>
                                     <td class="border-t-2 border-gray-300 text-center capitalize">
-                                        @php
-                                            $labels = [
-                                                'place'    => 'Place of Assignment',
-                                                'head'     => 'Immediate Head',
-                                                'joblevel' => 'Job Level',
-                                            ];
-                                        @endphp
-
                                         {{ $labels[$item['field']] ?? $item['field'] }}
                                     </td>
                                     <td class="border-t-2 border-gray-300">
@@ -579,7 +584,8 @@
                     { field: 'head', label: 'Immediate Head', from: '', to: '' },
                     { field: 'position', label: 'Position', from: '', to: '' },
                     { field: 'joblevel', label: 'Job Level', from: '', to: '' },
-                    { field: 'basic', label: 'Basic', from: '', to: '' }
+                    { field: 'basic', label: 'Basic', from: '', to: '' },
+                    { field: 'leavecredits', label: 'Leave Credits', from: '', to: '' }
                 ];
 
                 this.allowances = [];
@@ -633,35 +639,78 @@
 
             createStaticRow(field) {
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="border-t-2 border-gray-300">
-                        <input 
-                            type="text" 
-                            class="w-full border-none focus:ring-0 text-center outline-none" 
-                            value="${field.from}"
-                            data-field="${field.field}"
-                            data-type="from"
-                        />
-                    </td>
-                    <td class="border-t-2 border-gray-300 text-center font-medium relative">
-                        ${field.label}
-                        <i class="fa-solid fa-circle-exclamation text-red-400 absolute right-10 top-[14px] hidden" data-static-warning="${field.field}"></i>
-                    </td>
-                    <td class="border-t-2 border-gray-300">
-                        <input 
-                            type="text" 
-                            class="w-full border-none focus:ring-0 text-center outline-none" 
-                            value="${field.to}"
-                            data-field="${field.field}"
-                            data-type="to"
-                        />
-                    </td>
-                `;
+                if(field.field == 'leavecredits'){
+                    row.innerHTML = `
+                        <td class="border-t-2 border-gray-300">
+                            <input 
+                                type="text" 
+                                class="w-full border-none focus:ring-0 text-center outline-none" 
+                                value="${field.from}"
+                                data-field="${field.field}"
+                                data-type="from"
+                            />
+                        </td>
+                        <td class="border-t-2 border-gray-300 text-center font-medium relative">
+                            ${field.label}
+                            <i class="fa-solid fa-circle-exclamation text-red-400 absolute right-10 top-[14px] hidden" data-static-warning="${field.field}"></i>
+                        </td>
+                        <td class="border-t-2 border-gray-300">
+                            <select 
+                                class="w-full border-none focus:ring-0 text-center outline-none" 
+                                data-field="${field.field}"
+                                data-type="to"
+                            >   
+                                <option value=""></option>
+                                <option value="SL - 5.00 | VL - 5.00" ${field.to === 'SL - 5.00 | VL - 5.00' ? 'selected' : ''}> SL - 5.00 | VL - 5.00 </option>
+                                <option value="SL - 4.58 | VL - 4.58" ${field.to === 'SL - 4.17 | VL - 4.17' ? 'selected' : ''}> SL - 4.58 | VL - 4.58 </option>
+                                <option value="SL - 4.17 | VL - 4.17" ${field.to === 'SL - 4.17 | VL - 4.17' ? 'selected' : ''}> SL - 4.17 | VL - 4.17 </option>
+                                <option value="SL - 3.75 | VL - 3.75" ${field.to === 'SL - 3.75 | VL - 3.75' ? 'selected' : ''}> SL - 3.75 | VL - 3.75 </option>
+                                <option value="SL - 3.33 | VL - 3.33" ${field.to === 'SL - 3.33 | VL - 3.33' ? 'selected' : ''}> SL - 3.33 | VL - 3.33 </option>
+                                <option value="SL - 2.92 | VL - 2.92" ${field.to === 'SL - 2.92 | VL - 2.92' ? 'selected' : ''}> SL - 2.92 | VL - 2.92 </option>
+                                <option value="SL - 2.50 | VL - 2.50" ${field.to === 'SL - 2.50 | VL - 2.50' ? 'selected' : ''}> SL - 2.50 | VL - 2.50 </option>
+                                <option value="SL - 2.08 | VL - 2.08" ${field.to === 'SL - 2.08 | VL - 2.08' ? 'selected' : ''}> SL - 2.08 | VL - 2.08 </option>
+                                <option value="SL - 1.67 | VL - 1.67" ${field.to === 'SL - 1.67 | VL - 1.67' ? 'selected' : ''}> SL - 1.67 | VL - 1.67 </option>
+                                <option value="SL - 1.25 | VL - 1.25" ${field.to === 'SL - 1.25 | VL - 1.25' ? 'selected' : ''}> SL - 1.25 | VL - 1.25 </option>
+                                <option value="SL - 0.83 | VL - 0.83" ${field.to === 'SL - 0.83 | VL - 0.83' ? 'selected' : ''}> SL - 0.83 | VL - 0.83 </option>
+                                <option value="SL - 0.42 | VL - 0.42" ${field.to === 'SL - 0.42 | VL - 0.42' ? 'selected' : ''}> SL - 0.42 | VL - 0.42 </option>
+                            </select>
+                        </td>
+                    `;       
+                    
+                    console.log(field.to);
+                } else {
+                    row.innerHTML = `
+                        <td class="border-t-2 border-gray-300">
+                            <input 
+                                type="text" 
+                                class="w-full border-none focus:ring-0 text-center outline-none" 
+                                value="${field.from}"
+                                data-field="${field.field}"
+                                data-type="from"
+                            />
+                        </td>
+                        <td class="border-t-2 border-gray-300 text-center font-medium relative">
+                            ${field.label}
+                            <i class="fa-solid fa-circle-exclamation text-red-400 absolute right-10 top-[14px] hidden" data-static-warning="${field.field}"></i>
+                        </td>
+                        <td class="border-t-2 border-gray-300">
+                            <input 
+                                type="text" 
+                                class="w-full border-none focus:ring-0 text-center outline-none" 
+                                value="${field.to}"
+                                data-field="${field.field}"
+                                data-type="to"
+                            />
+                        </td>
+                    `;    
+                }
 
-                // Add event listeners for static fields
-                const inputs = row.querySelectorAll('input');
+
+                // Add event listeners for static fields (both inputs and selects)
+                const inputs = row.querySelectorAll('input, select');
                 inputs.forEach(input => {
-                    input.addEventListener('input', (e) => {
+                    const eventType = input.tagName === 'SELECT' ? 'change' : 'input';
+                    input.addEventListener(eventType, (e) => {
                         const fieldName = e.target.dataset.field;
                         const type = e.target.dataset.type;
                         const fieldIndex = this.staticFields.findIndex(f => f.field === fieldName);

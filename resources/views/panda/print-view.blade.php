@@ -89,6 +89,8 @@
             position: relative;
         }
 
+
+
         .signatories img{
             position: absolute;
             top: -30px;
@@ -161,6 +163,13 @@
 
             .signatories{
                 gap: 10px;
+            }
+            .grid-cols-4 label{
+                font-size: 12px;
+            }
+
+            .grid-cols-4 p{
+                font-size: 12px;
             }
 
             label, p{
@@ -270,21 +279,26 @@
                     <td class="!bg-[#e2efd9]">ACTION REFERENCE</td>
                     <td class="!bg-[#e2efd9]">TO</td>
                 </tr>
-                @foreach($panForm->action_reference_data as $item)
-                    @php
-                        $labels = [
-                            'place'    => 'Place of Assignment',
-                            'head'     => 'Immediate Head',
-                            'joblevel' => 'Job Level',
-                        ];
-                    @endphp
+                @php
+                    $items = collect($panForm->action_reference_data);
 
+                    // Move 'leavecredits' item to the end
+                    $items = $items->sortBy(fn($item) => $item['field'] === 'leavecredits' ? 1 : 0);
+
+                    $labels = [
+                        'place'    => 'Place of Assignment',
+                        'head'     => 'Immediate Head',
+                        'joblevel' => 'Job Level',
+                        'leavecredits' => 'Leave Credits'
+                    ];
+                @endphp
+
+                @foreach($items as $item)
                     <tr>
-                        <td>{{$item['from']}}</td>
+                        <td>{{ $item['from'] }}</td>
                         <td class="!bg-[#e2efd9] capitalize">{{ $labels[$item['field']] ?? $item['field'] }}</td>
-                        <td>{{$item['to']}}</td>
+                        <td>{{ $item['to'] }}</td>
                     </tr>
-
                 @endforeach
             </table>
 
@@ -314,15 +328,34 @@
             </table>
 
 
-            <div class="grid grid-cols-3 w-full px-6">
-                <div class="signatories">
-                    <label>Prepared By:</label>
-                    <div>
-                        <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
-                        <p>{{$hr->name}}</p>
-                        <p>Head, Human Resources</p>
+            <div class="grid grid-cols-{{$hra->id != $hr->id ? '4' : '3'}} text-sm w-full px-6">
+                @if($hra->id != $hr->id)
+                    <div class="signatories">
+                        <label>Prepared By:</label>
+                        <div>
+                            <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
+                            <p>{{$hr->name}}</p>
+                            <p>Head, Human Resources</p>
+                        </div>
                     </div>
-                </div>
+                    <div class="signatories">
+                        <label>Noted By:</label>
+                        <div>
+                            <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
+                            <p>{{$hra->name}}</p>
+                            <p>Head, Human Resources</p>
+                        </div>
+                    </div>
+                @else 
+                    <div class="signatories">
+                        <label>Prepared/Noted By:</label>
+                        <div>
+                            <img src="{{asset('storage/' . $hr?->esign)}}" alt="Unavailable">
+                            <p>{{$hra->name}}</p>
+                            <p>Head, Human Resources</p>
+                        </div>
+                    </div>
+                @endif
                 <div class="signatories">
                     <label>Recommended By:</label>
                     <div>
@@ -410,21 +443,26 @@
                     <td class="!bg-[#e2efd9]">ACTION REFERENCE</td>
                     <td class="!bg-[#e2efd9]">TO</td>
                 </tr>
-                @foreach($panForm->action_reference_data as $item)
-                    @php
-                        $labels = [
-                            'place'    => 'Place of Assignment',
-                            'head'     => 'Immediate Head',
-                            'joblevel' => 'Job Level',
-                        ];
-                    @endphp
+                @php
+                    $items = collect($panForm->action_reference_data);
 
+                    // Move 'leavecredits' item to the end
+                    $items = $items->sortBy(fn($item) => $item['field'] === 'leavecredits' ? 1 : 0);
+
+                    $labels = [
+                        'place'    => 'Place of Assignment',
+                        'head'     => 'Immediate Head',
+                        'joblevel' => 'Job Level',
+                        'leavecredits' => 'Leave Credits'
+                    ];
+                @endphp
+
+                @foreach($items as $item)
                     <tr>
-                        <td>{{$item['from']}}</td>
+                        <td>{{ $item['from'] }}</td>
                         <td class="!bg-[#e2efd9] capitalize">{{ $labels[$item['field']] ?? $item['field'] }}</td>
-                        <td>{{$item['to']}}</td>
+                        <td>{{ $item['to'] }}</td>
                     </tr>
-
                 @endforeach
             </table>
 
@@ -475,7 +513,7 @@
                     <label>Approved By:</label>
                     <div>
                         <img src="{{asset('storage/' . $approver?->esign)}}" alt="Unavailable">
-                        <p>Atty. {{$panForm->approved_by}}</p>
+                        <p>{{$panForm->approved_by}}</p>
                         <p>Vice President</p>
                     </div>
                 </div>
@@ -549,21 +587,26 @@
                     <td class="!bg-[#e2efd9]">ACTION REFERENCE</td>
                     <td class="!bg-[#e2efd9]">TO</td>
                 </tr>
-                @foreach($panForm->action_reference_data as $item)
-                    @php
-                        $labels = [
-                            'place'    => 'Place of Assignment',
-                            'head'     => 'Immediate Head',
-                            'joblevel' => 'Job Level',
-                        ];
-                    @endphp
+                @php
+                    $items = collect($panForm->action_reference_data);
 
+                    // Move 'leavecredits' item to the end
+                    $items = $items->sortBy(fn($item) => $item['field'] === 'leavecredits' ? 1 : 0);
+
+                    $labels = [
+                        'place'    => 'Place of Assignment',
+                        'head'     => 'Immediate Head',
+                        'joblevel' => 'Job Level',
+                        'leavecredits' => 'Leave Credits'
+                    ];
+                @endphp
+
+                @foreach($items as $item)
                     <tr>
-                        <td>{{$item['from']}}</td>
+                        <td>{{ $item['from'] }}</td>
                         <td class="!bg-[#e2efd9] capitalize">{{ $labels[$item['field']] ?? $item['field'] }}</td>
-                        <td>{{$item['to']}}</td>
+                        <td>{{ $item['to'] }}</td>
                     </tr>
-
                 @endforeach
             </table>
 
