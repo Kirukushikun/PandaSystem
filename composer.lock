@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "84fe9a475ea452c2c632055bfaf0d42e",
+    "content-hash": "541a10a84acab7e5edf9a04bda6e50e9",
     "packages": [
         {
             "name": "brick/math",
@@ -3234,6 +3234,72 @@
                 }
             ],
             "time": "2025-03-24T10:02:05+00:00"
+        },
+        {
+            "name": "mrunknown0001/laravel-login-monitor",
+            "version": "v1.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mrunknown0001/laravel-login-monitor.git",
+                "reference": "9fbafed50683523649dad185023f5b2f383aee5e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mrunknown0001/laravel-login-monitor/zipball/9fbafed50683523649dad185023f5b2f383aee5e",
+                "reference": "9fbafed50683523649dad185023f5b2f383aee5e",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/http": "^9.0|^10.0|^11.0|^12.0",
+                "illuminate/queue": "^9.0|^10.0|^11.0|^12.0",
+                "illuminate/support": "^9.0|^10.0|^11.0|^12.0",
+                "php": "^8.1|^8.2|^8.3|^8.4"
+            },
+            "require-dev": {
+                "laravel/framework": "^12.0",
+                "mockery/mockery": "^1.5",
+                "orchestra/testbench": "^9.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "ActivityLogger": "Mrunknown0001\\LaravelLoginMonitor\\Facades\\ActivityLogger"
+                    },
+                    "providers": [
+                        "Mrunknown0001\\LaravelLoginMonitor\\ActivityLoggerServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Mrunknown0001\\LaravelLoginMonitor\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mrunknown0001",
+                    "email": "madamt0001@gmail.com"
+                }
+            ],
+            "description": "Laravel package for monitoring login activities and sending beacons to a monitoring host",
+            "keywords": [
+                "Authentication",
+                "beacon",
+                "laravel",
+                "login",
+                "monitoring",
+                "security"
+            ],
+            "support": {
+                "issues": "https://github.com/mrunknown0001/laravel-login-monitor/issues",
+                "source": "https://github.com/mrunknown0001/laravel-login-monitor/tree/v1.6.0"
+            },
+            "time": "2025-11-12T06:40:22+00:00"
         },
         {
             "name": "nesbot/carbon",
