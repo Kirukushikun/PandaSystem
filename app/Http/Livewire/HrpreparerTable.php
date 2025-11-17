@@ -4,9 +4,13 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\RequestorModel;
+use App\Models\LogModel;
 use Livewire\WithPagination;
+
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class HrpreparerTable extends Component
 {   
@@ -19,6 +23,8 @@ class HrpreparerTable extends Component
     public $filterFarm = '';
 
     public $filterStatus = 'all';
+
+    public $header, $customHeader, $body;
 
     protected $paginationTheme = 'tailwind'; // or 'bootstrap' or omit
 
@@ -47,17 +53,47 @@ class HrpreparerTable extends Component
     }
 
     public function deleteEntry($targetEntry){
-        $request = RequestorModel::findOrFail($targetEntry);
+        try{             
+            $this->validate([
+                'header' => 'required|string',
+                'body' => 'nullable|string'
+            ]);
 
-        $request->is_deleted = true;
-        $request->save();
+            $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
 
-        $this->redirect('/hrpreparer'); 
-        session()->flash('notif', [
-            'type' => 'success',
-            'header' => 'Deletion Success',
-            'message' => 'PAN Initiation was successfully deleted'
-        ]);
+            LogModel::create([
+                'request_id' => $targetEntry,
+                'origin' => 'PAN Deleted by HR Preparer',
+                'header' => 'Subject: ' . $reason,
+                'body' => 'Details: ' . $this->body,
+                'created_at' => Carbon::now(),
+            ]);
+
+            Cache::forget("log_{$targetEntry}");
+
+            $request = RequestorModel::findOrFail($targetEntry);
+
+            $request->request_status = 'Deleted';
+            $request->is_deleted = true;
+            $request->save();
+
+            Cache::forget("requestor_{$targetEntry}");
+
+            $this->redirect('/hrpreparer'); 
+            session()->flash('notif', [
+                'type' => 'success',
+                'header' => 'Deletion Success',
+                'message' => 'PAN Initiation was successfully deleted'
+            ]);
+
+        }catch (\Exception $e) {
+            $this->redirect('/hrpreparer'); 
+            session()->flash('notif', [
+                'type' => 'failed',
+                'header' => 'Something went wrong',
+                'message' => 'We couldn’t proccess your request, please try again.'
+            ]);
+        }
     }
 
     public function render()

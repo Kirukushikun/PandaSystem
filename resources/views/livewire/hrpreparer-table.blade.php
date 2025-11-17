@@ -92,8 +92,8 @@
                                     @endif
                                 @endif
                                 
-                                @if(!$request->requested_by && !$request->requestor_id && !$request->divisionhead_id && $request->request_status == 'For HR Prep')
-                                    <i class="fa-solid fa-trash" @click="showModal = true; targetEntry = {{$request->id}}"></i>
+                                @if(!in_array($request->request_status, ['Served', 'Filed']))
+                                    <i class="fa-solid fa-trash text-red-600" @click="showModal = true; targetEntry = {{$request->id}}"></i>
                                 @endif
                             </td>
                         </tr>
@@ -117,9 +117,33 @@
             x-transition:leave-end="opacity-0 scale-90"
             class="fixed inset-0 flex items-center justify-center z-50"
         >
-            <div class="bg-white p-6 rounded-lg shadow-lg w-md z-10">
+            <div class="bg-white p-6 rounded-lg shadow-lg w-lg z-10">
                 <h2 class="text-xl font-semibold mb-4">Delete PAN Initiation</h2>
-                <p class="mb-6">Are you sure you want to delete this entry? This action cannot be undone</p>
+                <p class="mb-6">Warning: You are about to permanently void this Personnel Action Notice (PAN). This action is irreversible and will be logged in the system's audit trail.</p>
+
+                <div class="input-group mb-3">
+                    <label for="header"><span class="text-red-600 font-bold">*</span> Mandatory Reason for Deletion :</label>
+                    <!-- <input type="text" name="header" wire:model="header" required> -->
+                    <select name="header" wire:model="header" required>
+                        <option value="">Select a documented reason</option>
+                        <option value="Duplicate Entry">Duplicate Entry</option>
+                        <option value="Wrong Employee/Action Type">Incorrect Employee or Action Type Selected</option>
+                        <option value="Data Entry Mistakes">Significant Data Entry Error (Uncorrectable)</option>
+                        <option value="Action Rescinded">Underlying Action Rescinded (e.g., candidate withdrawal)</option>
+                        <option value="Policy Violation">Identified Policy or Compliance Violation</option>
+                        <option value="Other">Other (Note required below)</option>
+                    </select>
+                </div>
+
+                <div class="input-group mb-3" x-show="$wire.header === 'Other'">
+                    <label><span class="text-red-600 font-bold">*</span> Custom Reason :</label>
+                    <input type="text" class="w-full" placeholder="Type your reason" wire:model="customHeader">
+                </div>
+
+                <div class="input-group mb-5">
+                    <label><span class="text-red-600 font-bold">*</span> Details :</label>
+                    <textarea class="w-full h-24 resize-none" wire:model="body" required></textarea>
+                </div>
 
                 <div class="flex justify-end gap-3">
                     <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>

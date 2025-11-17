@@ -55,7 +55,8 @@ class DivisionheadTable extends Component
             'Rejected by Head',
             'Approved',
             'Served',
-            'Filed'
+            'Filed',
+            'Deleted',
         ];
 
         $divisionHeadDepartments = [
@@ -96,12 +97,14 @@ class DivisionheadTable extends Component
             })
             ->when($this->filterStatus === 'in_progress', function ($query) {
                 $query->whereNotIn('request_status', [
-                    'Filed'
+                    'Filed',
+                    'Deleted'
                 ]);
             })
             ->when($this->filterStatus === 'completed', function ($query) {
                 $query->whereIn('request_status', [
-                    'Filed'
+                    'Filed',
+                    'Deleted'
                 ]);
             })
             ->latest('updated_at')
