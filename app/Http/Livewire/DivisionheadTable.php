@@ -78,6 +78,7 @@ class DivisionheadTable extends Component
         $department = $divisionHeadDepartments[Auth::id()] ?? null;
 
         $requests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.requestor') != true")
+            ->where('is_deleted', false)
             ->where('department', $department)
             ->where('farm', Auth::user()->farm)
             ->whereIn('request_status', $statuses)

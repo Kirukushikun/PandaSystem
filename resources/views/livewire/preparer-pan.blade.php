@@ -611,7 +611,8 @@
                     'Professional Allowance',
                     'Interim Allowance',
                     'Training Allowance',
-                    'Mancom Allowance'
+                    'Mancom Allowance',
+                    'Allowance'
                 ];
 
                 this.init();
