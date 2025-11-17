@@ -41,10 +41,23 @@ class RequestorTable extends Component
 
     public function render()
     {   
-        $myRequests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.requestor') != true")
-            ->where('is_deleted', false)
-            ->where('requestor_id', Auth::user()->id)
-            ->where('farm', Auth::user()->farm)
+        // $requestorDepartments = [
+        //     67  => 'Engineering',
+        //     // 2  => 'Farm Maintenance', 
+        //     // 3  => 'Feedmill',
+        //     100  => 'Financial Operations and Compliance',
+        //     98  => 'Hatchery',
+        //     60  => 'Human Resources',
+        //     61  => 'IT and Security Services',
+        //     // 8  => 'Logistics',
+        //     // 9  => 'Motorpool',
+        //     99 => 'Production',
+        //     63 => 'Purchasing',
+        //     37 => 'Sales & Marketing',
+        //     // 13 => 'Technical',
+        // ];
+
+        $myRequests = RequestorModel::where('farm', Auth::user()->farm)
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('request_no', 'like', '%' . $this->search . '%')
@@ -61,12 +74,12 @@ class RequestorTable extends Component
             })
             ->when($this->filterStatus === 'in_progress', function ($query) {
                 $query->whereNotIn('request_status', [
-                    'Filed', 'Withdrew'
+                    'Filed', 'Withdrew', 'Deleted'
                 ]);
             })
             ->when($this->filterStatus === 'completed', function ($query) {
                 $query->whereIn('request_status', [
-                    'Filed', 'Withdrew'
+                    'Filed', 'Withdrew', 'Deleted'
                 ]);
             })
             ->latest('updated_at')
