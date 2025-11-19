@@ -78,14 +78,7 @@
                         <td>{{$employee->department}}</td>
                         <td>No Ongoing Pan</td>
                         <td>
-                            <i class="fa-solid fa-pen-to-square cursor-pointer hover:scale-120" @click='openModal("edit", {
-                                id: {{ $employee->id }},
-                                company_id: "{{ $employee->company_id }}",
-                                name: "{{ $employee->full_name }}",
-                                farm: "{{ $employee->farm }}",
-                                department: "{{ $employee->department }}",
-                                position: "{{ $employee->position }}"
-                            })'></i>
+                            <i class="fa-solid fa-pen-to-square cursor-pointer hover:scale-120" @click='openModal("edit", {id: {{ $employee->id }}, company_id: "{{ $employee->company_id }}", name: "{{ $employee->full_name }}", farm: "{{ $employee->farm }}", department: "{{ $employee->department }}", position: "{{ $employee->position }}" })'></i>
                             <i class="fa-solid fa-trash cursor-pointer hover:scale-120" @click='openModal("delete", {
                                 id: {{ $employee->id }},
                             })'></i>

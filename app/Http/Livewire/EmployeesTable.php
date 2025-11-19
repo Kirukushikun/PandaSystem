@@ -31,7 +31,7 @@ class EmployeesTable extends Component
 
     public function render()
     {   
-        $employees = Employee::latest('updated_at')
+        $employees = Employee::orderBy('full_name')
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('company_id', 'like', '%' . $this->search . '%')
