@@ -60,19 +60,18 @@ class DivisionheadTable extends Component
         ];
 
         $divisionHeadDepartments = [
-            67  => 'Engineering',
-            // 2  => 'Farm Maintenance', 
-            // 3  => 'Feedmill',
-            100  => 'Financial Operations and Compliance',
-            98  => 'Hatchery',
-            60  => 'Human Resources',
-            5  => 'IT and Security Services',
-            // 8  => 'Logistics',
-            // 9  => 'Motorpool',
-            99 => 'Production',
-            63 => 'Purchasing',
-            37 => 'Sales & Marketing',
-            // 13 => 'Technical',
+            // Division Heads
+            45  => 'Feedmill',                                    // Lady Arla Lino
+            67  => 'General Services',                            // Ancel Roque
+            98  => 'Poultry',                                     // Antonio Acibar Jr.
+            37  => 'Sales & Marketing',                           // Marie Stephanie Flores
+            99  => 'Swine',                                       // Dr. Danhill Lusung
+            
+            // Shared Services Department Heads
+            100 => 'Financial Operations and Compliance',         // Villanueva, Marie Fe
+            60  => 'Human Resources',                             // Chrisflor Joy Manalili
+            5   => 'IT and Security Services',                    // Montiano, Jeffrey
+            63  => 'Purchasing',                                  // Ho, Maria Irene
         ];
 
         $department = $divisionHeadDepartments[Auth::id()] ?? null;
@@ -80,7 +79,6 @@ class DivisionheadTable extends Component
         $requests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.requestor') != true")
             ->where('is_deleted', false)
             ->where('department', $department)
-            ->where('farm', Auth::user()->farm)
             ->whereIn('request_status', $statuses)
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
