@@ -41,23 +41,76 @@ class RequestorTable extends Component
 
     public function render()
     {   
-        // $requestorDepartments = [
-        //     67  => 'Engineering',
-        //     // 2  => 'Farm Maintenance', 
-        //     // 3  => 'Feedmill',
-        //     100  => 'Financial Operations and Compliance',
-        //     98  => 'Hatchery',
-        //     60  => 'Human Resources',
-        //     61  => 'IT and Security Services',
-        //     // 8  => 'Logistics',
-        //     // 9  => 'Motorpool',
-        //     99 => 'Production',
-        //     63 => 'Purchasing',
-        //     37 => 'Sales & Marketing',
-        //     // 13 => 'Technical',
-        // ];
+        $requestorDepartments = [
+            // Feedmill
+            70 => 'Feedmill',
+            52 => 'Feedmill',
 
-        $myRequests = RequestorModel::where('farm', Auth::user()->farm)
+            // General Services
+            72 => 'General Services',
+            74 => 'General Services',
+            75 => 'General Services',
+            87 => 'General Services',
+            93 => 'General Services',
+            95 => 'General Services',
+
+            // Poultry
+            81 => 'Poultry',
+            73 => 'Poultry',
+            83 => 'Poultry',
+            84 => 'Poultry',
+            86 => 'Poultry',
+            88 => 'Poultry',
+            89 => 'Poultry',
+            90 => 'Poultry',
+            91 => 'Poultry',
+            92 => 'Poultry',
+            56 => 'Poultry',
+            26 => 'Poultry',
+            97 => 'Poultry',
+            98 => 'Poultry',
+
+            // Sales & Marketing
+            11 => 'Sales & Marketing',
+            35 => 'Sales & Marketing',
+            77 => 'Sales & Marketing',
+            85 => 'Sales & Marketing',
+            6  => 'Sales & Marketing',
+            37 => 'Sales & Marketing',
+
+            // Swine
+            9  => 'Swine',
+            76 => 'Swine',
+            79 => 'Swine',
+            80 => 'Swine',
+            82 => 'Swine',
+            96 => 'Swine',
+            99 => 'Swine',
+
+            // Financial Operations and Compliance
+            71 => 'Financial Operations and Compliance',
+            78 => 'Financial Operations and Compliance',
+            40 => 'Financial Operations and Compliance',
+            14 => 'Financial Operations and Compliance',
+            39 => 'Financial Operations and Compliance',
+            100 => 'Financial Operations and Compliance',
+
+            // Human Resources
+            60 => 'Human Resources',
+
+            // IT and Security Services
+            94 => 'IT and Security Services',
+            1  => 'IT and Security Services',
+            5  => 'IT and Security Services',
+
+            // Purchasing
+            24 => 'Purchasing',
+            63 => 'Purchasing',
+        ];
+
+        $department = $requestorDepartments[Auth::id()] ?? null;
+
+        $myRequests = RequestorModel::where('department', $department)
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('request_no', 'like', '%' . $this->search . '%')

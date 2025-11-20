@@ -39,6 +39,7 @@
                 <tr>
                     <th>User ID</th>
                     <th>User Name</th>
+                    <th>User Email</th>
                     <th>Farm</th>
                     <th>Position</th>
                     <th>RQ Module</th>
@@ -65,6 +66,7 @@
                     <tr>
                         <td>{{ $user['id'] }}</td>
                         <td>{{ $fullname }}</td>
+                        <td>{{ $user['email'] }}</td>
                         <td>
                             {{$dbUser->farm ?? '--'}}
                         </td>

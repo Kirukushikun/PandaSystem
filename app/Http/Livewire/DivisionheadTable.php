@@ -61,17 +61,17 @@ class DivisionheadTable extends Component
 
         $divisionHeadDepartments = [
             // Division Heads
-            45  => 'Feedmill',                                    // Lady Arla Lino
-            67  => 'General Services',                            // Ancel Roque
-            98  => 'Poultry',                                     // Antonio Acibar Jr.
-            37  => 'Sales & Marketing',                           // Marie Stephanie Flores
-            99  => 'Swine',                                       // Dr. Danhill Lusung
+            52  => 'Feedmill',                                    // Lady Arla Lino - 52
+            67  => 'General Services',                            // Ancel Roque - 67
+            98  => 'Poultry',                                     // Antonio Acibar Jr. - 98
+            37  => 'Sales & Marketing',                           // Marie Stephanie Flores - 37
+            99  => 'Swine',                                       // Dr. Danhill Lusung - 99
             
             // Shared Services Department Heads
-            100 => 'Financial Operations and Compliance',         // Villanueva, Marie Fe
-            60  => 'Human Resources',                             // Chrisflor Joy Manalili
-            5   => 'IT and Security Services',                    // Montiano, Jeffrey
-            63  => 'Purchasing',                                  // Ho, Maria Irene
+            100 => 'Financial Operations and Compliance',         // Villanueva, Marie Fe - 100
+            60  => 'Human Resources',                             // Chrisflor Joy Manalili - 60
+            5   => 'IT and Security Services',                    // Montiano, Jeffrey - 5
+            63  => 'Purchasing',                                  // Ho, Maria Irene -63
         ];
 
         $department = $divisionHeadDepartments[Auth::id()] ?? null;
