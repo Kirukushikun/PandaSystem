@@ -37,6 +37,7 @@ class RequestorModel extends Model
         'requestor_id',
         'divisionhead_id',
         'hr_id',
+        'approver_id',
 
         // 🔹 Timestamps
         'submitted_at',

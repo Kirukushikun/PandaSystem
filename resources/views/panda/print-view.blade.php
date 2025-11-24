@@ -239,6 +239,7 @@
                     $fullFarmName = [
                         'BFC' => 'BROOKSIDE FARMS CORPORATION',
                         'BRD' => 'BROOKDALE FARMS CORPORATION',
+                        'BDL' => 'BROOKDALE FARMS CORPORATION',
                         'PFC' => 'POULTRYPURE FARMS CORPORATION',
                         'RH' => 'RH FARMS'
                     ];
@@ -403,6 +404,7 @@
                     $fullFarmName = [
                         'BFC' => 'BROOKSIDE FARMS CORPORATION',
                         'BRD' => 'BROOKDALE FARMS CORPORATION',
+                        'BDL' => 'BROOKDALE FARMS CORPORATION',
                         'PFC' => 'POULTRYPURE FARMS CORPORATION',
                         'RH' => 'RH FARMS'
                     ];
@@ -566,6 +568,7 @@
                     $fullFarmName = [
                         'BFC' => 'BROOKSIDE FARMS CORPORATION',
                         'BRD' => 'BROOKDALE FARMS CORPORATION',
+                        'BDL' => 'BROOKDALE FARMS CORPORATION',
                         'PFC' => 'POULTRYPURE FARMS CORPORATION',
                         'RH' => 'RH FARMS'
                     ];
