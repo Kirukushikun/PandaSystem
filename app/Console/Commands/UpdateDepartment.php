@@ -30,10 +30,9 @@ class UpdateDepartment extends Command
         $employees = Employee::all();
 
         foreach($employees as $employee){
-            RequestorModel::where('approver_id', null)
-                ->where('request_status', 'Approved')
+            RequestorModel::where('employee_id', $employee->company_id)
                 ->update([
-                    'approver_id' => 64
+                    'department' => $employee->department
                 ]);
         }
     }
