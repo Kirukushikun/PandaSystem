@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
             'farm' => 'BFC',
             'name' => 'Iverson Guno',
-            'access' => '{"DH_Module": true, "FA_Module": false, "RQ_Module": false, "HRA_Module": false, "HRP_Module": false}',
+            'access' => '{"DH_Module": true, "FA_Module": true, "RQ_Module": true, "HRA_Module": true, "HRP_Module": true}',
         ]);
     }
 }

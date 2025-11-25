@@ -15,6 +15,9 @@ class PandaImport implements ToModel, WithHeadingRow, WithCalculatedFormulas
 
     public function model(array $row)
     {
+        // Determine what to save in department column
+        $departmentValue = $this->determineDepartment($row['division'] ?? '', $row['department'] ?? '');
+
         // Check if record already exists
         $existing = Employee::where('company_id', $row['employee_id'])
             ->where('full_name', $row['employee_full_name'])
@@ -22,16 +25,23 @@ class PandaImport implements ToModel, WithHeadingRow, WithCalculatedFormulas
             ->first();
 
         if ($existing) {
-            return null; // skip duplicates
+            // Update the existing record
+            $existing->update([
+                'farm'       => $row['farm'],
+                'department' => $departmentValue,
+            ]);
+            
+            $this->updatedCount++;
+            return null;
         }
 
-        // Create new record
+        // Create new record if doesn't exist
         $model = Employee::create([
             'company_id'     => $row['employee_id'],
             'full_name'      => $row['employee_full_name'],
             'position'       => $row['position'],
             'farm'           => $row['farm'],
-            'department'     => $row['department'],
+            'department'     => $departmentValue,
         ]);
 
         $this->createdCount++;
@@ -39,5 +49,19 @@ class PandaImport implements ToModel, WithHeadingRow, WithCalculatedFormulas
         return $model;
     }
 
+    private function determineDepartment($division, $department)
+    {
+        // Clean up the values
+        $division = trim($division);
+        $department = trim($department);
+
+        // If division is "Shared Services", use the department value
+        if (strcasecmp($division, 'Shared Services') === 0) {
+            return $department;
+        }
+
+        // Otherwise, use the division value
+        return $division;
+    }
 
 }
