@@ -17,7 +17,7 @@ class AccesslogsTable extends Component
 
     public function render()
     {   
-        $logs = AccessLog::paginate(8);
+        $logs = AccessLog::latest()->paginate(8);
         return view('livewire.accesslogs-table', compact('logs'));
     }
 }

@@ -9,6 +9,7 @@ use App\Models\LogModel;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Auth;
 
 class ApproverTable extends Component
 {   

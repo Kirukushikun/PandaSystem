@@ -67,6 +67,9 @@
             <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded cursor-pointer hover:bg-blue-600">Login</button>
         </form>
 
+        <div class="cf-turnstile text-center float mb-3 mt-3" data-sitekey="0x4AAAAAAAxN8pk_QXuP294_" data-callback="javascriptCallback"></div>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback" defer></script>
+
         <div class="mt-4 text-center">
             <div class="text-sm text-gray-500">
                 Forgot your password? Please contact <span class="text-blue-600 font-medium"> IT Department</span>.
