@@ -593,7 +593,7 @@
                     { field: 'joblevel', label: 'Job Level', from: '', to: '' },
                     { field: 'basic', label: 'Basic', from: '', to: '' },
                     @if($requestEntry->type_of_action == 'Regularization')
-                    ,{ field: 'leavecredits', label: 'Leave Credits', from: '', to: '' }
+                        { field: 'leavecredits', label: 'Leave Credits', from: '', to: '' }
                     @endif
                 ];
 

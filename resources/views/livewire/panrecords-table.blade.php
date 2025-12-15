@@ -72,6 +72,7 @@
                     <label><span class="text-red-600 font-bold">*</span> Type of action:</label>
                     <select name="type_of_action" wire:model="type_of_action" required>
                         <option value="">Select type of action</option>
+                        <option value="Regularization">Regularization</option>
                         <option value="Wage Order">Wage Order</option>
                         <option value="Lateral Transfer">Lateral Transfer</option>
                         <option value="Developmental Assignment">Developmental Assignment</option>
@@ -79,6 +80,18 @@
                         <option value="Discontinuance of Interim Allowance">Discontinuance of Allowance</option>
                         <option value="Confirmation of Development Assignment">Confirmation of Dev. Assignment</option>
                     </select>
+                </div>
+
+
+                <div class="file-group flex flex-col gap-2">
+                    <label for="supporting_file" class="text-[18px] relative">Supporting File: 
+                        @error('supporting_file')
+                            <span class="absolute bg-white text-red-600 right-[10px] bottom-[-20px] text-xs p-1">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </label>
+                    <input name="supporting_file" id="supporting_file" class="block w-full text-sm text-gray-500 border border-1 {{ $errors->has('supporting_file') ? 'border-red-600' : 'border-gray-600' }} rounded-md cursor-pointer bg-gray-50 focus:outline-none" type="file" accept="application/pdf" x-ref="supporting_file" wire:model="supporting_file">
                 </div>
             </div>
 
