@@ -64,10 +64,10 @@ return [
             
             // Add this block for Spatie Backup
             'dump' => [
-                'dump_binary_path' => env('DB_DUMP_BINARY_PATH'), // adjust this
-                'use_single_transaction',
-                'timeout' => 60, // optional
-                'add_extra_option' => '--skip-ssl --no-tablespaces',
+                'dump_binary_path' => env('DB_DUMP_BINARY_PATH'),
+                'use_single_transaction' => true,
+                'timeout' => 60,
+                'add_extra_option' => '--no-tablespaces',
             ],
         ],
 
