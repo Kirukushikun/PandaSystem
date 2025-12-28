@@ -31,7 +31,7 @@
             'For Head Approval', 'For HR Prep', 'For Confirmation', 'For HR Approval',
             'For Resolution', 'For Final Approval', 'Returned to Requestor', 'Withdrew', 'Approved', 'Served', 'Filed',
         ],
-        'hrpreparer' => ['For HR Prep', 'For Confirmation', 'For Resolution', 'Approved', 'Served', 'Filed'],
+        'hrpreparer' => ['For HR Prep', 'For Confirmation','For HR Approval','For Resolution', 'For Final Approval', 'Approved', 'Served', 'Filed'],
         'hrapprover' => ['For HR Approval', 'For Final Approval', 'Approved', 'Served', 'Filed'],
         'finalapprover' => ['For Final Approval', 'Approved', 'Served', 'Filed'],
     ];

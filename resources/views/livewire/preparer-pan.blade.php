@@ -978,10 +978,7 @@
                 this.allowances = [];
 
                 data.forEach(item => {
-                    // Skip leavecredits field when loading from previous PAN
-                    if (item.field === 'leavecredits') {
-                        return; // Skip this iteration
-                    }
+
 
                     // Check if it's a static field
                     const staticField = this.staticFields.find(sf => sf.field === item.field);
@@ -1012,6 +1009,7 @@
             const status = @json($requestEntry->request_status);
             const recentPanCompletedData = @json($recentPanCompletedData ?? null);
             const referenceTableData = @json($referenceTableData ?? null);
+
             
             // Initialize the form
             window.panForm = new PANForm();
