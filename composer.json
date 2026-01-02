@@ -16,7 +16,8 @@
         "maatwebsite/excel": "^3.1",
         "masbug/flysystem-google-drive-ext": "^2.4",
         "mrunknown0001/laravel-login-monitor": "^1.6",
-        "spatie/laravel-backup": "^9.3",
+        "spatie/db-dumper": "3.8.0",
+        "spatie/laravel-backup": "9.3.4",
         "spatie/laravel-ignition": "^2.9",
         "spatie/laravel-slack-alerts": "^1.5",
         "yajra/laravel-datatables": "11.0"
