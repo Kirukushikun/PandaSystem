@@ -109,6 +109,9 @@ class RequestorForm extends Component
             // Purchasing
             24 => 'Purchasing',
             63 => 'Purchasing',
+
+            // Admin
+            61 => 'General Services',
         ];
 
         $department = $requestorDepartments[Auth::id()] ?? null;

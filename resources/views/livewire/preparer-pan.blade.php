@@ -585,17 +585,21 @@
     <script>
         class PANForm {
             constructor() {
+                this.shouldShowLeaveCredits = @json($requestEntry->type_of_action == 'Regularization');
+                
                 this.staticFields = [
                     { field: 'section', label: 'Section', from: '', to: '' },
                     { field: 'place', label: 'Place of Assignment', from: '', to: '' },
                     { field: 'head', label: 'Immediate Head', from: '', to: '' },
                     { field: 'position', label: 'Position', from: '', to: '' },
                     { field: 'joblevel', label: 'Job Level', from: '', to: '' },
-                    { field: 'basic', label: 'Basic', from: '', to: '' },
-                    @if($requestEntry->type_of_action == 'Regularization')
-                        { field: 'leavecredits', label: 'Leave Credits', from: '', to: '' }
-                    @endif
+                    { field: 'basic', label: 'Basic', from: '', to: '' }
                 ];
+
+                // Add leave credits conditionally
+                if (this.shouldShowLeaveCredits) {
+                    this.staticFields.push({ field: 'leavecredits', label: 'Leave Credits', from: '', to: '' });
+                }
 
                 this.allowances = [];
 
