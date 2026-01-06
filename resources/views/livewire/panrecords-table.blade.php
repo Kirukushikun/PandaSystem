@@ -79,6 +79,7 @@
                         <option value="Interim Allowance">Interim Allowance</option>
                         <option value="Discontinuance of Interim Allowance">Discontinuance of Allowance</option>
                         <option value="Confirmation of Development Assignment">Confirmation of Dev. Assignment</option>
+                        <option value="Other Allowances">Other Allowances</option>
                     </select>
                 </div>
 
