@@ -73,7 +73,7 @@ class DivisionheadTable extends Component
             5   => 'IT and Security Services',                    // Montiano, Jeffrey - 5
             63  => 'Purchasing',                                  // Ho, Maria Irene -63
 
-            61  => 'General Services',                                       // Admin
+            61  => 'Human Resources',                                       // Admin
         ];
 
         $department = $divisionHeadDepartments[Auth::id()] ?? null;

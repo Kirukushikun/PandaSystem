@@ -97,6 +97,7 @@ class RequestorTable extends Component
 
             // Human Resources
             60 => 'Human Resources',
+            61 => 'Human Resources',
 
             // IT and Security Services
             94 => 'IT and Security Services',
