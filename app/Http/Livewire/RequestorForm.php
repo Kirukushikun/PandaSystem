@@ -89,6 +89,7 @@ class RequestorForm extends Component
             82 => 'Swine',
             96 => 'Swine',
             99 => 'Swine',
+            103 => 'Swine',
 
             // Financial Operations and Compliance
             71 => 'Financial Operations and Compliance',
@@ -151,11 +152,12 @@ class RequestorForm extends Component
             $employee = Employee::find($value);
 
             if ($employee) {
+                $this->employee_name = $employee->full_name; // add this
                 $this->employee_id = $employee->company_id;
                 $this->department = $employee->department;
             }
         } else {
-            // Reset when no employee is selected
+            $this->employee_name = null; // add this
             $this->employee_id = null;
             $this->department = null;
         }

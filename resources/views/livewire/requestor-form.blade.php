@@ -143,23 +143,22 @@
             <div class="input-group">
                 <label for="employee_name">Employee Name:</label>
                 @if($mode === 'create')
-                    <select name="employee_name" id="employee_name"  x-ref="employee_name"
-                        wire:model.live="employee_name"
-                        @change="$wire.set('selected_employee_id', $event.target.selectedOptions[0].dataset.employeeId)">
-                            <option value="" data-employee-id=""></option>
+                    <select name="employee_name" id="employee_name" x-ref="employee_name"
+                        wire:model.live="selected_employee_id">
+                        <option value=""></option>
                         @foreach($employees as $employee)
-                            <option value="{{ $employee->full_name }}" data-employee-id="{{ $employee->id }}">
+                            <option value="{{ $employee->id }}">
                                 {{ $employee->full_name }}
                             </option>
                         @endforeach
                     </select>
                 @elseif($requestEntry->request_status == 'Draft')
                     <select name="employee_name" id="employee_name" x-ref="employee_name"
-                        wire:model.live="employee_name"
-                            @change="$wire.set('selected_employee_id', $event.target.selectedOptions[0].dataset.employeeId)">
-                        <option value="" data-employee-id=""></option>
+                        wire:model.live="selected_employee_id">
+                        <option value=""></option>
                         @foreach($employees as $employee)
-                            <option value="{{ $employee->full_name }}" data-employee-id="{{ $employee->id }}" {{$employee->full_name == $employee_name ? 'Selected' : ''}}>
+                            <option value="{{ $employee->id }}"
+                                {{ $employee->full_name == $employee_name ? 'selected' : '' }}>
                                 {{ $employee->full_name }}
                             </option>
                         @endforeach
