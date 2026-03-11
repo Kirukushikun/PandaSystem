@@ -56,6 +56,7 @@ class RequestorForm extends Component
             87 => 'General Services',
             93 => 'General Services',
             95 => 'General Services',
+            67 => 'General Services',
 
             // Poultry
             81 => 'Poultry',
@@ -375,6 +376,7 @@ class RequestorForm extends Component
             ]);
             $this->redirect('/requestor');
             $this->reloadNotif('failed', 'Something went wrong', 'We couldn\'t process your request, please try again.');
+            $this->noreloadNotif('failed', 'Something went wrong', 'We couldn\'t process your request, please try again.');
         }
     }
 

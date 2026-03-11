@@ -116,6 +116,8 @@
             right: 30px;
         }
 
+        .remarks-text { font-size: 15px; }
+
         @media print {
             .print-action{
                 display: none !important;
@@ -206,6 +208,58 @@
             .copy{
                 opacity: 1;
             }
+
+            /* default print size if no class applied */
+            .remarks-text         { font-size: 11pt; }
+
+            .remarks-text.remarks-sm  { font-size: 9pt; }
+            .remarks-text.remarks-md  { font-size: 7pt; }
+            .remarks-text.remarks-lg  { font-size: 6pt; }
+
+    /* Compact-sm: ~80-150 chars */
+    .inner-border.compact-sm {
+        gap: 7px;
+    }
+    .inner-border.compact-sm h3 { font-size: 14px; }
+    .inner-border.compact-sm h1 { font-size: 20px; }
+    .inner-border.compact-sm h2 { font-size: 17px; }
+    .inner-border.compact-sm td { font-size: 12px; }
+    .inner-border.compact-sm label,
+    .inner-border.compact-sm p   { font-size: 11px; }
+    .inner-border.compact-sm img { width: 140px; margin: 5px 0 10px; }
+    .inner-border.compact-sm .confirmation-field { margin: 22px 0 10px; }
+    .inner-border.compact-sm .signatories img { width: 75px; top: -8px; }
+    .inner-border.compact-sm span { font-size: 7px; padding: 10px; }
+
+    /* Compact-md: ~150-300 chars */
+    .inner-border.compact-md {
+        gap: 5px;
+    }
+    .inner-border.compact-md h3 { font-size: 12px; }
+    .inner-border.compact-md h1 { font-size: 17px; }
+    .inner-border.compact-md h2 { font-size: 14px; }
+    .inner-border.compact-md td { font-size: 10px; }
+    .inner-border.compact-md label,
+    .inner-border.compact-md p   { font-size: 10px; }
+    .inner-border.compact-md img { width: 120px; margin: 3px 0 8px; }
+    .inner-border.compact-md .confirmation-field { margin: 15px 0 8px; }
+    .inner-border.compact-md .signatories img { width: 65px; top: -6px; }
+    .inner-border.compact-md span { font-size: 6px; padding: 8px; }
+
+    /* Compact-lg: 300+ chars */
+    .inner-border.compact-lg {
+        gap: 3px;
+    }
+    .inner-border.compact-lg h3 { font-size: 11px; }
+    .inner-border.compact-lg h1 { font-size: 15px; }
+    .inner-border.compact-lg h2 { font-size: 12px; }
+    .inner-border.compact-lg td { font-size: 9px; }
+    .inner-border.compact-lg label,
+    .inner-border.compact-lg p   { font-size: 9px; }
+    .inner-border.compact-lg img { width: 100px; margin: 2px 0 6px; }
+    .inner-border.compact-lg .confirmation-field { margin: 10px 0 5px; }
+    .inner-border.compact-lg .signatories img { width: 55px; top: -5px; }
+    .inner-border.compact-lg span { font-size: 5.5px; padding: 6px; }
         }
     </style>
 @endpush
@@ -317,7 +371,23 @@
                 </tr>
                 <tr>
                     <td>
-                        <input class="w-full outline-non border-none focus:ring-0 text-center" type="text" value="{{$panForm->remarks ?? 'No Remarks'}}">
+                        <div class="w-full text-center remarks-text" style="word-break: break-word; min-height: 1.5em;">
+                            @php
+                                $remarks = trim($panForm->remarks ?? 'No Remarks');
+                                
+                                // Normalize line breaks first
+                                $formatted = preg_replace('/\r\n|\r/', "\n", $remarks);
+                                
+                                // Remove any existing newlines before bullets to avoid duplicates
+                                $formatted = preg_replace('/\n?[ \t]*[•·][ \t]*/u', "\n• ", $formatted);
+                                
+                                // Handle numbered items - only split on number at start or after whitespace
+                                $formatted = preg_replace('/[ \t]+(\d+\.)[ \t]+/u', "\n$1 ", $formatted);
+                                
+                                $formatted = ltrim($formatted);
+                            @endphp
+                            {!! nl2br(e($formatted)) !!}
+                        </div>
                     </td>
                 </tr>
             </table>
@@ -482,7 +552,23 @@
                 </tr>
                 <tr>
                     <td>
-                        <input class="w-full outline-non border-none focus:ring-0 text-center" type="text" value="{{$panForm->remarks ?? 'No Remarks'}}">
+                        <div class="w-full text-center remarks-text" style="word-break: break-word; min-height: 1.5em;">
+                            @php
+                                $remarks = trim($panForm->remarks ?? 'No Remarks');
+                                
+                                // Normalize line breaks first
+                                $formatted = preg_replace('/\r\n|\r/', "\n", $remarks);
+                                
+                                // Remove any existing newlines before bullets to avoid duplicates
+                                $formatted = preg_replace('/\n?[ \t]*[•·][ \t]*/u', "\n• ", $formatted);
+                                
+                                // Handle numbered items - only split on number at start or after whitespace
+                                $formatted = preg_replace('/[ \t]+(\d+\.)[ \t]+/u', "\n$1 ", $formatted);
+                                
+                                $formatted = ltrim($formatted);
+                            @endphp
+                            {!! nl2br(e($formatted)) !!}
+                        </div>
                     </td>
                 </tr>
             </table>
@@ -646,7 +732,23 @@
                 </tr>
                 <tr>
                     <td>
-                        <input class="w-full outline-non border-none focus:ring-0 text-center" type="text" value="{{$panForm->remarks ?? 'No Remarks'}}">
+                        <div class="w-full text-center remarks-text" style="word-break: break-word; min-height: 1.5em;">
+                            @php
+                                $remarks = trim($panForm->remarks ?? 'No Remarks');
+                                
+                                // Normalize line breaks first
+                                $formatted = preg_replace('/\r\n|\r/', "\n", $remarks);
+                                
+                                // Remove any existing newlines before bullets to avoid duplicates
+                                $formatted = preg_replace('/\n?[ \t]*[•·][ \t]*/u', "\n• ", $formatted);
+                                
+                                // Handle numbered items - only split on number at start or after whitespace
+                                $formatted = preg_replace('/[ \t]+(\d+\.)[ \t]+/u', "\n$1 ", $formatted);
+                                
+                                $formatted = ltrim($formatted);
+                            @endphp
+                            {!! nl2br(e($formatted)) !!}
+                        </div>
                     </td>
                 </tr>
             </table>
@@ -721,4 +823,19 @@
 
         </div>
     </div>
+<script>
+const remarksLen = {{ strlen(trim($panForm->remarks ?? '')) }};
+
+let cls = null;
+if      (remarksLen > 250) cls = 'remarks-lg';
+else if (remarksLen > 120) cls = 'remarks-md';
+else if (remarksLen > 60)  cls = 'remarks-sm';
+
+if (cls) {
+    document.querySelectorAll('.remarks-text').forEach(el => {
+        el.classList.add(cls);
+    });
+}
+</script>
+
 @endsection
