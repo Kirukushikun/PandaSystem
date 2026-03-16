@@ -1,16 +1,18 @@
-
-
 <form class="h-full {{$mode == 'create' ? 'pb-10' : ''}}" wire:submit.prevent="submitForm" enctype="multipart/form-data">
-    <!-- -- Status only in view mode -- -->
+
     @if($mode === 'view')
         <x-statustag :status-text="$requestEntry->request_status" status-location="Container"/>
     @endif
 
     <h1 class="text-[22px] pb-4">Request Form</h1>
-    <div class="form-container relative flex flex-col gap-5 h-full" 
+
+    <div class="form-container relative flex flex-col gap-5 h-full"
         x-data="{
             showModal: false,
             showAction: false,
+            fileError: '',
+            isUploading: false,
+            isReUploading: false,
 
             modalTarget: '',
             modalConfig: {
@@ -26,8 +28,6 @@
                     action: 'resubmitRequest',
                     needsInput: false
                 },
-                
-
                 savedraft: {
                     header: 'Save Draft',
                     message: 'Do you want to save this request as a draft for now?',
@@ -52,7 +52,6 @@
                     action: 'withdrawRequest',
                     needsInput: false
                 },
-
                 approverequest: {
                     header: 'Approve Request',
                     message: 'Do you want to approve this request and forward it to HR for preparation?',
@@ -65,20 +64,18 @@
                     action: 'rejectRequest',
                     needsInput: false
                 },
-
                 returnedhead: {
                     header: 'Return Request to Requestor',
                     action: 'returnedHead',
                     needsInput: true
                 },
                 returnedhr: {
-                    header: 'Return Request to Head',
+                    header: 'Return Request to Requestor',
                     action: 'returnedHr',
                     needsInput: true
                 },
             },
 
-            // helper to collect all fields
             get fields() {
                 const baseFields = [
                     this.$refs.employee_name,
@@ -86,9 +83,8 @@
                     this.$refs.department,
                     this.$refs.type_of_action,
                     this.$refs.justification,
-                ];
+                ].filter(Boolean);
 
-                // add supporting file only if it exists
                 if (this.$refs.supporting_file) {
                     baseFields.push(this.$refs.supporting_file);
                 }
@@ -96,89 +92,139 @@
                 return baseFields;
             },
 
-            // Initialize their event listeners to a function
             init() {
-                this.fields.forEach(field => {
-                    field.addEventListener('input', () => this.checkFields());
-                    field.addEventListener('change', () => this.checkFields()); // for file input
+                this.$nextTick(() => {
+                    this.fields.forEach(field => {
+                        field.addEventListener('input',  () => this.checkFields());
+                        field.addEventListener('change', () => this.checkFields());
+                    });
+                });
+
+                this.$wire.on('upload:start',  ({ name }) => {
+                    if (name === 'supporting_file')      this.isUploading = true;
+                    if (name === 'reup_supporting_file') this.isReUploading = true;
+                });
+                this.$wire.on('upload:finish', ({ name }) => {
+                    if (name === 'supporting_file')      this.isUploading = false;
+                    if (name === 'reup_supporting_file') this.isReUploading = false;
+                });
+                this.$wire.on('upload:error',  ({ name }) => {
+                    if (name === 'supporting_file')      this.isUploading = false;
+                    if (name === 'reup_supporting_file') this.isReUploading = false;
                 });
             },
 
             checkFields() {
-                this.showAction = this.fields.some(f => f.value?.trim() !== '');
+                this.showAction = this.fields.some(f => (f.value ?? '').trim() !== '');
+            },
+
+            // Client-side PDF guard — blocks non-PDF before it even hits the server
+            validateFile(input) {
+                this.fileError = '';
+                const file = input.files[0];
+                if (!file) return true;
+
+                if (file.type !== 'application/pdf') {
+                    this.fileError = 'Only PDF files are accepted. Please choose a PDF file.';
+                    input.value = '';
+                    return false;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    this.fileError = 'File is too large. Maximum size is 5 MB.';
+                    input.value = '';
+                    return false;
+                }
+
+                return true;
             },
 
             validateBeforeModal(action) {
-
                 let hasEmpty = false;
 
                 this.fields.forEach(field => {
                     if (field.name === 'justification') return;
 
-                    if (field.value.trim() === '') {
-                        field.classList.add('!border-red-500'); // highlight
+                    if ((field.value ?? '').trim() === '') {
+                        field.classList.add('!border-red-500');
                         hasEmpty = true;
                     } else {
-                        field.classList.remove('!border-red-500'); // remove highlight if fixed
+                        field.classList.remove('!border-red-500');
                     }
                 });
 
-                if (hasEmpty) return; // stop if any empty
+                if (hasEmpty) return;
+                if (this.fileError) return;
 
                 this.modalTarget = action;
-                this.showModal = true;
+                this.showModal   = true;
             },
-            
-            resetForm(){
+
+            resetForm() {
+                this.fileError = '';
                 this.fields.forEach(field => {
                     field.value = '';
                     field.classList.remove('!border-red-500');
-                    this.checkFields();
                 });
+                this.checkFields();
             }
-            
         }"
-    > 
+    >
+
+        {{-- ── Input fields ── --}}
         <div class="input-fields grid grid-cols md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+            {{-- Employee Name --}}
             <div class="input-group">
                 <label for="employee_name">Employee Name:</label>
                 @if($mode === 'create')
-                    <select name="employee_name" id="employee_name"  x-ref="employee_name"
-                        wire:model.live="employee_name"
-                        @change="$wire.set('selected_employee_id', $event.target.selectedOptions[0].dataset.employeeId)">
-                            <option value="" data-employee-id=""></option>
+                    <select name="employee_name" id="employee_name" x-ref="employee_name"
+                        wire:model.live="selected_employee_id"
+                        wire:loading.attr="disabled"
+                        wire:target="selected_employee_id"
+                    >
+                        <option value="">Select employee</option>
                         @foreach($employees as $employee)
-                            <option value="{{ $employee->full_name }}" data-employee-id="{{ $employee->id }}">
-                                {{ $employee->full_name }}
-                            </option>
+                            <option value="{{ $employee->id }}">{{ $employee->full_name }}</option>
                         @endforeach
                     </select>
-                @elseif($requestEntry->request_status == 'Draft')
+                @elseif(isset($requestEntry) && $requestEntry->request_status === 'Draft')
                     <select name="employee_name" id="employee_name" x-ref="employee_name"
-                        wire:model.live="employee_name"
-                            @change="$wire.set('selected_employee_id', $event.target.selectedOptions[0].dataset.employeeId)">
-                        <option value="" data-employee-id=""></option>
+                        wire:model.live="selected_employee_id">
+                        <option value="">Select employee</option>
                         @foreach($employees as $employee)
-                            <option value="{{ $employee->full_name }}" data-employee-id="{{ $employee->id }}" {{$employee->full_name == $employee_name ? 'Selected' : ''}}>
+                            <option value="{{ $employee->id }}"
+                                {{ $employee->full_name == $employee_name ? 'selected' : '' }}>
                                 {{ $employee->full_name }}
                             </option>
                         @endforeach
                     </select>
                 @else
-                    <input type="text" name="employee_name" id="employee_name" x-ref="employee_name" wire:model="employee_name" Readonly>
+                    <input type="text" name="employee_name" id="employee_name" x-ref="employee_name"
+                        wire:model="employee_name" readonly>
                 @endif
             </div>
+
+            {{-- Employee ID (always readonly — auto-filled from selection) --}}
             <div class="input-group">
                 <label for="employee_id">Employee ID:</label>
-                <input type="text" name="employee_id" id="employee_id" x-ref="employee_id" wire:model="employee_id" Readonly>
+                <input type="text" name="employee_id" id="employee_id" x-ref="employee_id"
+                    wire:model="employee_id" readonly>
             </div>
+
+            {{-- Department (always readonly — auto-filled) --}}
             <div class="input-group">
                 <label for="department">Division/Department:</label>
-                <input name="department" id="department" x-ref="department" x-ref="department" wire:model="department" Readonly>
+                <input name="department" id="department" x-ref="department"
+                    wire:model="department" readonly>
             </div>
+
+            {{-- Type of Action --}}
             <div class="input-group">
                 <label for="type_of_action">Type of Action:</label>
-                <select name="type_of_action" id="type_of_action" x-ref="type_of_action" wire:model="type_of_action" {{$isDisabled ? 'Disabled' : ''}}>
+                <select name="type_of_action" id="type_of_action" x-ref="type_of_action"
+                    wire:model="type_of_action"
+                    {{ $isDisabled ? 'disabled' : '' }}>
                     <option value="">Select type</option>
                     <option value="Regularization">Regularization</option>
                     <option value="Salary Alignment">Salary Alignment</option>
@@ -196,110 +242,175 @@
             </div>
         </div>
 
+        {{-- Justification --}}
         <div class="input-group h-full">
             <label for="justification">Justification:</label>
-            <textarea class="resize-none {{$mode == 'view' ? 'h-[200px]' : 'h-full'}}" name="justification" id="justification" class="w-full h-full resize-none" x-ref="justification" wire:model="justification" {{$isDisabled ? 'Readonly' : ''}}></textarea>
+            <textarea
+                class="resize-none {{ $mode == 'view' ? 'h-[200px]' : 'h-full' }}"
+                name="justification" id="justification" x-ref="justification"
+                wire:model="justification"
+                {{ $isDisabled ? 'readonly' : '' }}
+            ></textarea>
         </div>
 
+        {{-- ── Supporting File ── --}}
         @if($mode == 'create')
-            <!-- Create -->
             <div class="file-group flex flex-col gap-2">
-                <label for="supporting_file" class="text-[18px] relative">Supporting File: 
+                <label for="supporting_file" class="text-[18px] relative">
+                    Supporting File:
                     @error('supporting_file')
-                        <span class="absolute bg-white text-red-600 right-[10px] bottom-[-20px] text-xs p-1">
-                            {{ $message }}
-                        </span>
+                        <span class="absolute bg-white text-red-600 right-[10px] bottom-[-20px] text-xs p-1">{{ $message }}</span>
                     @enderror
                 </label>
-                <input name="supporting_file" id="supporting_file" class="block w-full text-sm text-gray-500 border border-1 {{ $errors->has('supporting_file') ? 'border-red-600' : 'border-gray-600' }} rounded-md cursor-pointer bg-gray-50 focus:outline-none" type="file" accept="application/pdf" x-ref="supporting_file" wire:model="supporting_file">
+
+                {{-- Client-side error shown before upload even reaches server --}}
+                <p x-show="fileError" x-text="fileError" class="text-red-600 text-xs mt-1"></p>
+
+                <input
+                    name="supporting_file" id="supporting_file" type="file"
+                    accept="application/pdf"
+                    x-ref="supporting_file"
+                    wire:model="supporting_file"
+                    @change="validateFile($event.target)"
+                    class="block w-full text-sm text-gray-500 border border-1
+                        {{ $errors->has('supporting_file') ? 'border-red-600' : 'border-gray-600' }}
+                        rounded-md cursor-pointer bg-gray-50 focus:outline-none"
+                >
+
+                {{-- Livewire upload progress bar (only visible during upload) --}}
+                <div x-show="isUploading" class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                    <div class="bg-blue-600 h-1.5 rounded-full animate-pulse w-full"></div>
+                </div>
+                <p x-show="isUploading" class="text-xs text-gray-400">Uploading file…</p>
             </div>
+
         @elseif($mode == 'view')
             @if($module == 'requestor')
                 @if($requestEntry->request_status == 'Returned to Requestor')
                     @if($requestEntry->supporting_file_url)
                         <div class="grid grid-cols-2 gap-5">
                             <div class="existing-file flex flex-col gap-3">
-                                <label for="supporting_file" class="text-[18px] relative">Existing File:</label>
+                                <label class="text-[18px]">Existing File:</label>
                                 <div class="flex w-full border border-gray-600 rounded-md overflow-hidden text-sm mb-2">
-                                    <a href="{{ Storage::url($requestEntry->supporting_file_url) }}" target="_blank" class="bg-gray-600 text-white px-4 py-2.5 hover:bg-gray-500">
-                                        View File
-                                    </a>
+                                    <a href="{{ Storage::url($requestEntry->supporting_file_url) }}" target="_blank"
+                                        class="bg-gray-600 text-white px-4 py-2.5 hover:bg-gray-500">View File</a>
                                     <div class="flex-1 bg-gray-50 text-gray-500 px-4 py-2.5">
                                         {{ $requestEntry->supporting_file_name }}
                                     </div>
-                                </div>                                
+                                </div>
                             </div>
 
                             <div class="reupload-file flex flex-col gap-3">
-                                <!-- Re-upload Input -->
-                                <label for="reup_supporting_file" class="text-[18px] relative">Re-upload:
+                                <label for="reup_supporting_file" class="text-[18px] relative">
+                                    Re-upload:
                                     @error('reup_supporting_file')
-                                        <span class="absolute bg-white text-red-600 right-[10px] bottom-[-20px] text-xs p-1">
-                                            {{ $message }}
-                                        </span>
+                                        <span class="absolute bg-white text-red-600 right-[10px] bottom-[-20px] text-xs p-1">{{ $message }}</span>
                                     @enderror
                                 </label>
+
+                                <p x-show="fileError" x-text="fileError" class="text-red-600 text-xs mt-1"></p>
+
                                 <input name="reup_supporting_file" id="reup_supporting_file" type="file"
                                     accept="application/pdf"
-                                    class="block w-full text-sm text-gray-500 border border-1 
-                                    {{ $errors->has('reup_supporting_file') ? 'border-red-600' : 'border-gray-600' }} 
-                                    rounded-md cursor-pointer bg-gray-50 focus:outline-none"
                                     wire:model="reup_supporting_file"
-                                    >
+                                    @change="validateFile($event.target)"
+                                    class="block w-full text-sm text-gray-500 border border-1
+                                        {{ $errors->has('reup_supporting_file') ? 'border-red-600' : 'border-gray-600' }}
+                                        rounded-md cursor-pointer bg-gray-50 focus:outline-none"
+                                >
 
-                                <small class="text-gray-500">Leave empty if you don't want to change the file.</small>                                
+                                <div x-show="isReUploading" class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                    <div class="bg-blue-600 h-1.5 rounded-full animate-pulse w-full"></div>
+                                </div>
+
+                                <small class="text-gray-500">Leave empty to keep the existing file.</small>
                             </div>
                         </div>
+
                     @else
-                         <div class="file-group flex flex-col gap-2">
-                            <label for="supporting_file" class="text-[18px] relative">Supporting File: 
+                        {{-- Returned but no file was ever attached: allow fresh upload --}}
+                        <div class="file-group flex flex-col gap-2">
+                            <label for="supporting_file" class="text-[18px] relative">
+                                Supporting File:
                                 @error('supporting_file')
-                                    <span class="absolute bg-white text-red-600 right-[10px] bottom-[-20px] text-xs p-1">
-                                        {{ $message }}
-                                    </span>
+                                    <span class="absolute bg-white text-red-600 right-[10px] bottom-[-20px] text-xs p-1">{{ $message }}</span>
                                 @enderror
                             </label>
-                            <input name="supporting_file" id="supporting_file" class="block w-full text-sm text-gray-500 border border-1 {{ $errors->has('supporting_file') ? 'border-red-600' : 'border-gray-600' }} rounded-md cursor-pointer bg-gray-50 focus:outline-none" type="file" accept="application/pdf" x-ref="supporting_file" wire:model="supporting_file">
+
+                            <p x-show="fileError" x-text="fileError" class="text-red-600 text-xs mt-1"></p>
+
+                            <input name="supporting_file" id="supporting_file" type="file"
+                                accept="application/pdf"
+                                x-ref="supporting_file"
+                                wire:model="supporting_file"
+                                @change="validateFile($event.target)"
+                                class="block w-full text-sm text-gray-500 border border-1
+                                    {{ $errors->has('supporting_file') ? 'border-red-600' : 'border-gray-600' }}
+                                    rounded-md cursor-pointer bg-gray-50 focus:outline-none"
+                            >
+
+                            <div x-show="isUploading" class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                <div class="bg-blue-600 h-1.5 rounded-full animate-pulse w-full"></div>
+                            </div>
                         </div>
                     @endif
+
                 @elseif($requestEntry->request_status == 'Draft')
                     <div class="file-group flex flex-col gap-2">
-                        <label for="supporting_file" class="text-[18px] relative">Supporting File: 
+                        <label for="supporting_file" class="text-[18px] relative">
+                            Supporting File:
                             @error('supporting_file')
-                                <span class="absolute bg-white text-red-600 right-[10px] bottom-[-20px] text-xs p-1">
-                                    {{ $message }}
-                                </span>
+                                <span class="absolute bg-white text-red-600 right-[10px] bottom-[-20px] text-xs p-1">{{ $message }}</span>
                             @enderror
                         </label>
-                        <input name="supporting_file" id="supporting_file" class="block w-full text-sm text-gray-500 border border-1 {{ $errors->has('supporting_file') ? 'border-red-600' : 'border-gray-600' }} rounded-md cursor-pointer bg-gray-50 focus:outline-none" type="file" accept="application/pdf" x-ref="supporting_file" wire:model="supporting_file">
-                    </div>
-                @else
-                    <div class="file-group flex flex-col gap-2">
-                        <label for="" class="text-[18px]">Supporting Files:</label>
-                        <div class="flex w-full border border-gray-600 rounded-md overflow-hidden text-sm">
-                            @if($requestEntry->supporting_file_url)
-                                <a href="{{ Storage::url($requestEntry->supporting_file_url) }}" target="_blank" type="button" class="bg-gray-600 text-white px-4 py-2.5 cursor-pointer hover:bg-gray-500" x-ref="supporting_file">
-                                    View File
-                                </a>
-                                <!-- File Name -->
-                                <div class="flex-1 bg-gray-50 text-gray-500 px-4 py-2.5">
-                                    {{$requestEntry->supporting_file_name}}
-                                </div>                        
-                            @else
-                                <div target="_blank" type="button" class="bg-gray-600 text-white px-4 py-2.5 cursor-pointer hover:bg-gray-500" x-ref="supporting_file" disabled>
-                                    View File
-                                </div>
-                                <!-- File Name -->
-                                <div class="flex-1 bg-gray-50 text-gray-500 px-4 py-2.5">
-                                    No file attached
-                                </div> 
-                            @endif
-                            <!-- Button -->
+
+                        <p x-show="fileError" x-text="fileError" class="text-red-600 text-xs mt-1"></p>
+
+                        <input name="supporting_file" id="supporting_file" type="file"
+                            accept="application/pdf"
+                            x-ref="supporting_file"
+                            wire:model="supporting_file"
+                            @change="validateFile($event.target)"
+                            class="block w-full text-sm text-gray-500 border border-1
+                                {{ $errors->has('supporting_file') ? 'border-red-600' : 'border-gray-600' }}
+                                rounded-md cursor-pointer bg-gray-50 focus:outline-none"
+                        >
+
+                        <div x-show="isUploading" class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                            <div class="bg-blue-600 h-1.5 rounded-full animate-pulse w-full"></div>
                         </div>
                     </div>
+
+                @else
+                    {{-- Read-only file view --}}
+                                    <div class="file-group flex flex-col gap-2">
+                    <label for="" class="text-[18px]">Supporting Files:</label>
+                    <div class="flex w-full border border-gray-600 rounded-md overflow-hidden text-sm">
+                        @if($requestEntry->supporting_file_url)
+                            <a href="{{ Storage::url($requestEntry->supporting_file_url) }}" target="_blank" type="button" class="bg-gray-600 text-white px-4 py-2.5 cursor-pointer hover:bg-gray-500" x-ref="supporting_file">
+                                View File
+                            </a>
+                            <!-- File Name -->
+                            <div class="flex-1 bg-gray-50 text-gray-500 px-4 py-2.5">
+                                {{$requestEntry->supporting_file_name}}
+                            </div>                        
+                        @else
+                            <div target="_blank" type="button" class="bg-gray-600 text-white px-4 py-2.5 cursor-pointer hover:bg-gray-500" x-ref="supporting_file" disabled>
+                                View File
+                            </div>
+                            <!-- File Name -->
+                            <div class="flex-1 bg-gray-50 text-gray-500 px-4 py-2.5">
+                                No file attached
+                            </div> 
+                        @endif
+                        <!-- Button -->
+                    </div>
+                </div>
                 @endif
+
             @else
-                <div class="file-group flex flex-col gap-2">
+                {{-- Non-requestor module: always read-only --}}
+                                <div class="file-group flex flex-col gap-2">
                     <label for="" class="text-[18px]">Supporting Files:</label>
                     <div class="flex w-full border border-gray-600 rounded-md overflow-hidden text-sm">
                         @if($requestEntry->supporting_file_url)
@@ -325,65 +436,96 @@
             @endif
         @endif
 
+        {{-- Requested By --}}
         <div class="input-group">
             <label>Requested By:</label>
             <p>{{ $mode === 'view' ? $requestEntry->requested_by : Auth::user()->name }}</p>
         </div>
 
-        <!-- Form Actions -->
+        {{-- ── Form Action Buttons ── --}}
         @if($module == 'requestor')
             <div class="flex flex-col">
                 @if($mode == 'create')
-                    <div x-show="showAction" class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                        <button type="button" @click="validateBeforeModal('submit')" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Submit to Head</button>
-                        <button type="button" @click="modalTarget = 'savedraft'; showModal = true" class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Save as Draft</button>
-                        <button type="button" @click="resetForm(); showModal = false" class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
+                    <div x-show="showAction"
+                        class="form-buttons bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                        <button type="button" @click="validateBeforeModal('submit')"
+                            class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">
+                            Submit to Head
+                        </button>
+                        <button type="button" @click="modalTarget = 'savedraft'; showModal = true"
+                            class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">
+                            Save as Draft
+                        </button>
+                        <button type="button" @click="resetForm(); showModal = false"
+                            class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">
+                            Reset
+                        </button>
                     </div>
                 @endif
 
                 @if($mode == 'view')
                     @if($requestEntry->request_status == 'Draft')
-                        <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                            <button type="button" @click="validateBeforeModal('submitdraft')" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Submit to Head</button>
-                            <button type="button" @click="modalTarget = 'deletedraft'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-700 px-4 py-2">Delete Draft</button>
+                        <div class="form-buttons bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                            <button type="button" @click="validateBeforeModal('submitdraft')"
+                                class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">
+                                Submit to Head
+                            </button>
+                            <button type="button" @click="modalTarget = 'deletedraft'; showModal = true"
+                                class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-700 px-4 py-2">
+                                Delete Draft
+                            </button>
                         </div>
                     @endif
 
                     @if($requestEntry->request_status == 'Returned to Requestor')
-                        <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                            <button x-show="showAction" type="button" @click="validateBeforeModal('resubmit')" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Resubmit to Head</button>
-                            <button type="button" @click="modalTarget = 'withdraw'; showModal = true" class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-700 px-4 py-2">Withdraw Request</button>
+                        <div class="form-buttons bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                            <button x-show="showAction" type="button" @click="validateBeforeModal('resubmit')"
+                                class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">
+                                Resubmit to Head
+                            </button>
+                            <button type="button" @click="modalTarget = 'withdraw'; showModal = true"
+                                class="border border-3 border-red-600 bg-red-600 text-white hover:bg-red-700 px-4 py-2">
+                                Withdraw Request
+                            </button>
                         </div>
-                    @endif                        
+                    @endif
                 @endif
-            </div>  
-        @endif       
+            </div>
+        @endif
 
         @if($module == 'division_head')
             <div class="flex flex-col">
                 @if($requestEntry->request_status == 'For Head Approval')
-                    <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                        <button type="button" @click="modalTarget = 'approverequest'; showModal = true" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Approve Request</button>
-                        <button type="button" @click="modalTarget = 'returnedhead'; showModal = true" class="border border-3 border-amber-600 bg-amber-600 text-white hover:bg-amber-700 px-4 py-2">Return to Requestor</button>
+                    <div class="form-buttons bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                        <button type="button" @click="modalTarget = 'approverequest'; showModal = true"
+                            class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">
+                            Approve Request
+                        </button>
+                        <button type="button" @click="modalTarget = 'returnedhead'; showModal = true"
+                            class="border border-3 border-amber-600 bg-amber-600 text-white hover:bg-amber-700 px-4 py-2">
+                            Return to Requestor
+                        </button>
                     </div>
                 @endif
-            </div>                
+            </div>
         @endif
 
         @if($module == 'hr_preparer')
             <div class="flex flex-col">
                 @if($requestEntry->request_status == 'For HR Prep')
-                    <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
-                        <button type="button" @click="modalTarget = 'returnedhr'; showModal = true" class="border border-3 border-amber-600 bg-amber-600 text-white hover:bg-amber-700 px-4 py-2">Return to Requestor</button>
-                    </div>                   
+                    <div class="form-buttons bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
+                        <button type="button" @click="modalTarget = 'returnedhr'; showModal = true"
+                            class="border border-3 border-amber-600 bg-amber-600 text-white hover:bg-amber-700 px-4 py-2">
+                            Return to Requestor
+                        </button>
+                    </div>
                 @endif
-            </div>  
+            </div>
         @endif
 
+        {{-- ── Confirm Modal ── --}}
+        <div x-show="showModal" class="fixed inset-0 bg-black/50 z-40" @click="showModal = false"></div>
 
-        <!-- Overlay (instant) -->
-        <div x-show="showModal" class="fixed inset-0 bg-black/50 z-40"></div>
-        
         <div
             x-show="showModal"
             x-transition:enter="transition ease-out duration-200"
@@ -396,13 +538,13 @@
         >
             <div class="bg-white p-6 rounded-lg shadow-lg w-md z-10">
                 <h2 class="text-xl font-semibold mb-4" x-text="modalConfig[modalTarget]?.header"></h2>
-                <p class="mb-6" x-show="!modalConfig[modalTarget]?.needsInput" x-text="modalConfig[modalTarget]?.message"></p>
+                <p class="mb-6" x-show="!modalConfig[modalTarget]?.needsInput"
+                    x-text="modalConfig[modalTarget]?.message"></p>
 
-                <!-- For input type -->
                 <template x-if="modalConfig[modalTarget]?.needsInput">
                     <div class="flex flex-col gap-3 mb-5">
                         <div class="input-group">
-                            <label for="header">Return Reason :</label>
+                            <label for="header">Return Reason:</label>
                             <select name="header" wire:model="header" required>
                                 <option value="">Select reason</option>
                                 <option value="Incomplete Employee Details">Incomplete Employee Details</option>
@@ -413,25 +555,41 @@
                             </select>
                         </div>
 
-                        <!-- Show this input if "Other" is selected -->
                         <div class="input-group" x-show="$wire.header === 'Other'">
-                            <label>Custom Reason :</label>
+                            <label>Custom Reason:</label>
                             <input type="text" class="w-full" placeholder="Type your reason" wire:model="customHeader">
                         </div>
 
                         <div class="input-group">
-                            <label>Details :</label>
+                            <label>Details:</label>
                             <textarea class="w-full h-24 resize-none" placeholder="(Optional)" wire:model="body"></textarea>
                         </div>
                     </div>
                 </template>
 
                 <div class="flex justify-end gap-3">
-                    <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
-                    <button type="button" @click="showModal = false; $wire[modalConfig[modalTarget]?.action](); resetForm()" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
+                    <button type="button" @click="showModal = false"
+                        class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">
+                        Cancel
+                    </button>
+
+                    {{-- Show a spinner while Livewire processes the action --}}
+                    <button type="button"
+                        @click="showModal = false; $wire[modalConfig[modalTarget]?.action](); resetForm()"
+                        wire:loading.attr="disabled"
+                        class="relative px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer disabled:opacity-60">
+                        <span wire:loading.remove>Confirm</span>
+                        <span wire:loading class="flex items-center gap-2">
+                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                            </svg>
+                            Processing…
+                        </span>
+                    </button>
                 </div>
             </div>
-
         </div>
+
     </div>
 </form>
