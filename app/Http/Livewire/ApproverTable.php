@@ -299,6 +299,15 @@ class ApproverTable extends Component
                     'Filed'
                 ]);
             })
+            ->orderByRaw("
+                FIELD(request_status, 
+                    'For Final Approval',
+                    'Approved',
+                    'Rejected',
+                    'Served',
+                    'Filed'
+                )
+            ")
             ->latest()
             ->paginate(8);
 
