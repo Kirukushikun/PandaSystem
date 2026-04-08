@@ -43,77 +43,79 @@ class RequestorTable extends Component
     {   
         $requestorDepartments = [
             // Feedmill
-            70 => 'Feedmill',
-            52 => 'Feedmill',
+            70 => ['Feedmill'],
+            52 => ['Feedmill'],
+            61 => ['Human Resources', 'Poultry', 'Swine', 'Feedmill', 'General Services', 'Sales & Marketing', 'Financial Operations and Compliance', 'IT and Security Services', 'Purchasing'],
 
             // General Services
-            72 => 'General Services',
-            74 => 'General Services',
-            75 => 'General Services',
-            87 => 'General Services',
-            93 => 'General Services',
-            95 => 'General Services',
+            72 => ['General Services'],
+            74 => ['General Services'],
+            75 => ['General Services'],
+            87 => ['General Services'],
+            93 => ['General Services'],
+            95 => ['General Services'],
 
             // Poultry
-            81 => 'Poultry',
-            73 => 'Poultry',
-            83 => 'Poultry',
-            84 => 'Poultry',
-            86 => 'Poultry',
-            88 => 'Poultry',
-            89 => 'Poultry',
-            90 => 'Poultry',
-            91 => 'Poultry',
-            92 => 'Poultry',
-            56 => 'Poultry',
-            26 => 'Poultry',
-            97 => 'Poultry',
-            98 => 'Poultry',
+            81 => ['Poultry'],
+            73 => ['Poultry'],
+            83 => ['Poultry'],
+            84 => ['Poultry'],
+            86 => ['Poultry'],
+            88 => ['Poultry'],
+            89 => ['Poultry'],
+            90 => ['Poultry'],
+            91 => ['Poultry'],
+            92 => ['Poultry'],
+            56 => ['Poultry'],
+            26 => ['Poultry'],
+            97 => ['Poultry'],
+            98 => ['Poultry'],
 
             // Sales & Marketing
-            11 => 'Sales & Marketing',
-            35 => 'Sales & Marketing',
-            77 => 'Sales & Marketing',
-            85 => 'Sales & Marketing',
-            6  => 'Sales & Marketing',
-            37 => 'Sales & Marketing',
+            11 => ['Sales & Marketing'],
+            35 => ['Sales & Marketing'],
+            77 => ['Sales & Marketing'],
+            85 => ['Sales & Marketing'],
+            6  => ['Sales & Marketing'],
+            37 => ['Sales & Marketing'],
 
             // Swine
-            9  => 'Swine',
-            76 => 'Swine',
-            79 => 'Swine',
-            80 => 'Swine',
-            82 => 'Swine',
-            96 => 'Swine',
-            99 => 'Swine',
-            103 => 'Swine',
+            9  => ['Swine'],
+            76 => ['Swine'],
+            79 => ['Swine'],
+            80 => ['Swine'],
+            82 => ['Swine'],
+            96 => ['Swine'],
+            99 => ['Swine'],
+            103 => ['Swine'],
 
             // Financial Operations and Compliance
-            71 => 'Financial Operations and Compliance',
-            78 => 'Financial Operations and Compliance',
-            40 => 'Financial Operations and Compliance',
-            14 => 'Financial Operations and Compliance',
-            39 => 'Financial Operations and Compliance',
-            100 => 'Financial Operations and Compliance',
+            71 => ['Financial Operations and Compliance'],
+            78 => ['Financial Operations and Compliance'],
+            40 => ['Financial Operations and Compliance'],
+            14 => ['Financial Operations and Compliance'],
+            39 => ['Financial Operations and Compliance'],
+            100 => ['Financial Operations and Compliance'],
 
             // Human Resources
-            60 => 'Human Resources',
-            61 => 'Human Resources',
-            89 => 'Human Resources',
+            60 => ['Human Resources'],
+            89 => ['Human Resources', 'Poultry', 'Swine', 'Feedmill', 'General Services', 'Sales & Marketing', 'Financial Operations and Compliance', 'IT and Security Services', 'Purchasing'],
 
             // IT and Security Services
-            94 => 'IT and Security Services',
-            1  => 'IT and Security Services',
-            5  => 'IT and Security Services',
+            94 => ['IT and Security Services'],
+            1  => ['IT and Security Services'],
+            5  => ['IT and Security Services'],
 
             // Purchasing
-            24 => 'Purchasing',
-            63 => 'Purchasing',
+            24 => ['Purchasing'],
+            63 => ['Purchasing'],
         ];
 
-        $department = $requestorDepartments[Auth::id()] ?? null;
-
-        $myRequests = RequestorModel::where('department', $department)
+        $departments = $requestorDepartments[Auth::id()] ?? [];
+        
+        $myRequests = RequestorModel::when(!empty($departments), function ($query) use ($departments) {
+                $query->whereIn('department', $departments);
+            })
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('request_no', 'like', '%' . $this->search . '%')
