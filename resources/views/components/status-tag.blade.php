@@ -11,6 +11,7 @@
         'Rejected'             => 'bg-red-100 text-red-500',      // Rejected at any stage
         'Approved'             => 'bg-green-100 text-green-600',  // Final approval
         'Served'               => 'bg-lime-100 text-lime-600',    // PAN handed over / acknowledged
+        'Unserved'             => 'bg-rose-100 text-rose-600',
         'Filed'                => 'bg-emerald-100 text-emerald-600', // Archived / 201 file
         'Withdrew'             => 'bg-purple-100 text-purple-500', // Withdrawn by requestor
         'Deleted'             => 'bg-red-100 text-red-500' 

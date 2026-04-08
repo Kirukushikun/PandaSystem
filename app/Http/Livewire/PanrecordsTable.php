@@ -112,10 +112,19 @@ class PanrecordsTable extends Component
     }
 
     public function render()
-    {   
+    {
+        $closedStatuses = [
+            'Approved',
+            'Filed',
+            'Served',
+            'Deleted',
+            'Withdrew',
+            'On Hold',
+        ];
+
         $panRecords = Employee::when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q  ->where('company_id', 'like', '%' . $this->search . '%')
+                    $q->where('company_id', 'like', '%' . $this->search . '%')
                         ->orWhere('full_name', 'like', '%' . $this->search . '%')
                         ->orWhere('farm', 'like', '%' . $this->search . '%')
                         ->orWhere('department', 'like', '%' . $this->search . '%')
@@ -124,22 +133,30 @@ class PanrecordsTable extends Component
             })
             ->addSelect([
                 'has_ongoing' => RequestorModel::selectRaw('COUNT(*)')
-                    ->whereColumn('requestor.employee_id', 'employees.company_id') // Changed from employees.id!
-                    ->whereNotIn('request_status', [
-                        'Approved',
-                        'Filed',
-                        'Served',
-                        'Deleted',
-                        'Withdrew',
-                    ])
+                    ->whereColumn('requestor.employee_id', 'employees.company_id')
+                    ->whereNotIn('request_status', $closedStatuses)
+                    ->where('is_deleted', false),
+
+                'ongoing_pan_status' => RequestorModel::select('request_status')
+                    ->whereColumn('requestor.employee_id', 'employees.company_id')
+                    ->whereNotIn('request_status', $closedStatuses)
                     ->where('is_deleted', false)
+                    ->latest('updated_at')
+                    ->limit(1),
+
+                'ongoing_pan_request_no' => RequestorModel::select('request_no')
+                    ->whereColumn('requestor.employee_id', 'employees.company_id')
+                    ->whereNotIn('request_status', $closedStatuses)
+                    ->where('is_deleted', false)
+                    ->latest('updated_at')
+                    ->limit(1),
             ])
             ->latest('updated_at')
             ->paginate(8);
 
-
         return view('livewire.panrecords-table', compact('panRecords'));
     }
+
 
     private function reloadNotif($type, $header, $message){
         session()->flash('notif', [

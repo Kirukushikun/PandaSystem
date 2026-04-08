@@ -448,6 +448,64 @@ class PreparerPan extends Component
 
     }
 
+    public function unservedHr()
+    {
+        try {
+            $this->validate([
+                'header' => 'required|string',
+                'body' => 'nullable|string',
+            ]);
+
+            $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
+
+            LogModel::create([
+                'request_id' => $this->requestID,
+                'origin' => 'Marked as Unserved by HR',
+                'header' => 'Subject: ' . $reason,
+                'body' => 'Details: ' . $this->body,
+                'created_at' => Carbon::now(),
+            ]);
+
+            Cache::forget("log_{$this->requestID}");
+
+            $this->requestEntry->request_status = 'Unserved';
+            $this->requestEntry->save();
+
+            Cache::forget("requestor_{$this->requestID}");
+
+            $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Prep', 'Marked PAN as Unserved');
+
+            if ($this->module === 'hr_preparer') {
+                $this->redirect('/hrpreparer');
+            } else {
+                $this->redirect('/hrapprover');
+            }
+
+            $this->reloadNotif(
+                'success',
+                'Marked as Unserved',
+                'The PAN has been marked as unserved and the reason has been logged.'
+            );
+        } catch (\Exception $e) {
+            \Log::error('Processing failed: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+            ]);
+
+            if ($this->module === 'hr_preparer') {
+                $this->redirect('/hrpreparer');
+            } else {
+                $this->redirect('/hrapprover');
+            }
+
+            $this->reloadNotif(
+                'failed',
+                'Something went wrong',
+                'We couldn’t process your request, please try again.'
+            );
+        }
+    }
+
+
     // HR APPROVER
 
     public function approveHr(){

@@ -107,6 +107,7 @@ class HrpreparerTable extends Component
             'For Final Approval',
             'Approved',
             'Served',
+            'Unserved',
             'Filed'
         ];
 
@@ -127,12 +128,14 @@ class HrpreparerTable extends Component
             })
             ->when($this->filterStatus === 'in_progress', function ($query) {
                 $query->whereNotIn('request_status', [
-                    'Filed'
+                    'Filed',
+                    'Unserved'
                 ]);
             })
             ->when($this->filterStatus === 'completed', function ($query) {
                 $query->whereIn('request_status', [
-                    'Filed'
+                    'Filed',
+                    'Unserved'
                 ]);
             })
             ->when($this->filterFarm, function ($query) {

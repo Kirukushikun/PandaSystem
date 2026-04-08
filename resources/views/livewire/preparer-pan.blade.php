@@ -106,7 +106,15 @@
                 action: 'updatePan',
                 needsTrigger: true,
                 needsFormData: false
-            }       
+            },
+
+            unservedhr: {
+                header: 'Mark as Unserved',
+                message: 'Are you sure you want to mark this PAN as Unserved? This means the employee left before the PAN could be served or filed.',
+                action: 'unservedHr',
+                needsInput: true,
+                needsFormData: false
+            },
 
 
         },
@@ -392,6 +400,7 @@
             @elseif($requestEntry->request_status == 'Approved')
             <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                 <button type="button" @click="modalTarget = 'servehr'; showModal = true" class="border border-3 border-lime-600 bg-lime-600 text-white hover:bg-lime-700 px-4 py-2">Mark as Served</button>
+                <button type="button" @click="modalTarget = 'unservedhr'; showModal = true" class="border border-3 border-amber-600 bg-amber-600 text-white hover:bg-amber-700 px-4 py-2">Mark as Unserved</button>
                 <button type="button" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2" onclick="window.location.href='/print-view?requestID={{ encrypt($requestID) }}'"><i class="fa-solid fa-print"></i> Print</button>
             </div>
             @elseif($requestEntry->request_status == 'Served')
@@ -486,14 +495,16 @@
                 <h2 class="text-xl font-semibold mb-4" x-text="modalConfig[modalTarget]?.header"></h2>
                 <p class="mb-6" x-show="!modalConfig[modalTarget]?.needsInput" x-text="modalConfig[modalTarget]?.message"></p>
 
-                <!-- For input type -->
-                <template x-if="modalConfig[modalTarget]?.needsInput">
+                <!-- Dispute / Return input -->
+                <template x-if="modalTarget !== 'unservedhr' && modalConfig[modalTarget]?.needsInput">
                     <div class="flex flex-col gap-3 mb-5">
                         <div class="input-group">
-                            <label for="header"><span class="text-red-600 font-bold">*</span> {{$requestEntry->request_status == 'For Resolution' ? 'Dispute' : 'Return' }} Subject :</label>
-                            <!-- <input type="text" name="header" wire:model="header" required> -->
+                            <label for="header">
+                                <span class="text-red-600 font-bold">*</span>
+                                {{$requestEntry->request_status == 'For Resolution' ? 'Dispute' : 'Return' }} Subject :
+                            </label>
                             <select name="header" wire:model="header" required>
-                                <option value="">Select subject </option>
+                                <option value="">Select subject</option>
                                 <option value="Incorrect Salary/Allowance Adjustment">Incorrect Salary/Allowance Adjustment</option>
                                 <option value="Wrong Effectivity Date">Wrong Effectivity Date</option>
                                 <option value="Position/Job Level Mismatch">Position/Job Level Mismatch</option>
@@ -505,7 +516,6 @@
                             </select>
                         </div>
 
-                        <!-- Show this input if "Other" is selected -->
                         <div class="input-group" x-show="$wire.header === 'Other'">
                             <label><span class="text-red-600 font-bold">*</span> Custom Reason :</label>
                             <input type="text" class="w-full" placeholder="Type your reason" wire:model="customHeader">
@@ -517,6 +527,36 @@
                         </div>
                     </div>
                 </template>
+
+                <!-- Unserved input -->
+                <template x-if="modalTarget === 'unservedhr'">
+                    <div class="flex flex-col gap-3 mb-5">
+                        <div class="input-group">
+                            <label for="header">
+                                <span class="text-red-600 font-bold">*</span>
+                                Unserved Reason :
+                            </label>
+                            <select name="header" wire:model="header" required>
+                                <option value="">Select reason</option>
+                                <option value="AWOL">AWOL</option>
+                                <option value="Resigned">Resigned</option>
+                                <option value="Terminated">Terminated</option>
+                                <option value="Other">Other (Specify)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group" x-show="$wire.header === 'Other'">
+                            <label><span class="text-red-600 font-bold">*</span> Custom Reason :</label>
+                            <input type="text" class="w-full" placeholder="Type your reason" wire:model="customHeader">
+                        </div>
+
+                        <div class="input-group">
+                            <label><span class="text-red-600 font-bold">*</span> Details :</label>
+                            <textarea class="w-full h-24 resize-none" wire:model="body" required></textarea>
+                        </div>
+                    </div>
+                </template>
+
 
                 <template x-if="modalConfig[modalTarget]?.needsTrigger">
                     <div class="flex flex-col gap-3 mb-5 mt-[-10px]">

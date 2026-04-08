@@ -1,7 +1,11 @@
 <div class="flex flex-col gap-5 h-full" x-data="{
     showModal: false,
+    showStatusModal: false,
     targetUser: '',
+    ongoingStatus: '',
+    ongoingRequestNo: '',
 }">
+
     <div class="table-header flex w-full gap-3 items-center">
         <h1 class="text-[22px] flex-none">Employee PAN Records</h1>
         <div class="search-bar flex items-center flex-initial w-sm px-5 py-2 ml-auto border-solid border-2 border-gray-300 bg-gray-100 rounded-lg">
@@ -39,9 +43,20 @@
                                 <button class="bg-blue-600 text-white" onclick="window.location.href='/approver/employeerecord-view?requestID={{ encrypt($record->company_id) }}'">View Records</button>
                             @endif
                             @if($record->has_ongoing > 0)
-                                <i class="fa-solid fa-file-circle-plus text-gray-400" title="Has Ongoing PAN"></i>
+                                <i
+                                    class="fa-solid fa-file-circle-plus text-gray-400 cursor-pointer"
+                                    title="Has Ongoing PAN"
+                                    @click="
+                                        showStatusModal = true;
+                                        ongoingStatus = '{{ $record->ongoing_pan_status }}';
+                                        ongoingRequestNo = '{{ $record->ongoing_pan_request_no }}';
+                                    "
+                                ></i>
                             @else
-                                <i class="fa-solid fa-file-circle-plus" @click="showModal = true; targetUser = {{$record->company_id}}"></i>
+                                <i
+                                    class="fa-solid fa-file-circle-plus cursor-pointer"
+                                    @click="showModal = true; targetUser = {{ $record->company_id }}"
+                                ></i>
                             @endif
                         </td>
                     </tr>
@@ -99,6 +114,59 @@
             <div class="flex justify-end gap-3">
                 <button type="button" @click="showModal = false" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
                 <button type="button" @click="showModal = false; $wire.updatePan(targetUser)" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="showStatusModal" class="fixed inset-0 bg-black/50 z-40"></div>
+
+    <div
+        x-show="showStatusModal"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 scale-90"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-90"
+        class="fixed inset-0 flex items-center justify-center z-50"
+    >
+        <div class="bg-white p-6 rounded-lg shadow-lg w-md z-10">
+            <h2 class="text-xl font-semibold mb-4">PAN Already In Progress</h2>
+            <p class="mb-2">This employee already has an ongoing PAN request.</p>
+            <div class="mb-2 flex items-center gap-2 ">
+                <strong>Status:</strong> 
+                <div
+                    class="status-tag px-2 py-1 rounded"
+                    :class="{
+                        'bg-gray-100 text-gray-500': ongoingStatus === 'Draft',
+                        'bg-indigo-100 text-indigo-500': ongoingStatus === 'For Head Approval',
+                        'bg-blue-100 text-blue-500': ongoingStatus === 'For HR Prep',
+                        'bg-yellow-100 text-yellow-600': ongoingStatus === 'For Resolution',
+                        'bg-cyan-100 text-cyan-500': ongoingStatus === 'For Confirmation',
+                        'bg-teal-100 text-teal-500': ongoingStatus === 'For HR Approval',
+                        'bg-orange-100 text-orange-500': ongoingStatus === 'For Final Approval',
+                        'bg-amber-100 text-amber-600': ongoingStatus === 'Returned',
+                        'bg-red-100 text-red-500': ongoingStatus === 'Rejected' || ongoingStatus === 'Deleted',
+                        'bg-green-100 text-green-600': ongoingStatus === 'Approved',
+                        'bg-lime-100 text-lime-600': ongoingStatus === 'Served',
+                        'bg-emerald-100 text-emerald-600': ongoingStatus === 'Filed',
+                        'bg-purple-100 text-purple-500': ongoingStatus === 'Withdrew'
+                    }"
+                    x-text="ongoingStatus"
+                ></div>
+            </div>
+            <p class="mb-6" x-show="ongoingRequestNo">
+                <strong>Request No:</strong> <span x-text="ongoingRequestNo"></span>
+            </p>
+
+            <div class="flex justify-end">
+                <button
+                    type="button"
+                    @click="showStatusModal = false"
+                    class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer"
+                >
+                    Close
+                </button>
             </div>
         </div>
     </div>
