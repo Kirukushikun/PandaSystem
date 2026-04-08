@@ -125,7 +125,13 @@ class PanrecordsTable extends Component
             ->addSelect([
                 'has_ongoing' => RequestorModel::selectRaw('COUNT(*)')
                     ->whereColumn('requestor.employee_id', 'employees.company_id') // Changed from employees.id!
-                    ->whereNotIn('request_status', ['Approved', 'Filed', 'Served', 'Deleted'])
+                    ->whereNotIn('request_status', [
+                        'Approved',
+                        'Filed',
+                        'Served',
+                        'Deleted',
+                        'Withdrew',
+                    ])
                     ->where('is_deleted', false)
             ])
             ->latest('updated_at')

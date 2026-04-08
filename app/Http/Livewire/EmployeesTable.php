@@ -2,36 +2,45 @@
 
 namespace App\Http\Livewire;
 
-use Livewire\Component;
 use App\Models\Employee;
-use illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log;
+use Livewire\Component;
 use Livewire\WithPagination;
 
 class EmployeesTable extends Component
-{   
+{
     use WithPagination;
 
-    protected $paginationTheme = 'tailwind'; // or 'bootstrap' or omit
-
-    public function goToPage($page)
-    {
-        $this->setPage($page);
-    }
-
-    public $company_id, $employee_name, $employee_position, $employee_farm, $employee_department;
-
-    protected $listeners = ['requestSaved' => '$refresh'];
+    protected $paginationTheme = 'tailwind';
 
     public $search = '';
+
+    public $showModal = false;
+    public $modalType = null;
+
+    public $employeeId = null;
+    public $company_id = '';
+    public $employee_name = '';
+    public $employee_position = '';
+    public $employee_farm = '';
+    public $employee_department = '';
+
+    protected $listeners = ['requestSaved' => '$refresh'];
 
     public function updatedSearch()
     {
         $this->resetPage();
     }
 
+    public function goToPage($page)
+    {
+        $this->setPage($page);
+    }
+
     public function render()
-    {   
-        $employees = Employee::orderBy('full_name')
+    {
+        $employees = Employee::query()
+            ->orderBy('full_name')
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('company_id', 'like', '%' . $this->search . '%')
@@ -46,17 +55,59 @@ class EmployeesTable extends Component
         return view('livewire.employees-table', compact('employees'));
     }
 
+    public function openCreateModal()
+    {
+        $this->resetForm();
+        $this->modalType = 'create';
+        $this->showModal = true;
+    }
+
+    public function openEditModal($id)
+    {
+        $employee = Employee::find($id);
+
+        if (!$employee) {
+            $this->noreloadNotif('failed', 'Not Found', 'This employee does not exist.');
+            return;
+        }
+
+        $this->employeeId = $employee->id;
+        $this->company_id = $employee->company_id;
+        $this->employee_name = $employee->full_name;
+        $this->employee_position = $employee->position;
+        $this->employee_farm = $employee->farm;
+        $this->employee_department = $employee->department;
+
+        $this->modalType = 'edit';
+        $this->showModal = true;
+    }
+
+    public function openDeleteModal($id)
+    {
+        $this->employeeId = $id;
+        $this->modalType = 'delete';
+        $this->showModal = true;
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->modalType = null;
+    }
+
     public function createEmployee()
     {
         try {
             Employee::create([
                 'company_id' => $this->company_id,
-                'full_name'  => $this->employee_name,
-                'farm'       => $this->employee_farm,
-                'department'       => $this->employee_department,
-                'position'   => $this->employee_position,
+                'full_name' => $this->employee_name,
+                'farm' => $this->employee_farm,
+                'department' => $this->employee_department,
+                'position' => $this->employee_position,
             ]);
 
+            $this->closeModal();
+            $this->resetForm();
             $this->dispatch('requestSaved');
             $this->noreloadNotif('success', 'Employee Created', 'New employee has been added successfully.');
         } catch (\Exception $e) {
@@ -65,33 +116,38 @@ class EmployeesTable extends Component
         }
     }
 
-
-    public function updateEmployee($data)
-    {
-        $employee = Employee::find($data['id']);
-
-        if (!$employee) {
-            $this->noreloadNotif('failed', 'Not Found', 'This employee does not exist.');
-            return;
-        }
-
-        $employee->update([
-            'company_id' => $data['company_id'],
-            'full_name'  => $data['name'],
-            'farm'       => $data['farm'],
-            'department' => $data['department'],
-            'position'   => $data['position'],
-        ]);
-
-        $this->dispatch('requestSaved');
-        $this->reloadNotif('success', 'Employee Updated', 'Employee details updated successfully.');
-        $this->redirect('/admin');
-    }
-
-    public function deleteEmployee($id)
+    public function updateEmployee()
     {
         try {
-            $employee = Employee::find($id);
+            $employee = Employee::find($this->employeeId);
+
+            if (!$employee) {
+                $this->noreloadNotif('failed', 'Not Found', 'This employee does not exist.');
+                return;
+            }
+
+            $employee->update([
+                'company_id' => $this->company_id,
+                'full_name' => $this->employee_name,
+                'farm' => $this->employee_farm,
+                'department' => $this->employee_department,
+                'position' => $this->employee_position,
+            ]);
+
+            $this->closeModal();
+            $this->resetForm();
+            $this->dispatch('requestSaved');
+            $this->noreloadNotif('success', 'Employee Updated', 'Employee details updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('Update Employee failed: ' . $e->getMessage());
+            $this->noreloadNotif('failed', 'Failed', 'Something went wrong while updating employee.');
+        }
+    }
+
+    public function deleteEmployee()
+    {
+        try {
+            $employee = Employee::find($this->employeeId);
 
             if (!$employee) {
                 $this->noreloadNotif('failed', 'Not Found', 'This employee does not exist.');
@@ -100,6 +156,8 @@ class EmployeesTable extends Component
 
             $employee->delete();
 
+            $this->closeModal();
+            $this->resetForm();
             $this->dispatch('requestSaved');
             $this->noreloadNotif('success', 'Employee Deleted', 'Employee has been removed successfully.');
         } catch (\Exception $e) {
@@ -108,16 +166,18 @@ class EmployeesTable extends Component
         }
     }
 
- // HELPER FUNCTIONS
-    private function noreloadNotif($type, $header, $message){
-        $this->dispatch('notif', type: $type, header: $header, message: $message);
+    private function resetForm()
+    {
+        $this->employeeId = null;
+        $this->company_id = '';
+        $this->employee_name = '';
+        $this->employee_position = '';
+        $this->employee_farm = '';
+        $this->employee_department = '';
     }
 
-    private function reloadNotif($type, $header, $message){
-        session()->flash('notif', [
-            'type' => $type,
-            'header' => $header,
-            'message' => $message
-        ]);
+    private function noreloadNotif($type, $header, $message)
+    {
+        $this->dispatch('notif', type: $type, header: $header, message: $message);
     }
 }

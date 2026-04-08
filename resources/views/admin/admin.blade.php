@@ -18,8 +18,6 @@
                     <a href="#content-block-2"><div></div><i class="fa-solid fa-clipboard-user"></i></a>
                     <a href="#content-block-3"><div></div><i class="fa-solid fa-users-gear"></i></a>
                     <a href="#content-block-4"><div></div><i class="fa-solid fa-user-pen"></i></a>
-                    <livewire:backup-button>
-                    
                @endif
           </aside>
 
