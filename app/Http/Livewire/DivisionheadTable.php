@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\RequestorModel;
+use App\Support\PanAccessMap;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 
@@ -59,24 +60,7 @@ class DivisionheadTable extends Component
             'Deleted',
         ];
 
-        $divisionHeadDepartments = [
-            // Division Heads
-            52  => 'Feedmill',                                    // Lady Arla Lino - 52
-            67  => 'General Services',                            // Ancel Roque - 67
-            98  => 'Poultry',                                     // Antonio Acibar Jr. - 98
-            37  => 'Sales & Marketing',                           // Marie Stephanie Flores - 37
-            99  => 'Swine',                                       // Dr. Danhill Lusung - 99
-            
-            // Shared Services Department Heads
-            100 => 'Financial Operations and Compliance',         // Villanueva, Marie Fe - 100
-            60  => 'Human Resources',                             // Chrisflor Joy Manalili - 60
-            5   => 'IT and Security Services',                    // Montiano, Jeffrey - 5
-            63  => 'Purchasing',                                  // Ho, Maria Irene -63
-
-            61  => 'General Services',                                       // Admin
-        ];
-
-        $department = $divisionHeadDepartments[Auth::id()] ?? null;
+        $department = PanAccessMap::divisionHeadDepartmentForUser(Auth::id());
 
         $requests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.requestor') != true")
             ->where('is_deleted', false)
