@@ -179,13 +179,6 @@ class PreparerPan extends Component
         'remarks' => 'nullable|string',
     ];
 
-    private function generateRequestNo()
-    {
-        $farmCode = Auth::user()->farm;
-
-        return 'PAN-' . $farmCode . '-' . now()->year . '-' . rand(100, 999);
-    }
-
     // Add this method to receive allowances from Alpine.js
     public function updateAllowances($allowances){
         $this->allowances = $allowances;
@@ -402,8 +395,7 @@ class PreparerPan extends Component
 
             $employee = Employee::where('company_id', $this->requestEntry->employee_id)->first();
 
-            $newRequest = RequestorModel::create([
-                'request_no' => 'PAN-' . $this->requestEntry->farm . '-' . now()->year . '-' . rand(100, 999),
+            $newRequest = RequestorModel::createWithGeneratedRequestNo([
                 'request_status' => 'For HR Prep',
                 'employee_id' => $this->requestEntry->employee_id,
                 'employee_name' => $this->requestEntry->employee_name,

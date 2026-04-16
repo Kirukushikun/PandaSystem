@@ -78,8 +78,7 @@ class PanrecordsTable extends Component
 
             $employee = Employee::where('company_id', $targetUser)->first();
 
-            $newRequest = RequestorModel::create([
-                'request_no' => 'PAN-' . $employee->farm . '-' . now()->year . '-' . rand(100, 999),
+            $newRequest = RequestorModel::createWithGeneratedRequestNo([
                 'request_status' => 'For HR Prep',
                 'employee_id' => $employee->company_id,
                 'employee_name' => $employee->full_name,
@@ -113,13 +112,14 @@ class PanrecordsTable extends Component
 
     public function render()
     {
-        $closedStatuses = [
-            'Approved',
-            'Filed',
-            'Served',
-            'Deleted',
-            'Withdrew',
-            'On Hold',
+        $activeStatuses = [
+            'For Head Approval',
+            'For HR Prep',
+            'For Confirmation',
+            'For HR Approval',
+            'For Resolution',
+            'For Final Approval',
+            'Returned to HR',
         ];
 
         $panRecords = Employee::when($this->search, function ($query) {
@@ -134,19 +134,19 @@ class PanrecordsTable extends Component
             ->addSelect([
                 'has_ongoing' => RequestorModel::selectRaw('COUNT(*)')
                     ->whereColumn('requestor.employee_id', 'employees.company_id')
-                    ->whereNotIn('request_status', $closedStatuses)
+                    ->whereIn('request_status', $activeStatuses)
                     ->where('is_deleted', false),
 
                 'ongoing_pan_status' => RequestorModel::select('request_status')
                     ->whereColumn('requestor.employee_id', 'employees.company_id')
-                    ->whereNotIn('request_status', $closedStatuses)
+                    ->whereIn('request_status', $activeStatuses)
                     ->where('is_deleted', false)
                     ->latest('updated_at')
                     ->limit(1),
 
                 'ongoing_pan_request_no' => RequestorModel::select('request_no')
                     ->whereColumn('requestor.employee_id', 'employees.company_id')
-                    ->whereNotIn('request_status', $closedStatuses)
+                    ->whereIn('request_status', $activeStatuses)
                     ->where('is_deleted', false)
                     ->latest('updated_at')
                     ->limit(1),

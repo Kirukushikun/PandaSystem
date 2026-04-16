@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use App\Models\PreparerModel;
 use Illuminate\Support\Facades\Crypt;
 
@@ -104,6 +106,28 @@ class RequestorModel extends Model
         'is_deleted_by' => 'array',
         'submitted_at' => 'datetime'
     ];
+
+    public static function createWithGeneratedRequestNo(array $attributes): self
+    {
+        return DB::transaction(function () use ($attributes) {
+            $farmCode = $attributes['farm'] ?? 'GEN';
+            $year = now()->year;
+
+            $attributes['request_no'] = 'TMP-' . Str::upper(Str::random(12));
+
+            $request = static::create($attributes);
+
+            $request->request_no = static::buildRequestNo($farmCode, $year, $request->id);
+            $request->save();
+
+            return $request->fresh();
+        });
+    }
+
+    public static function buildRequestNo(string $farmCode, int $year, int $id): string
+    {
+        return 'PAN-' . $farmCode . '-' . $year . '-' . str_pad((string) $id, 4, '0', STR_PAD_LEFT);
+    }
 
     public function preparer()
     {

@@ -193,13 +193,6 @@ class RequestorForm extends Component
         'reup_supporting_file' => 'nullable|file|mimes:pdf|max:5120'
     ];
 
-    private function generateRequestNo()
-    {
-        $farmCode = Auth::user()->farm;
-
-        return 'PAN-' . $farmCode . '-' . now()->year . '-' . rand(100, 999);
-    }
-
     protected function isSupervisor()
     {
         $employee = Employee::where('company_id', $this->employee_id)->first();
@@ -212,8 +205,7 @@ class RequestorForm extends Component
         try {
             $this->validate($this->draftRules);
 
-            RequestorModel::create([
-                'request_no'    => $this->generateRequestNo(),
+            RequestorModel::createWithGeneratedRequestNo([
                 'request_status'=> 'Draft',
                 'employee_id'   => $this->employee_id ?? null,
                 'employee_name' => $this->employee_name ?? null,
@@ -346,8 +338,7 @@ class RequestorForm extends Component
             }
 
             // Create the request record
-            RequestorModel::create([
-                'request_no'          => $this->generateRequestNo(),
+            RequestorModel::createWithGeneratedRequestNo([
                 'request_status'      => 'For Head Approval',
                 'current_handler'     => 'division head',
                 'employee_id'         => $this->employee_id,
