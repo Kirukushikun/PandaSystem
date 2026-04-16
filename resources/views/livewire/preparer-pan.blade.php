@@ -332,14 +332,16 @@
 
         @if($module == 'hr_preparer' && $mode === 'create')
             @if($recentRequestCompleted && !is_null($requestEntry->confidentiality))
-                <div class="flex items-center mb-2 text-sm text-gray-600 ml-2">
-                    <span class="flex items-center gap-2">
-                        <i class="fa-solid fa-arrow-turn-up fa-rotate-90 text-blue-500"></i>
-                        Pre-generated from: 
+                    <span class="absolute right-0 top-0 bg-blue-50 border border-blue-200 text-blue-800 px-3 py-1 rounded-md text-xs flex flex-col gap-1 max-w-[450px]">
+                        <span>
+                            <i class="fa-solid fa-arrow-turn-up fa-rotate-90 text-blue-500"></i>
+                            Pre-generated from: 
                         <a href="/hrpreparer-view?requestID={{ encrypt($recentRequestCompleted->id) }}" target="_blank" class="font-mono font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md cursor-pointer hover:underline">
                             {{$recentRequestCompleted->request_no}}.
                         </a>
-                        <a href="/hrpreparer/employeerecord-view?requestID={{ encrypt($recentRequestCompleted->employee_id) }}" target="_blank" class="text-blue-600 underline font-semibold">See more</a>
+                        @if($recentEmployeeRecordId)
+                        <a href="/hrpreparer/employeerecord-view?requestID={{ encrypt($recentEmployeeRecordId) }}" target="_blank" class="text-blue-600 underline font-semibold">See more</a>
+                        @endif
                     </span>
                 </div>
             @endif

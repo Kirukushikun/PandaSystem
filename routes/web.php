@@ -77,8 +77,12 @@ Route::middleware('auth')->group(function() {
 
 	Route::get('/hrpreparer/employeerecord-view', function(Request $request){
 		$requestID = decrypt($request->requestID);
-		$employee = Employee::where('company_id', $requestID)->first();
-		$requestRecords = RequestorModel::where('employee_id', $requestID)->whereIn('request_status', ['Approved', 'Served', 'Filed'])->latest()->get();
+		$employee = Employee::findOrFail($requestID);
+		$requestRecords = RequestorModel::where('employee_id', $employee->company_id)
+			->where('employee_name', $employee->full_name)
+			->whereIn('request_status', ['Approved', 'Served', 'Filed'])
+			->latest()
+			->get();
 		return view('panda.employeerecord-view', compact('employee', 'requestRecords'));
 	})->middleware('module.access:HRP');
 
@@ -94,8 +98,12 @@ Route::middleware('auth')->group(function() {
 
 	Route::get('/hrapprover/employeerecord-view', function(Request $request){
 		$requestID = decrypt($request->requestID);
-		$employee = Employee::where('company_id', $requestID)->first();
-		$requestRecords = RequestorModel::where('employee_id', $requestID)->whereIn('request_status', ['Approved', 'Served', 'Filed'])->latest()->get();
+		$employee = Employee::findOrFail($requestID);
+		$requestRecords = RequestorModel::where('employee_id', $employee->company_id)
+			->where('employee_name', $employee->full_name)
+			->whereIn('request_status', ['Approved', 'Served', 'Filed'])
+			->latest()
+			->get();
 		return view('panda.employeerecord-view', compact('employee', 'requestRecords'));
 	})->middleware('module.access:HRP');
 
@@ -132,8 +140,12 @@ Route::middleware('auth')->group(function() {
 
 	Route::get('/approver/employeerecord-view', function(Request $request){
 		$requestID = decrypt($request->requestID);
-		$employee = Employee::where('company_id', $requestID)->first();
-		$requestRecords = RequestorModel::where('employee_id', $requestID)->whereIn('request_status', ['Approved', 'Served', 'Filed'])->latest()->get();
+		$employee = Employee::findOrFail($requestID);
+		$requestRecords = RequestorModel::where('employee_id', $employee->company_id)
+			->where('employee_name', $employee->full_name)
+			->whereIn('request_status', ['Approved', 'Served', 'Filed'])
+			->latest()
+			->get();
 		return view('panda.employeerecord-view', compact('employee', 'requestRecords'));
 	})->middleware('module.access:HRP');
 	// ADMIN

@@ -76,7 +76,7 @@ class PanrecordsTable extends Component
                 }
             }
 
-            $employee = Employee::where('company_id', $targetUser)->first();
+            $employee = Employee::findOrFail($targetUser);
 
             $newRequest = RequestorModel::createWithGeneratedRequestNo([
                 'request_status' => 'For HR Prep',
@@ -134,11 +134,13 @@ class PanrecordsTable extends Component
             ->addSelect([
                 'has_ongoing' => RequestorModel::selectRaw('COUNT(*)')
                     ->whereColumn('requestor.employee_id', 'employees.company_id')
+                    ->whereColumn('requestor.employee_name', 'employees.full_name')
                     ->whereIn('request_status', $activeStatuses)
                     ->where('is_deleted', false),
 
                 'ongoing_pan_status' => RequestorModel::select('request_status')
                     ->whereColumn('requestor.employee_id', 'employees.company_id')
+                    ->whereColumn('requestor.employee_name', 'employees.full_name')
                     ->whereIn('request_status', $activeStatuses)
                     ->where('is_deleted', false)
                     ->latest('updated_at')
@@ -146,6 +148,7 @@ class PanrecordsTable extends Component
 
                 'ongoing_pan_request_no' => RequestorModel::select('request_no')
                     ->whereColumn('requestor.employee_id', 'employees.company_id')
+                    ->whereColumn('requestor.employee_name', 'employees.full_name')
                     ->whereIn('request_status', $activeStatuses)
                     ->where('is_deleted', false)
                     ->latest('updated_at')

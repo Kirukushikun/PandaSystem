@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Models\Employee;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -98,6 +99,8 @@ class EmployeesTable extends Component
     public function createEmployee()
     {
         try {
+            $this->validateEmployeeForm();
+
             Employee::create([
                 'company_id' => $this->company_id,
                 'full_name' => $this->employee_name,
@@ -119,6 +122,8 @@ class EmployeesTable extends Component
     public function updateEmployee()
     {
         try {
+            $this->validateEmployeeForm($this->employeeId);
+
             $employee = Employee::find($this->employeeId);
 
             if (!$employee) {
@@ -174,6 +179,23 @@ class EmployeesTable extends Component
         $this->employee_position = '';
         $this->employee_farm = '';
         $this->employee_department = '';
+    }
+
+    private function validateEmployeeForm($employeeId = null)
+    {
+        $this->validate([
+            'company_id' => [
+                'required',
+                'string',
+                Rule::unique('employees', 'company_id')->ignore($employeeId),
+            ],
+            'employee_name' => 'required|string',
+            'employee_position' => 'required|string',
+            'employee_farm' => 'required|string',
+            'employee_department' => 'required|string',
+        ], [
+            'company_id.unique' => 'This employee ID already exists.',
+        ]);
     }
 
     private function noreloadNotif($type, $header, $message)

@@ -36,11 +36,11 @@
                         <td>{{$record->department}}</td>
                         <td class="table-actions">
                             @if($module == 'hrpreparer')
-                                <button class="bg-blue-600 text-white" onclick="window.location.href='/hrpreparer/employeerecord-view?requestID={{ encrypt($record->company_id) }}'">View Records</button>
+                                <button class="bg-blue-600 text-white" onclick="window.location.href='/hrpreparer/employeerecord-view?requestID={{ encrypt($record->id) }}'">View Records</button>
                             @elseif($module == 'hrapprover')
-                                <button class="bg-blue-600 text-white" onclick="window.location.href='/hrapprover/employeerecord-view?requestID={{ encrypt($record->company_id) }}'">View Records</button>
+                                <button class="bg-blue-600 text-white" onclick="window.location.href='/hrapprover/employeerecord-view?requestID={{ encrypt($record->id) }}'">View Records</button>
                             @else
-                                <button class="bg-blue-600 text-white" onclick="window.location.href='/approver/employeerecord-view?requestID={{ encrypt($record->company_id) }}'">View Records</button>
+                                <button class="bg-blue-600 text-white" onclick="window.location.href='/approver/employeerecord-view?requestID={{ encrypt($record->id) }}'">View Records</button>
                             @endif
                             @if($record->has_ongoing > 0)
                                 <i
@@ -55,7 +55,7 @@
                             @else
                                 <i
                                     class="fa-solid fa-file-circle-plus cursor-pointer"
-                                    @click="showModal = true; targetUser = {{ $record->company_id }}"
+                                    @click="showModal = true; targetUser = {{ $record->id }}"
                                 ></i>
                             @endif
                         </td>

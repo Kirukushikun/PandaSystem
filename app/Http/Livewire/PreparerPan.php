@@ -38,7 +38,7 @@ class PreparerPan extends Component
     public $header, $customHeader , $body;
 
     // for Request No and Pan Prefill
-    public $recentRequestCompleted, $recentPanCompleted, $recentPanCompletedData;
+    public $recentRequestCompleted, $recentPanCompleted, $recentPanCompletedData, $recentEmployeeRecordId;
 
     // for Update Pan
     public $newestRequest, $oldestRequest, $isRecentRequestCompleted, $latestCompletedRequest, $hasNewerOngoing, $canUpdate, $type_of_action;
@@ -103,9 +103,17 @@ class PreparerPan extends Component
             // FIXED: Retrieve previous Request and PAN record base on the employee id
             if($this->requestEntry){    
                 $employee_id = $this->requestEntry->employee_id;
+                $employee_name = $this->requestEntry->employee_name;
+
+                $employeeRecord = Employee::where('company_id', $employee_id)
+                    ->where('full_name', $employee_name)
+                    ->first();
+
+                $this->recentEmployeeRecordId = $employeeRecord?->id;
                 
                 // Most recent completed (Approved / Filed / Served)
                 $this->recentRequestCompleted = RequestorModel::where('employee_id', $employee_id)
+                    ->where('employee_name', $employee_name)
                     ->where('id', '!=', $requestID) // Exclude current request
                     ->whereIn('request_status', ['Approved', 'Served', 'Filed']) // Include completed statuses
                     ->orderBy('created_at', 'desc') // Get the most recent
@@ -113,6 +121,7 @@ class PreparerPan extends Component
 
                 // Always get the most recent COMPLETED request (including the current request)
                 $this->latestCompletedRequest = RequestorModel::where('employee_id', $employee_id)
+                    ->where('employee_name', $employee_name)
                     ->whereIn('request_status', ['Approved', 'Served', 'Filed'])
                     ->orderBy('created_at', 'desc')
                     ->first();
@@ -139,11 +148,13 @@ class PreparerPan extends Component
 
                 // Most recent overall (any status)
                 $this->newestRequest = RequestorModel::where('employee_id', $employee_id)
+                    ->where('employee_name', $employee_name)
                     ->orderBy('created_at', 'desc')
                     ->first();
 
                 // Oldest (if you still need it for your other logic)
                 $this->oldestRequest = RequestorModel::where('employee_id', $employee_id)
+                    ->where('employee_name', $employee_name)
                     ->orderBy('created_at', 'asc')
                     ->first();
 
