@@ -39,6 +39,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('allowance:check-expiry')
             ->dailyAt('07:00')  // Run at 7 AM
             ->emailOutputOnFailure('iversoncraigguno.bfcgroup@gmail.com');
+
+        $schedule->command('cleanup:audit-logs')
+            ->dailyAt('03:00')
+            ->emailOutputOnFailure('iversoncraigguno.bfcgroup@gmail.com');
     }
 
     /**
