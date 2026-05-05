@@ -57,6 +57,7 @@ class PanAccessMap
             24 => 'Purchasing',
             63 => 'Purchasing',
             61 => 'Human Resources',
+            13 => 'Sales & Marketing',
         ];
     }
 
@@ -113,6 +114,7 @@ class PanAccessMap
             5 => ['IT and Security Services'],
             24 => ['Purchasing'],
             63 => ['Purchasing'],
+            13 => ['Sales & Marketing'],
         ];
     }
 
@@ -134,6 +136,7 @@ class PanAccessMap
             5 => 'IT and Security Services',
             63 => 'Purchasing',
             61 => 'Human Resources',
+            13 => 'Sales & Marketing',
         ];
     }
 
