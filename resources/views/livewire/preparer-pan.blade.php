@@ -207,9 +207,9 @@
             <div class="input-group">
                 <label for="employment_status">Employment Status:</label>
                 @if($recentRequestCompleted)
-                    <input type="text" id="employment_status" type="text" class="form-input" wire:model="employment_status" x-ref="employment_status" readonly>
+                    <input id="employment_status" type="text" class="form-input" wire:model="employment_status" x-ref="employment_status" readonly>
                 @else 
-                    <select id="employment_status" type="text" class="form-input" wire:model="employment_status" x-ref="employment_status" {{$isDisabled ? 'Disabled' : '' }}>
+                    <select id="employment_status" class="form-input" wire:model="employment_status" x-ref="employment_status" {{$isDisabled ? 'Disabled' : '' }}>
                         <option value=""></option>
                         <option value="Probationary">Probationary</option>
                         <option value="Regular">Regular</option>
@@ -267,7 +267,7 @@
             @else 
                 <div class="input-group">
                     <label for="date_of_effectivity">Date of Effectivity:</label>
-                    <input id="date_of_effectivity" type="text" x-ref="date_of_effectivity" value="{{$panEntry->doe_from->format('m/d/Y') }} - {{$panEntry->doe_to->format('m/d/Y') }}" {{$isDisabled ? 'Readonly' : '' }} />
+                    <input id="date_of_effectivity" type="text" x-ref="date_of_effectivity" value="{{ optional($panEntry?->doe_from)->format('m/d/Y') }} - {{ optional($panEntry?->doe_to)->format('m/d/Y') }}" {{$isDisabled ? 'Readonly' : '' }} />
                 </div>
             @endif
 
@@ -332,8 +332,8 @@
 
         @if($module == 'hr_preparer' && $mode === 'create')
             @if($recentRequestCompleted && !is_null($requestEntry->confidentiality))
-                    <span class="absolute right-0 top-0 bg-blue-50 border border-blue-200 text-blue-800 px-3 py-1 rounded-md text-xs flex flex-col gap-1 max-w-[450px]">
-                        <span>
+                <div class="absolute right-0 top-0 bg-blue-50 border border-blue-200 text-blue-800 px-3 py-1 rounded-md text-xs flex flex-col gap-1 max-w-[450px]">
+                    <span>
                             <i class="fa-solid fa-arrow-turn-up fa-rotate-90 text-blue-500"></i>
                             Pre-generated from: 
                         <a href="/hrpreparer-view?requestID={{ encrypt($recentRequestCompleted->id) }}" target="_blank" class="font-mono font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-md cursor-pointer hover:underline">
@@ -390,14 +390,14 @@
                             Tag as Manila
                         </button>                            
                     @endif
-                    <button type="button" @click="resetForm()" class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
+                    <button type="button" @click="window.panForm?.resetForm?.()" class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
                 </div>
             @endif
             
             @if($requestEntry->request_status == 'For Resolution')
             <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
                 <button type="button" @click="validateBeforeModal('resubmit')" class="border border-3 border-blue-600 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2">Resubmit for Confirmation</button>
-                <button type="button" @click="resetForm()" class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
+                <button type="button" @click="window.panForm?.resetForm?.()" class="border-3 border-gray-400 text-gray-700 px-4 py-2 transition-colors duration-300 hover:bg-gray-200">Reset</button>
             </div>
             @elseif($requestEntry->request_status == 'Approved')
             <div class="form-buttons  bottom-0 right-0 flex gap-3 justify-end pb-10 md:pb-0 md:mb-0 md:absolute">
@@ -591,12 +591,15 @@
                         @click="
                             showModal = false;
                             const config = modalConfig[modalTarget];
+                            if (!config?.action || typeof $wire[config.action] !== 'function') {
+                                return;
+                            }
                             if (config?.needsFormData) {
-                                $wire[config.action](window.panForm.getFormData());
+                                $wire[config.action](window.panForm?.getFormData?.() || []);
                             } else {
                                 $wire[config.action]();
                             }
-                            resetForm();
+                            window.panForm?.resetForm?.();
                         "
                      class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">Confirm</button>
                 </div>

@@ -187,6 +187,8 @@ class PreparerPan extends Component
         'date_hired' => 'required|date',
         'employment_status' => 'required|string',
         'division' => 'required|string',
+        'date_of_effectivity_from' => 'required|date',
+        'date_of_effectivity_to' => 'required|date|after_or_equal:date_of_effectivity_from',
         'remarks' => 'nullable|string',
     ];
 
@@ -264,60 +266,15 @@ class PreparerPan extends Component
 
     public function submitPan($formData){
         try{
-
-            // Cast to collection for easy searching
-            $data = collect($formData);
-
-            // List of tracked allowances
-            $targetAllowances = [
-                'Developmental Assignments',
-                'Interim Allowance',
-                'Training Allowance',
-            ];
-
-            // Check if any of these exist in the formData
-            $hasAllowance = $data->contains(function ($item) use ($targetAllowances) {
-                return in_array($item['field'], $targetAllowances);
-            });
-
+            $formData = $this->normalizeActionReferenceData($formData);
             $this->validate();
+
             $this->requestEntry->request_status = 'For Confirmation';
             $this->requestEntry->hr_id = Auth::user()->id;
             $this->requestEntry->save();
 
-            if($this->panEntry){
-                // Update existing record
-                $this->panEntry->date_hired = $this->date_hired;
-                $this->panEntry->employment_status = $this->employment_status;
-                $this->panEntry->division = $this->division;
-                $this->panEntry->doe_from = $this->date_of_effectivity_from;
-                $this->panEntry->doe_to = $this->date_of_effectivity_to;
-                $this->panEntry->action_reference_data = $formData;
-                $this->panEntry->wage_no = $this->wage_no ?? null;
-                $this->panEntry->remarks = $this->remarks;
-                $this->panEntry->has_allowances = $hasAllowance;
-                $this->panEntry->prepared_by = Auth::user()->name;
-                $this->panEntry->save();
-
-                Cache::forget("requestor_{$this->requestID}");
-                Cache::forget("preparer_{$this->requestID}");
-            }else{
-                PreparerModel::create([
-                    'request_id' => $this->requestID,
-                    'date_hired' => $this->date_hired,
-                    'employment_status' => $this->employment_status,
-                    'division' => $this->division,
-                    'doe_from' => $this->date_of_effectivity_from,
-                    'doe_to' => $this->date_of_effectivity_to,
-                    'wage_no' => $this->wage_no ?? null,
-                    'action_reference_data' => $formData,
-                    'remarks' => $this->remarks,
-                    'has_allowances' => $hasAllowance,
-                    'prepared_by' => Auth::user()->name,
-                ]);       
-                
-                Cache::forget("requestor_{$this->requestID}");
-            }
+            $this->savePanEntry($formData);
+            $this->forgetPanCache();
 
             $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Prep', 'Created PAN');
 
@@ -339,45 +296,15 @@ class PreparerPan extends Component
 
     public function resubmitPan($formData){
         try{
-            // Cast to collection for easy searching
-            $data = collect($formData);
-
-            // List of tracked allowances
-            $targetAllowances = [
-                'Developmental Assignments',
-                'Interim Allowance',
-                'Training Allowance',
-            ];
-
-            // Check if any of these exist in the formData
-            $hasAllowance = $data->contains(function ($item) use ($targetAllowances) {
-                return in_array($item['field'], $targetAllowances);
-            });
-
+            $formData = $this->normalizeActionReferenceData($formData);
             $this->validate();
 
             // Update request status
             $this->requestEntry->request_status = 'For Confirmation';
             $this->requestEntry->save();
 
-            // Fetch existing Preparer entry
-            $panEntry = PreparerModel::where('request_id', $this->requestID)->first();
-
-            // Update existing record
-            $panEntry->date_hired = $this->date_hired;
-            $panEntry->employment_status = $this->employment_status;
-            $panEntry->division = $this->division;
-            $panEntry->wage_no = $this->wage_no ?? null;
-            $panEntry->doe_from = $this->date_of_effectivity_from;
-            $panEntry->doe_to = $this->date_of_effectivity_to;
-            $panEntry->division = $this->division;
-            $panEntry->action_reference_data = $formData;
-            $panEntry->has_allowances = $hasAllowance;
-            $panEntry->remarks = $this->remarks;
-            $panEntry->save();
-
-            Cache::forget("requestor_{$this->requestID}");
-            Cache::forget("preparer_{$this->requestID}");
+            $this->savePanEntry($formData);
+            $this->forgetPanCache();
 
             $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Prep', 'Resubmitted PAN');
 
@@ -403,8 +330,6 @@ class PreparerPan extends Component
             $this->validate([
                 'type_of_action' => 'required|string',
             ]);
-
-            $employee = Employee::where('company_id', $this->requestEntry->employee_id)->first();
 
             $newRequest = RequestorModel::createWithGeneratedRequestNo([
                 'request_status' => 'For HR Prep',
@@ -782,5 +707,66 @@ class PreparerPan extends Component
             'module' => $module,
             'action' => $action
         ]);
+    }
+
+    private function savePanEntry(array $formData): void
+    {
+        $hasAllowance = $this->hasTrackedAllowance($formData);
+
+        PreparerModel::updateOrCreate(
+            ['request_id' => $this->requestID],
+            [
+                'date_hired' => $this->date_hired,
+                'employment_status' => $this->employment_status,
+                'division' => $this->division,
+                'doe_from' => $this->date_of_effectivity_from,
+                'doe_to' => $this->date_of_effectivity_to,
+                'wage_no' => $this->wage_no ?? null,
+                'action_reference_data' => $formData,
+                'remarks' => $this->remarks,
+                'has_allowances' => $hasAllowance,
+                'prepared_by' => Auth::user()->name,
+            ]
+        );
+    }
+
+    private function normalizeActionReferenceData($formData): array
+    {
+        if (!is_array($formData)) {
+            return [];
+        }
+
+        return collect($formData)
+            ->filter(function ($item) {
+                return is_array($item) && !empty($item['field']);
+            })
+            ->map(function ($item) {
+                return [
+                    'field' => $item['field'],
+                    'from' => $item['from'] ?? '',
+                    'to' => $item['to'] ?? '',
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    private function hasTrackedAllowance(array $formData): bool
+    {
+        $targetAllowances = [
+            'Developmental Assignments',
+            'Interim Allowance',
+            'Training Allowance',
+        ];
+
+        return collect($formData)->contains(function ($item) use ($targetAllowances) {
+            return in_array($item['field'] ?? null, $targetAllowances);
+        });
+    }
+
+    private function forgetPanCache(): void
+    {
+        Cache::forget("requestor_{$this->requestID}");
+        Cache::forget("preparer_{$this->requestID}");
     }
 }

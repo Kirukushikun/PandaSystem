@@ -92,7 +92,7 @@
                                     @endif
                                 @endif
                                 
-                                @if(!in_array($request->request_status, ['Served', 'Filed']))
+                                @if(in_array($request->request_status, ['For HR Prep', 'For Resolution']))
                                     <i class="fa-solid fa-trash text-red-600" @click="showModal = true; targetEntry = {{$request->id}}"></i>
                                 @endif
                             </td>

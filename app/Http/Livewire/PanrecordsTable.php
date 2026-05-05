@@ -29,6 +29,16 @@ class PanrecordsTable extends Component
 
     public $supporting_file;
 
+    private const ACTIVE_STATUSES = [
+        'For Head Approval',
+        'For HR Prep',
+        'For Confirmation',
+        'For HR Approval',
+        'For Resolution',
+        'For Final Approval',
+        'Returned to HR',
+    ];
+
     public function mount($module = null){
         if($module){
             $this->module = $module;
@@ -78,6 +88,23 @@ class PanrecordsTable extends Component
 
             $employee = Employee::findOrFail($targetUser);
 
+            $hasOngoingPan = RequestorModel::where('employee_id', $employee->company_id)
+                ->where('employee_name', $employee->full_name)
+                ->whereIn('request_status', self::ACTIVE_STATUSES)
+                ->where('is_deleted', false)
+                ->exists();
+
+            if ($hasOngoingPan) {
+                $this->redirect('/hrpreparer');
+                $this->reloadNotif(
+                    'failed',
+                    'PAN Already In Progress',
+                    'This employee already has an ongoing PAN request.'
+                );
+
+                return;
+            }
+
             $newRequest = RequestorModel::createWithGeneratedRequestNo([
                 'request_status' => 'For HR Prep',
                 'employee_id' => $employee->company_id,
@@ -112,16 +139,6 @@ class PanrecordsTable extends Component
 
     public function render()
     {
-        $activeStatuses = [
-            'For Head Approval',
-            'For HR Prep',
-            'For Confirmation',
-            'For HR Approval',
-            'For Resolution',
-            'For Final Approval',
-            'Returned to HR',
-        ];
-
         $panRecords = Employee::when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('company_id', 'like', '%' . $this->search . '%')
@@ -135,13 +152,13 @@ class PanrecordsTable extends Component
                 'has_ongoing' => RequestorModel::selectRaw('COUNT(*)')
                     ->whereColumn('requestor.employee_id', 'employees.company_id')
                     ->whereColumn('requestor.employee_name', 'employees.full_name')
-                    ->whereIn('request_status', $activeStatuses)
+                    ->whereIn('request_status', self::ACTIVE_STATUSES)
                     ->where('is_deleted', false),
 
                 'ongoing_pan_status' => RequestorModel::select('request_status')
                     ->whereColumn('requestor.employee_id', 'employees.company_id')
                     ->whereColumn('requestor.employee_name', 'employees.full_name')
-                    ->whereIn('request_status', $activeStatuses)
+                    ->whereIn('request_status', self::ACTIVE_STATUSES)
                     ->where('is_deleted', false)
                     ->latest('updated_at')
                     ->limit(1),
@@ -149,7 +166,7 @@ class PanrecordsTable extends Component
                 'ongoing_pan_request_no' => RequestorModel::select('request_no')
                     ->whereColumn('requestor.employee_id', 'employees.company_id')
                     ->whereColumn('requestor.employee_name', 'employees.full_name')
-                    ->whereIn('request_status', $activeStatuses)
+                    ->whereIn('request_status', self::ACTIVE_STATUSES)
                     ->where('is_deleted', false)
                     ->latest('updated_at')
                     ->limit(1),

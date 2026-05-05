@@ -56,10 +56,23 @@ class HrpreparerTable extends Component
         try{             
             $this->validate([
                 'header' => 'required|string',
-                'body' => 'nullable|string'
+                'customHeader' => 'required_if:header,Other|nullable|string',
+                'body' => 'required|string'
             ]);
 
             $reason = $this->header === 'Other' ? $this->customHeader : $this->header;
+            $request = RequestorModel::findOrFail($targetEntry);
+
+            if (!in_array($request->request_status, ['For HR Prep', 'For Resolution'])) {
+                $this->redirect('/hrpreparer'); 
+                session()->flash('notif', [
+                    'type' => 'failed',
+                    'header' => 'Deletion Not Allowed',
+                    'message' => 'Only PAN requests that are still with HR Preparer can be deleted.'
+                ]);
+
+                return;
+            }
 
             LogModel::create([
                 'request_id' => $targetEntry,
@@ -70,8 +83,6 @@ class HrpreparerTable extends Component
             ]);
 
             Cache::forget("log_{$targetEntry}");
-
-            $request = RequestorModel::findOrFail($targetEntry);
 
             $request->request_status = 'Deleted';
             $request->is_deleted = true;

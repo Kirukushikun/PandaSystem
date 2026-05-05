@@ -88,10 +88,14 @@
                     <select name="type_of_action" wire:model="type_of_action" required>
                         <option value="">Select type of action</option>
                         <option value="Regularization">Regularization</option>
+                        <option value="Salary Alignment">Salary Alignment</option>
                         <option value="Wage Order">Wage Order</option>
                         <option value="Lateral Transfer">Lateral Transfer</option>
                         <option value="Developmental Assignment">Developmental Assignment</option>
                         <option value="Interim Allowance">Interim Allowance</option>
+                        <option value="Promotion">Promotion</option>
+                        <option value="Training Status">Training Status</option>
+                        <option value="Confirmation of Appointment">Confirmation of Appointment</option>
                         <option value="Discontinuance of Interim Allowance">Discontinuance of Allowance</option>
                         <option value="Confirmation of Development Assignment">Confirmation of Dev. Assignment</option>
                         <option value="Other Allowances">Other Allowances</option>
