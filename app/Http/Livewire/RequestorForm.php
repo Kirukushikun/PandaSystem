@@ -121,6 +121,20 @@ class RequestorForm extends Component
         'reup_supporting_file' => 'nullable|file|mimes:pdf|max:5120'
     ];
 
+    public function updatedSupportingFile()
+    {
+        $this->validateOnly('supporting_file', [
+            'supporting_file' => 'nullable|file|mimes:pdf|max:5120'
+        ]);
+    }
+
+    public function updatedReupSupportingFile()
+    {
+        $this->validateOnly('reup_supporting_file', [
+            'reup_supporting_file' => 'nullable|file|mimes:pdf|max:5120'
+        ]);
+    }
+
     protected function isSupervisor()
     {
         $employee = Employee::where('company_id', $this->employee_id)->first();
