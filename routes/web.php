@@ -158,18 +158,6 @@ Route::middleware('auth')->group(function() {
 });
 
 
-
-Route::get('/testing', function(){
-	$user = User::find(61); 
-	Auth::login($user);
-	if(Auth::user()->role == 'admin'){
-		return view('home');
-	}else{
-		return redirect('/logout');
-	}
-});
-
-
 Route::get('/gs', function () {
 	return GS::service1();
 });
