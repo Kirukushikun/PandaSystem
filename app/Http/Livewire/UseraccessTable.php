@@ -5,16 +5,18 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\Department;
 use App\Models\User;
 use Illuminate\Support\Facades\Crypt;
 use Livewire\WithFileUploads;
 
 class UseraccessTable extends Component
-{   
+{
     use WithFileUploads;
 
     public $users = [];
     public $dbUsers = [];
+    public $departments = [];
     public $esignUpload; // holds the selected file
     public $currentUserId; // track which user is being updated
 
@@ -26,6 +28,8 @@ class UseraccessTable extends Component
 
         // Step 2: Fetch local DB users (with access JSON) and map by ID
         $this->dbUsers = User::all()->keyBy('id');
+
+        $this->departments = Department::orderBy('name')->get();
     }
 
     public function fetchUsers()
@@ -156,6 +160,51 @@ class UseraccessTable extends Component
         $this->dispatch('$refresh');
         
         $this->noreloadNotif('success', ucfirst($action) . ' Successful', "The user's access for {$role} Module has been successfully {$action}ed.");
+    }
+
+    public function saveDepartments($userId, $name, $departmentIds, $headDepartmentIds = [])
+    {
+        $departmentIds = array_map('intval', $departmentIds ?? []);
+        $headDepartmentIds = array_map('intval', $headDepartmentIds ?? []);
+
+        $user = User::find($userId);
+
+        if (!$user) {
+            if (empty($departmentIds) && empty($headDepartmentIds)) {
+                $this->noreloadNotif('error', 'Nothing To Save', 'Select at least one department, or grant a module first.');
+                return;
+            }
+
+            $user = User::create([
+                'id' => $userId,
+                'name' => $name,
+                'access' => [
+                    'RQ_Module' => false,
+                    'DH_Module' => false,
+                    'HRP_Module' => false,
+                    'HRA_Module' => false,
+                    'FA_Module' => false,
+                ],
+            ]);
+        }
+
+        // Requestor access and division-head status are independent: a user may
+        // head a department without submitting requests for it (e.g. an overall
+        // approver of division heads), or vice versa. Union covers both cases.
+        $allDepartmentIds = array_unique(array_merge($departmentIds, $headDepartmentIds));
+
+        $user->departmentMemberships()->sync(
+            collect($allDepartmentIds)->mapWithKeys(fn ($id) => [
+                $id => [
+                    'is_requestor' => in_array($id, $departmentIds),
+                    'is_head' => in_array($id, $headDepartmentIds),
+                ],
+            ])
+        );
+
+        $this->dbUsers->put($userId, $user->fresh());
+
+        $this->noreloadNotif('success', 'Departments Updated', "Department access for {$user->name} has been saved.");
     }
 
     public function render()

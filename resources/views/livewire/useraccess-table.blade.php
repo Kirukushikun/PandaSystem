@@ -6,7 +6,7 @@
     <div class="table-container" 
         x-data="{
             modalOpen: false,
-            modalType: 'confirm', // confirm | edit
+            modalType: 'confirm', // confirm | edit | department
             modalData: {},
 
             openConfirm(id, action, role, name = null) {
@@ -31,6 +31,17 @@
                     role: user.role ?? ''
                 };
                 this.modalOpen = true;
+            },
+
+            openDepartments(user) {
+                this.modalType = 'department';
+                this.modalData = {
+                    id: user.id,
+                    name: user.name,
+                    departmentIds: user.departmentIds ?? [],
+                    headDepartmentIds: user.headDepartmentIds ?? []
+                };
+                this.modalOpen = true;
             }
         }"
     >
@@ -42,6 +53,7 @@
                     <th>User Email</th>
                     <th>Farm</th>
                     <th>Position</th>
+                    <th>Departments</th>
                     <th>RQ Module</th>
                     <th>DH Module</th>
                     <th>HRP Module</th>
@@ -62,6 +74,8 @@
                             'FA_Module' => false
                         ];
                         $fullname = $user['first_name'] . ' ' . $user['last_name'];
+                        $userDepartments = $dbUser?->departments ?? collect();
+                        $headDepartments = $dbUser?->headedDepartments ?? collect();
                     @endphp
                     <tr>
                         <td>{{ $user['id'] }}</td>
@@ -72,6 +86,26 @@
                         </td>
                         <td>
                             {{$dbUser->position ?? '--'}}
+                        </td>
+                        <td>
+                            <div x-data class="flex flex-col gap-1">
+                                @forelse($userDepartments as $dept)
+                                    <span class="text-xs">{{ $dept->name }}</span>
+                                @empty
+                                    <span class="text-xs text-gray-400">--</span>
+                                @endforelse
+
+                                @if($headDepartments->isNotEmpty())
+                                    <span class="text-xs font-semibold text-blue-600">Head: {{ $headDepartments->pluck('name')->implode(', ') }}</span>
+                                @endif
+
+                                <i @click="openDepartments({
+                                        id: {{ $user['id'] }},
+                                        name: '{{ $fullname }}',
+                                        departmentIds: {{ $userDepartments->pluck('id')->values()->toJson() }},
+                                        headDepartmentIds: {{ $headDepartments->pluck('id')->values()->toJson() }}
+                                    })" class="fa-solid fa-pen-to-square text-gray-500 cursor-pointer"></i>
+                            </div>
                         </td>
                         <td class="table-actions">
                             @if($access['RQ_Module'])
@@ -173,8 +207,8 @@
             x-transition:leave-end="opacity-0 scale-90"
             class="fixed inset-0 flex items-center justify-center z-50"
         >
-            <div class="bg-white p-6 rounded-lg shadow-lg w-md z-10">
-                
+            <div class="bg-white p-6 rounded-lg shadow-lg z-10" :class="modalType === 'department' ? 'w-auto' : 'w-md'">
+
                 <!-- Confirm Modal -->
                 <template x-if="modalType === 'confirm'">
                     <div>
@@ -229,6 +263,64 @@
                             <button type="button" @click="modalOpen = false" class="px-4 py-2 border rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
                             <button type="button"
                                 @click="modalOpen = false; $wire.updateUser(modalData)"
+                                class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Departments Modal -->
+                <template x-if="modalType === 'department'">
+                    <div class="w-[700px]">
+                        <h2 class="text-xl font-semibold" x-text="modalData.name"></h2>
+                        <p class="text-sm text-gray-500 mb-4">Requestor and Head are independent — a user can head a department without being a requestor for it (e.g. an overall approver of division heads), and a department can have more than one head.</p>
+
+                        <div class="border rounded-md overflow-hidden mb-4">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-50 text-gray-500">
+                                    <tr>
+                                        <th class="text-left font-medium px-3 py-2">Department</th>
+                                        <th class="font-medium px-3 py-2 w-28">
+                                            Requestor
+                                            <button type="button" class="block w-full text-[11px] font-normal text-blue-600 hover:underline"
+                                                @click="modalData.departmentIds = modalData.departmentIds.length === {{ $departments->count() }} ? [] : {{ $departments->pluck('id')->values()->toJson() }}"
+                                                x-text="modalData.departmentIds.length === {{ $departments->count() }} ? 'Clear all' : 'Select all'"></button>
+                                        </th>
+                                        <th class="font-medium px-3 py-2 w-28">
+                                            Head
+                                            <button type="button" class="block w-full text-[11px] font-normal text-blue-600 hover:underline"
+                                                @click="modalData.headDepartmentIds = modalData.headDepartmentIds.length === {{ $departments->count() }} ? [] : {{ $departments->pluck('id')->values()->toJson() }}"
+                                                x-text="modalData.headDepartmentIds.length === {{ $departments->count() }} ? 'Clear all' : 'Select all'"></button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($departments as $dept)
+                                        @php $currentHeads = $dept->heads->pluck('name')->implode(', '); @endphp
+                                        <tr class="border-t">
+                                            <td class="px-3 py-2">
+                                                {{ $dept->name }}
+                                                @if($currentHeads)
+                                                    <div class="text-xs text-gray-400">Head: {{ $currentHeads }}</div>
+                                                @endif
+                                            </td>
+                                            <td class="text-center px-3 py-2">
+                                                <input type="checkbox" value="{{ $dept->id }}" x-model.number="modalData.departmentIds">
+                                            </td>
+                                            <td class="text-center px-3 py-2">
+                                                <input type="checkbox" value="{{ $dept->id }}" x-model.number="modalData.headDepartmentIds">
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="flex justify-end gap-3">
+                            <button type="button" @click="modalOpen = false" class="px-4 py-2 border rounded-md hover:bg-gray-100 cursor-pointer">Cancel</button>
+                            <button type="button"
+                                @click="modalOpen = false; $wire.saveDepartments(modalData.id, modalData.name, modalData.departmentIds, modalData.headDepartmentIds)"
                                 class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-800 cursor-pointer">
                                 Save
                             </button>

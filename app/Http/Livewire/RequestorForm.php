@@ -12,7 +12,7 @@ use App\Models\RequestorModel;
 use App\Models\LogModel;
 use App\Models\Employee;
 use App\Models\Audit;
-use App\Support\PanAccessMap;
+use App\Models\User;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -45,9 +45,10 @@ class RequestorForm extends Component
         $this->requestID = $requestID;
         $this->isDisabled = $isDisabled;
 
-        $department = PanAccessMap::requestorDepartmentForUser(Auth::id());
+        $requestorUser = User::find(Auth::id());
+        $departments = $requestorUser ? $requestorUser->departments()->pluck('name') : collect();
 
-        $this->employees = Employee::where('department', $department)->get();
+        $this->employees = Employee::whereIn('department', $departments)->get();
 
         if ($requestID) {
             // Define cache key

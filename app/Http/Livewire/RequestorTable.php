@@ -4,7 +4,7 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\RequestorModel;
-use App\Support\PanAccessMap;
+use App\Models\User;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 
@@ -42,7 +42,8 @@ class RequestorTable extends Component
 
     public function render()
     {   
-        $departments = PanAccessMap::requestorDepartments()[Auth::id()] ?? [];
+        $user = User::find(Auth::id());
+        $departments = $user ? $user->departments()->pluck('name')->toArray() : [];
         
         $myRequests = RequestorModel::when(!empty($departments), function ($query) use ($departments) {
                 $query->whereIn('department', $departments);

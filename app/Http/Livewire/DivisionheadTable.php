@@ -4,7 +4,7 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\RequestorModel;
-use App\Support\PanAccessMap;
+use App\Models\User;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 
@@ -60,11 +60,12 @@ class DivisionheadTable extends Component
             'Deleted',
         ];
 
-        $department = PanAccessMap::divisionHeadDepartmentForUser(Auth::id());
+        $user = User::find(Auth::id());
+        $departments = $user ? $user->headedDepartments()->pluck('name') : collect();
 
         $requests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.requestor') != true")
             ->where('is_deleted', false)
-            ->where('department', $department)
+            ->whereIn('department', $departments)
             ->whereIn('request_status', $statuses)
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
