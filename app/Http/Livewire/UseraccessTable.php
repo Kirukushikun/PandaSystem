@@ -268,6 +268,7 @@ class UseraccessTable extends Component
             $user->farm = $data['farm'] ?? null;
             $user->position = $data['position'] ?? null;
             $user->role = $data['role'] ?? null;
+            $user->is_confidentiality_approver = (bool) ($data['isConfidentialityApprover'] ?? false);
             $user->save();
 
             // Update cached collection (so table refreshes without reload)

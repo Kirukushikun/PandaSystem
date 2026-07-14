@@ -28,12 +28,14 @@ class User extends Authenticatable
         'position',
         'role',
         'access',
-        'esign'
+        'esign',
+        'is_confidentiality_approver'
     ];
 
     protected $casts = [
         'access' => 'array',
-        'hasPending' => 'boolean'
+        'hasPending' => 'boolean',
+        'is_confidentiality_approver' => 'boolean'
     ];
 
     protected $attributes = [

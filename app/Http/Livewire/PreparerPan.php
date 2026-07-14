@@ -343,6 +343,7 @@ class PreparerPan extends Component
                 'supporting_file_name' => $this->requestEntry->supporting_file_name,
                 'requested_by' => $this->requestEntry->requested_by,
                 'submitted_at' => $this->requestEntry->submitted_at,
+                'confidentiality' => $this->requestEntry->confidentiality,
             ]);
 
             // Encrypt the new request ID
@@ -568,9 +569,9 @@ class PreparerPan extends Component
 
             $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Prep', 'PAN Tagged as Manila');
             
-            $this->reloadNotif('success', 'Confidentiality Updated', 'PAN request has been successfully tagged as confidential Manila'); 
+            $this->reloadNotif('success', 'Confidentiality Updated', 'PAN request has been successfully tagged as confidential Manila');
             if(Auth::user()->role == 'hrhead'){
-                return redirect(request()->header('Referer'));
+                $this->redirect('/hrpreparer-view?requestID=' . encrypt($this->requestID));
             } else {
                 $this->redirect('/hrpreparer');
             }
@@ -592,11 +593,11 @@ class PreparerPan extends Component
             Cache::forget("requestor_{$this->requestID}");
 
             $this->registerAudit(Auth::user()->id, Auth::user()->name, 'HR Prep', 'PAN Tagged as Tarlac');
-            $this->reloadNotif('success', 'Confidentiality Updated', 'PAN request has been successfully tagged as confidential Tarlac');   
+            $this->reloadNotif('success', 'Confidentiality Updated', 'PAN request has been successfully tagged as confidential Tarlac');
             if(Auth::user()->role == 'hrhead'){
                 $this->redirect('/hrpreparer');
             } else {
-                return redirect(request()->header('Referer'));
+                $this->redirect('/hrpreparer-view?requestID=' . encrypt($this->requestID));
             }
             
         }catch (\Exception $e) {

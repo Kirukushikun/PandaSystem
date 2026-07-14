@@ -28,7 +28,8 @@
                     id: user.id,
                     farm: user.farm ?? '',
                     position: user.position ?? '',
-                    role: user.role ?? ''
+                    role: user.role ?? '',
+                    isConfidentialityApprover: user.isConfidentialityApprover ?? false
                 };
                 this.modalOpen = true;
             },
@@ -164,7 +165,7 @@
                                             onclick="window.open('{{ asset('storage/' . $dbUser->esign) }}', '_blank')">
                                         </i>
 
-                                        <i @click="openEdit({ id: {{ $user['id'] }}, farm: '{{ $dbUser->farm ?? '' }}', position: '{{ $dbUser->position ?? '' }}', role: '{{ $dbUser->role ?? '' }}' })" class="fa-solid fa-pen-to-square text-gray-500"></i>
+                                        <i @click="openEdit({ id: {{ $user['id'] }}, farm: '{{ $dbUser->farm ?? '' }}', position: '{{ $dbUser->position ?? '' }}', role: '{{ $dbUser->role ?? '' }}', isConfidentialityApprover: {{ $dbUser->is_confidentiality_approver ? 'true' : 'false' }} })" class="fa-solid fa-pen-to-square text-gray-500"></i>
                                     @else {{-- User exists but no e-sign yet --}}
                                         <input type="file" x-ref="fileInput" accept="image/*" class="hidden"
                                             wire:model="esignUpload"
@@ -176,7 +177,7 @@
                                             Upload
                                         </button>
 
-                                        <i @click="openEdit({ id: {{ $user['id'] }}, farm: '{{ $dbUser->farm ?? '' }}', position: '{{ $dbUser->position ?? '' }}', role: '{{ $dbUser->role ?? '' }}' })" class="fa-solid fa-pen-to-square text-gray-500"></i>
+                                        <i @click="openEdit({ id: {{ $user['id'] }}, farm: '{{ $dbUser->farm ?? '' }}', position: '{{ $dbUser->position ?? '' }}', role: '{{ $dbUser->role ?? '' }}', isConfidentialityApprover: {{ $dbUser->is_confidentiality_approver ? 'true' : 'false' }} })" class="fa-solid fa-pen-to-square text-gray-500"></i>
                                         
                                     @endif
                                 @else {{-- User does not exist locally --}}
@@ -257,6 +258,14 @@
                                 <option value="hrhead">HR Head</option>
                                 <option value="admin">ADMIN</option>
                             </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" x-model="modalData.isConfidentialityApprover">
+                                <span class="font-medium">Confidentiality Approver</span>
+                            </label>
+                            <p class="text-xs text-gray-500 mt-1">Sees and confirms Manila-tagged PANs from every department. Regular division heads never see Manila PANs, even for their own department.</p>
                         </div>
 
                         <div class="flex justify-end gap-3">

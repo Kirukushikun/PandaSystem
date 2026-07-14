@@ -62,11 +62,26 @@ class DivisionheadTable extends Component
 
         $user = User::find(Auth::id());
         $departments = $user ? $user->headedDepartments()->pluck('name') : collect();
+        $isConfidentialApprover = (bool) ($user->is_confidentiality_approver ?? false);
 
         $requests = RequestorModel::whereRaw("JSON_EXTRACT(is_deleted_by, '$.requestor') != true")
             ->where('is_deleted', false)
-            ->whereIn('department', $departments)
             ->whereIn('request_status', $statuses)
+            ->where(function ($query) use ($departments, $isConfidentialApprover) {
+                // Manila-confidentiality PANs are hidden from regular division
+                // heads, even for their own department, and shown only to the
+                // designated confidentiality approver, regardless of department.
+                $query->where(function ($q) use ($departments) {
+                    $q->whereIn('department', $departments)
+                        ->where(function ($q2) {
+                            $q2->whereNull('confidentiality')->orWhere('confidentiality', '!=', 'manila');
+                        });
+                });
+
+                if ($isConfidentialApprover) {
+                    $query->orWhere('confidentiality', 'manila');
+                }
+            })
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('request_no', 'like', '%' . $this->search . '%')
