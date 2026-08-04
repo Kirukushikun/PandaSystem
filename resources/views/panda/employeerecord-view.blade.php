@@ -65,6 +65,9 @@
                          </div>
                     </div>
 
+                    <!-- Employee Attachments (legacy/manila-confidential records) -->
+                    @livewire('employee-attachments', ['employee' => $employee])
+
                     <!-- PAN Record -->
                     @forelse($requestRecords as $record)
                          <div class="bg-white shadow rounded-xl p-5 border border-gray-200 flex justify-between items-center">

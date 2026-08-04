@@ -82,11 +82,16 @@ class ExportForV2 extends Command
 
     private function exportRequests(string $dir): void
     {
-        $employeeCompanyIds = Employee::pluck('company_id', 'id');
+        // requestor.employee_id is NOT employees.id (v1's internal PK) — it's already
+        // employees.company_id directly. Verified: employees.id tops out at 502, but
+        // requestor.employee_id ranges 6-1651, matching company_id's range. A pluck('company_id',
+        // 'id') lookup here silently returns null for ~82% of rows (701/853), which the v2-side
+        // importer surfaced as almost every PAN failing employee resolution.
+        $validCompanyIds = Employee::pluck('company_id')->flip();
         $logsByRequest = LogModel::orderBy('id')->get()->groupBy('request_id');
 
         $rows = RequestorModel::with('preparer')->orderBy('id')->get()
-            ->map(function (RequestorModel $r) use ($employeeCompanyIds, $logsByRequest) {
+            ->map(function (RequestorModel $r) use ($validCompanyIds, $logsByRequest) {
                 $p = $r->preparer;
 
                 return [
@@ -95,7 +100,7 @@ class ExportForV2 extends Command
                     'confidentiality' => $r->confidentiality,      // plaintext, e.g. 'tarlac'
                     'farm' => $r->farm,
                     'employee_id' => $r->employee_id,
-                    'employee_company_id' => $employeeCompanyIds->get($r->employee_id), // join key for v2
+                    'employee_company_id' => $validCompanyIds->has($r->employee_id) ? $r->employee_id : null, // join key for v2
                     'employee_name' => $r->employee_name,
                     'department' => $r->department,                // needs v2-side mapping — see summary
                     'type_of_action' => $r->type_of_action,
@@ -150,17 +155,30 @@ class ExportForV2 extends Command
     private function printMappingSummary(string $dir): void
     {
         $departments = RequestorModel::pluck('department')->unique()->filter()->sort()->values();
-        $statusPairs = RequestorModel::query()
-            ->selectRaw('request_status, current_handler, count(*) as c')
-            ->groupBy('request_status', 'current_handler')
+        // request_status alone is the state machine — no application logic ever reads
+        // current_handler. But current_handler is NOT noise for the migration: because
+        // PanrecordsTable::initiatePan() never sets it, the surviving 'requestor' default
+        // marks HR-initiated PANs and 'division head' marks requestor-submitted ones — a
+        // 100%-faithful origin discriminator, agreeing with `requested_by IS NULL` on all
+        // 853 rows. It's emitted per-row above; see MAPPING_NEEDED.md "Origin / initiated-by".
+        $statuses = RequestorModel::query()
+            ->selectRaw('request_status, count(*) as c')
+            ->groupBy('request_status')
+            ->orderByDesc('c')
+            ->get();
+        $actionTypes = RequestorModel::query()
+            ->selectRaw('type_of_action, count(*) as c')
+            ->groupBy('type_of_action')
             ->orderByDesc('c')
             ->get();
 
         File::put($dir.'/MAPPING_NEEDED.md', "# v1 → v2 mapping to decide before importing\n\n"
             ."## Departments seen on requests (map each to one of v2's 11)\n\n"
             .$departments->map(fn ($d) => "- [ ] {$d} → ")->implode("\n")
-            ."\n\n## (request_status, current_handler) pairs seen (map each to a PanStatus)\n\n"
-            .$statusPairs->map(fn ($row) => "- [ ] \"{$row->request_status}\" / \"{$row->current_handler}\" ({$row->c} rows) → ")->implode("\n")
+            ."\n\n## request_status values seen (map each to a PanStatus)\n\n"
+            .$statuses->map(fn ($row) => "- [ ] \"{$row->request_status}\" ({$row->c} rows) → ")->implode("\n")
+            ."\n\n## Action types seen on requests (map each to a v2 ActionType)\n\n"
+            .$actionTypes->map(fn ($row) => "- [ ] \"{$row->type_of_action}\" ({$row->c} rows) → ")->implode("\n")
             ."\n");
 
         $this->line('MAPPING_NEEDED.md — fill this in before writing the v2 importer');

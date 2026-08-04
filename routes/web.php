@@ -105,7 +105,7 @@ Route::middleware('auth')->group(function() {
 			->latest()
 			->get();
 		return view('panda.employeerecord-view', compact('employee', 'requestRecords'));
-	})->middleware('module.access:HRP');
+	})->middleware('module.access:HRA');
 
 	Route::get('/print-view', function(Request $request){
 		$requestID = decrypt($request->requestID);
@@ -147,7 +147,7 @@ Route::middleware('auth')->group(function() {
 			->latest()
 			->get();
 		return view('panda.employeerecord-view', compact('employee', 'requestRecords'));
-	})->middleware('module.access:HRP');
+	})->middleware('module.access:FA');
 	// ADMIN
 	Route::get('/admin', function(){
 		return view('admin.admin');
@@ -155,6 +155,26 @@ Route::middleware('auth')->group(function() {
 
 	Route::get('/export', [PandaController::class, 'export']);
 	Route::post('/import', [PandaController::class, 'import']);
+
+	// Employee attachments (manila-confidentiality scanned/legacy records) —
+	// upload/view restricted to HR Head or HR Approver; also viewable to Final Approver.
+	Route::get('/employee-attachment/{attachment}/download', function (\App\Models\EmployeeAttachment $attachment) {
+		$user = Auth::user();
+		$access = $user->access ?? [];
+		$canView = $user->role === 'hrhead'
+			|| !empty($access['HRA_Module'])
+			|| !empty($access['FA_Module']);
+
+		if (!$canView) {
+			abort(403, 'Unauthorized access to this attachment.');
+		}
+
+		if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($attachment->file_path)) {
+			abort(404);
+		}
+
+		return \Illuminate\Support\Facades\Storage::disk('local')->download($attachment->file_path, $attachment->file_name);
+	})->middleware('module.access:HRP,HRA,FA')->name('employee-attachment.download');
 });
 
 
