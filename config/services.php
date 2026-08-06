@@ -37,4 +37,8 @@ return [
         'auth_user_api_key' => env('AUTH_USER_API_KEY', '12345678'),
     ],
 
+    'legacy_peek' => [
+        'key' => env('LEGACY_PEEK_API_KEY'),
+    ],
+
 ];
