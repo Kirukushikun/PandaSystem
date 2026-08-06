@@ -26,7 +26,7 @@
      
      <x-loader/>
 
-     @if(Auth::check() && !request()->is('print-view*'))
+     @if(Auth::check() && !request()->is('print-view*') && !request()->is('requestor*'))
           @if(Auth::user()->role == 'admin')
                <div class="navigator absolute flex flex-col gap-2 p-5 rounded-md text-gray-600 text-xl font-bold" style="top: 5px; left: 280px">
                     @if(request()->is('requestor*'))

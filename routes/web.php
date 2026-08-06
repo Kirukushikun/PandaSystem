@@ -41,14 +41,13 @@ Route::middleware('auth')->group(function() {
 		return view('home');
 	})->name('home');
 
-	// REQUESTOR
+	// REQUESTOR — module retired in favor of PAN System v2; both routes now show a migration notice.
 	Route::get('/requestor', function(){
-		return view('panda.requestor');
+		return view('panda.requestor-migrated');
 	})->middleware('module.access:RQ');
 
 	Route::get('/requestor-view', function(Request $request){
-		$requestID = decrypt($request->requestID);
-		return view('panda.requestor-view', compact('requestID'));
+		return view('panda.requestor-migrated');
 	})->middleware('module.access:RQ');
 
 
