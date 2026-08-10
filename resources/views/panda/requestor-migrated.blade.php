@@ -19,6 +19,12 @@
                 class="bg-gray-700 text-white text-base font-medium px-8 py-3 rounded-md hover:bg-gray-800 transition-colors cursor-pointer">
                 Go to PAN System v2
             </a>
+
+            <p class="text-sm text-gray-400">
+                Don't have access yet? Message IT Admin privately on
+                <a href="viber://chat?number=%2B639851416343" class="font-medium text-gray-500 underline hover:text-gray-700">Viber</a>
+                (+63 985 141 6343) to request it.
+            </p>
         </div>
     </div>
 @endsection
