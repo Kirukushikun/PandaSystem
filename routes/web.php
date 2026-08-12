@@ -51,16 +51,13 @@ Route::middleware('auth')->group(function() {
 	})->middleware('module.access:RQ');
 
 
-	// DIVISION HEAD
+	// DIVISION HEAD — module retired in favor of PAN System v2; both routes now show a migration notice.
 	Route::get('/divisionhead', function(){
-		return view('panda.divisionhead');
+		return view('panda.divisionhead-migrated');
 	})->middleware('module.access:DH');
 
 	Route::get('/divisionhead-view', function(Request $request){
-		$requestID = decrypt($request->requestID);
-		$panExist = PreparerModel::where('request_id', $requestID)->exists();
-
-		return view('panda.divisionhead-view', compact('requestID', 'panExist'));
+		return view('panda.divisionhead-migrated');
 	})->middleware('module.access:DH');
 
 
